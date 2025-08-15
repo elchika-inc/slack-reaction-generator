@@ -14,16 +14,3 @@ command = "npm run build"
 [dev]
 port = 8787
 local_protocol = "http"
-
-# 環境変数（必要に応じて追加）
-[vars]
-# ENVIRONMENT = "production"
-
-# Routes設定（独自ドメインを使用する場合）
-# [[routes]]
-# pattern = "slack-icon-generator.example.com/*"
-# zone_name = "example.com"
-
-# カスタムドメイン設定（必要に応じて）
-# [[custom_domains]]
-# pattern = "slack-icon-generator.example.com"
