@@ -51,10 +51,10 @@ npm run preview:worker
 - 必要なシークレット: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`
 
 ### Workers設定
-- `public/_worker.js` - SPA対応とセキュリティヘッダー設定
 - `wrangler.toml` - Cloudflare Workers専用設定（Pages機能は削除済み）
-- 静的アセットは`assets`設定で自動配信
-- セキュリティヘッダー、キャッシュ設定をWorkerで管理
+- 静的アセット専用モード: `assets = { directory = "./dist" }`
+- SPAは自動的に処理される（カスタム_worker.js不要）
+- セキュリティとキャッシュはCloudflareのデフォルト設定を使用
 
 ### 設定ファイル
 - `wrangler.toml` - Cloudflare Workers設定（Pages関連削除）
