@@ -46,11 +46,18 @@ npm run preview:worker
 - **Cloudflare Workers/Pages** - ホスティング
 
 ### デプロイ
+- **Cloudflare Workers**: `npm run deploy` または GitHub Actionsで自動デプロイ
 - GitHub Actions (`.github/workflows/deploy.yml`) で main ブランチへのpush時に自動デプロイ
 - 必要なシークレット: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`
 
+### Workers設定
+- `public/_worker.js` - SPA対応とセキュリティヘッダー設定
+- `wrangler.toml` - Cloudflare Workers専用設定（Pages機能は削除済み）
+- 静的アセットは`assets`設定で自動配信
+- セキュリティヘッダー、キャッシュ設定をWorkerで管理
+
 ### 設定ファイル
-- `wrangler.toml` - Cloudflare Workers設定
+- `wrangler.toml` - Cloudflare Workers設定（Pages関連削除）
 - `vite.config.js` - Viteビルド設定（コード分割含む）
 - `tailwind.config.js` - Tailwindカスタマイズ
 - `postcss.config.js` - PostCSS設定
