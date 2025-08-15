@@ -1,0 +1,29 @@
+# Cloudflare Workers configuration
+name = "slack-icon-generator"
+compatibility_date = "2025-01-15"
+compatibility_flags = ["nodejs_compat"]
+
+# 静的アセットの設定
+assets = { directory = "./dist" }
+
+# ビルド設定
+[build]
+command = "npm run build"
+
+# 開発環境設定
+[dev]
+port = 8787
+local_protocol = "http"
+
+# 環境変数（必要に応じて追加）
+[vars]
+# ENVIRONMENT = "production"
+
+# Routes設定（独自ドメインを使用する場合）
+# [[routes]]
+# pattern = "slack-icon-generator.example.com/*"
+# zone_name = "example.com"
+
+# カスタムドメイン設定（必要に応じて）
+# [[custom_domains]]
+# pattern = "slack-icon-generator.example.com"
