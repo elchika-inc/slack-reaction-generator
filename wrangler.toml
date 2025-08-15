@@ -1,5 +1,5 @@
 # Cloudflare Workers configuration
-name = "slack-icon-generator"
+name = "slack-reaction-generator"
 compatibility_date = "2025-01-15"
 compatibility_flags = ["nodejs_compat"]
 
