@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>アイコン生成ツール - Slack Reaction Generator</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            background: linear-gradient(135deg, #a855f7, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 30px;
+        }
+        .canvas-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .canvas-item {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .canvas-item h3 {
+            margin-top: 0;
+            color: #333;
+            font-size: 14px;
+        }
+        canvas {
+            border: 1px solid #ddd;
+            display: block;
+            margin: 10px 0;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+        button {
+            background: linear-gradient(135deg, #a855f7, #ec4899);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: scale(1.05);
+        }
+        .download-all {
+            background: #10b981;
+            padding: 12px 24px;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        .download-all:hover {
+            background: #059669;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Slack Reaction Generator - アイコン生成</h1>
+        <button class="download-all" onclick="downloadAll()">すべてダウンロード</button>
+        
+        <div class="canvas-grid">
+            <!-- Favicon 16x16 -->
+            <div class="canvas-item">
+                <h3>favicon-16x16.png (16x16px)</h3>
+                <canvas id="favicon16" width="16" height="16"></canvas>
+                <button onclick="downloadCanvas('favicon16', 'favicon-16x16.png')">ダウンロード</button>
+            </div>
+
+            <!-- Favicon 32x32 -->
+            <div class="canvas-item">
+                <h3>favicon-32x32.png (32x32px)</h3>
+                <canvas id="favicon32" width="32" height="32"></canvas>
+                <button onclick="downloadCanvas('favicon32', 'favicon-32x32.png')">ダウンロード</button>
+            </div>
+
+            <!-- Apple Touch Icon -->
+            <div class="canvas-item">
+                <h3>apple-touch-icon.png (180x180px)</h3>
+                <canvas id="appleTouch" width="180" height="180"></canvas>
+                <button onclick="downloadCanvas('appleTouch', 'apple-touch-icon.png')">ダウンロード</button>
+            </div>
+
+            <!-- PWA Icon 192 -->
+            <div class="canvas-item">
+                <h3>icon-192.png (192x192px)</h3>
+                <canvas id="icon192" width="192" height="192"></canvas>
+                <button onclick="downloadCanvas('icon192', 'icon-192.png')">ダウンロード</button>
+            </div>
+
+            <!-- PWA Icon 512 -->
+            <div class="canvas-item">
+                <h3>icon-512.png (512x512px)</h3>
+                <canvas id="icon512" width="512" height="512"></canvas>
+                <button onclick="downloadCanvas('icon512', 'icon-512.png')">ダウンロード</button>
+            </div>
+
+            <!-- OG Image -->
+            <div class="canvas-item">
+                <h3>og-image.png (1200x630px)</h3>
+                <canvas id="ogImage" width="1200" height="630" style="max-width: 100%; height: auto;"></canvas>
+                <button onclick="downloadCanvas('ogImage', 'og-image.png')">ダウンロード</button>
+            </div>
+
+            <!-- Twitter Card -->
+            <div class="canvas-item">
+                <h3>twitter-card.png (1200x600px)</h3>
+                <canvas id="twitterCard" width="1200" height="600" style="max-width: 100%; height: auto;"></canvas>
+                <button onclick="downloadCanvas('twitterCard', 'twitter-card.png')">ダウンロード</button>
+            </div>
+
+            <!-- Screenshot -->
+            <div class="canvas-item">
+                <h3>screenshot.png (1280x720px)</h3>
+                <canvas id="screenshot" width="1280" height="720" style="max-width: 100%; height: auto;"></canvas>
+                <button onclick="downloadCanvas('screenshot', 'screenshot.png')">ダウンロード</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // アイコン生成関数
+        function drawIcon(canvasId, width, height, isSquare = true) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            
+            // 背景 - 紫からピンクへのグラデーション（ヘッダーと同じ）
+            const gradient = ctx.createLinearGradient(0, 0, width, height);
+            gradient.addColorStop(0, '#a855f7'); // purple-500
+            gradient.addColorStop(1, '#ec4899'); // pink-500
+            ctx.fillStyle = gradient;
+            
+            if (isSquare) {
+                // 角丸の正方形アイコン
+                const radius = width * 0.2; // より丸みを増やす
+                ctx.beginPath();
+                ctx.moveTo(radius, 0);
+                ctx.lineTo(width - radius, 0);
+                ctx.quadraticCurveTo(width, 0, width, radius);
+                ctx.lineTo(width, height - radius);
+                ctx.quadraticCurveTo(width, height, width - radius, height);
+                ctx.lineTo(radius, height);
+                ctx.quadraticCurveTo(0, height, 0, height - radius);
+                ctx.lineTo(0, radius);
+                ctx.quadraticCurveTo(0, 0, radius, 0);
+                ctx.closePath();
+                ctx.fill();
+            } else {
+                ctx.fillRect(0, 0, width, height);
+            }
+            
+            // テキスト設定
+            ctx.fillStyle = 'white';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
+            ctx.shadowBlur = 2;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 1;
+            
+            if (width <= 32) {
+                // 小さいアイコン用 - ヘッダーと同じ「S」
+                ctx.font = `bold ${width * 0.55}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+                ctx.fillText('S', width / 2, height / 2);
+            } else if (width <= 192) {
+                // 中サイズアイコン用 - 「S」のみ（大きめ）
+                ctx.font = `bold ${width * 0.5}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+                ctx.fillText('S', width / 2, height / 2);
+            } else {
+                // 大きいアイコン用（OG画像など）
+                // アイコン部分を左に配置
+                const iconSize = 120;
+                const iconX = width / 2 - 250;
+                const iconY = height / 2;
+                
+                // アイコン背景
+                const iconGradient = ctx.createLinearGradient(iconX - iconSize/2, iconY - iconSize/2, iconX + iconSize/2, iconY + iconSize/2);
+                iconGradient.addColorStop(0, '#a855f7');
+                iconGradient.addColorStop(1, '#ec4899');
+                ctx.fillStyle = iconGradient;
+                const iconRadius = iconSize * 0.2;
+                ctx.beginPath();
+                ctx.moveTo(iconX - iconSize/2 + iconRadius, iconY - iconSize/2);
+                ctx.lineTo(iconX + iconSize/2 - iconRadius, iconY - iconSize/2);
+                ctx.quadraticCurveTo(iconX + iconSize/2, iconY - iconSize/2, iconX + iconSize/2, iconY - iconSize/2 + iconRadius);
+                ctx.lineTo(iconX + iconSize/2, iconY + iconSize/2 - iconRadius);
+                ctx.quadraticCurveTo(iconX + iconSize/2, iconY + iconSize/2, iconX + iconSize/2 - iconRadius, iconY + iconSize/2);
+                ctx.lineTo(iconX - iconSize/2 + iconRadius, iconY + iconSize/2);
+                ctx.quadraticCurveTo(iconX - iconSize/2, iconY + iconSize/2, iconX - iconSize/2, iconY + iconSize/2 - iconRadius);
+                ctx.lineTo(iconX - iconSize/2, iconY - iconSize/2 + iconRadius);
+                ctx.quadraticCurveTo(iconX - iconSize/2, iconY - iconSize/2, iconX - iconSize/2 + iconRadius, iconY - iconSize/2);
+                ctx.closePath();
+                ctx.fill();
+                
+                // アイコンの「S」
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 72px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('S', iconX, iconY + 10);
+                
+                // タイトルテキスト
+                ctx.textAlign = 'left';
+                ctx.font = 'bold 72px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.fillText('Slack Reaction', iconX + 100, height / 2 - 40);
+                ctx.font = 'bold 64px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.fillText('Generator', iconX + 100, height / 2 + 40);
+                
+                // サブテキスト
+                ctx.font = '32px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+                ctx.fillText('カスタム絵文字を簡単作成', iconX + 100, height / 2 + 100);
+            }
+            
+            // 影をリセット
+            ctx.shadowBlur = 0;
+        }
+
+        // スクリーンショット用の特別な描画
+        function drawScreenshot() {
+            const canvas = document.getElementById('screenshot');
+            const ctx = canvas.getContext('2d');
+            const width = 1280;
+            const height = 720;
+            
+            // 背景グラデーション
+            const bgGradient = ctx.createLinearGradient(0, 0, 0, height);
+            bgGradient.addColorStop(0, '#f3e8ff');
+            bgGradient.addColorStop(1, '#e9d5ff');
+            ctx.fillStyle = bgGradient;
+            ctx.fillRect(0, 0, width, height);
+            
+            // メインコンテナ
+            ctx.fillStyle = 'white';
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.1)';
+            ctx.shadowBlur = 20;
+            ctx.shadowOffsetY = 10;
+            ctx.fillRect(100, 100, width - 200, height - 200);
+            ctx.shadowBlur = 0;
+            
+            // ヘッダー
+            const headerGradient = ctx.createLinearGradient(100, 100, width - 100, 200);
+            headerGradient.addColorStop(0, '#7c3aed');
+            headerGradient.addColorStop(1, '#5b21b6');
+            ctx.fillStyle = headerGradient;
+            ctx.fillRect(100, 100, width - 200, 100);
+            
+            // タイトル
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 48px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Slack Reaction Generator', width / 2, 150);
+            
+            // コンテンツエリア
+            ctx.fillStyle = '#4b5563';
+            ctx.font = '24px Arial';
+            ctx.textAlign = 'left';
+            ctx.fillText('✨ テキストから絵文字を生成', 180, 280);
+            ctx.fillText('🎨 豊富なフォントとスタイル', 180, 330);
+            ctx.fillText('🎬 アニメーション効果', 180, 380);
+            ctx.fillText('📱 モバイル対応', 180, 430);
+            ctx.fillText('💾 GIF/PNG形式でエクスポート', 180, 480);
+            
+            // プレビューエリア
+            ctx.strokeStyle = '#e5e7eb';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(700, 250, 400, 300);
+            
+            // プレビュータイトル
+            ctx.fillStyle = '#6b7280';
+            ctx.font = '18px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('プレビュー', 900, 240);
+            
+            // サンプル絵文字
+            const emojiGradient = ctx.createLinearGradient(825, 350, 975, 450);
+            emojiGradient.addColorStop(0, '#ec4899');
+            emojiGradient.addColorStop(1, '#f97316');
+            ctx.fillStyle = emojiGradient;
+            ctx.fillRect(825, 350, 150, 150);
+            
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 64px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('🎉', 900, 425);
+            
+            // フッター
+            ctx.fillStyle = '#9ca3af';
+            ctx.font = '16px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('https://slack-reaction-generator.elchika.app', width / 2, height - 50);
+        }
+
+        // すべてのキャンバスを初期化
+        function initializeAllCanvases() {
+            // 小さいアイコン
+            drawIcon('favicon16', 16, 16);
+            drawIcon('favicon32', 32, 32);
+            
+            // 中サイズアイコン
+            drawIcon('appleTouch', 180, 180);
+            drawIcon('icon192', 192, 192);
+            drawIcon('icon512', 512, 512);
+            
+            // 大きい画像
+            drawIcon('ogImage', 1200, 630, false);
+            drawIcon('twitterCard', 1200, 600, false);
+            
+            // スクリーンショット
+            drawScreenshot();
+        }
+
+        // キャンバスをダウンロード
+        function downloadCanvas(canvasId, filename) {
+            const canvas = document.getElementById(canvasId);
+            canvas.toBlob(function(blob) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+        }
+
+        // すべてダウンロード
+        function downloadAll() {
+            const items = [
+                { id: 'favicon16', name: 'favicon-16x16.png' },
+                { id: 'favicon32', name: 'favicon-32x32.png' },
+                { id: 'appleTouch', name: 'apple-touch-icon.png' },
+                { id: 'icon192', name: 'icon-192.png' },
+                { id: 'icon512', name: 'icon-512.png' },
+                { id: 'ogImage', name: 'og-image.png' },
+                { id: 'twitterCard', name: 'twitter-card.png' },
+                { id: 'screenshot', name: 'screenshot.png' }
+            ];
+
+            items.forEach((item, index) => {
+                setTimeout(() => {
+                    downloadCanvas(item.id, item.name);
+                }, index * 200); // 遅延を入れて順番にダウンロード
+            });
+        }
+
+        // ページ読み込み時に実行
+        window.onload = initializeAllCanvases;
+    </script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+# Redirects for Slack Reaction Generator
+
+# WWW to non-WWW redirect (if needed)
+# https://www.slack-reaction-generator.elchika.app/* https://slack-reaction-generator.elchika.app/:splat 301!
+
+# HTTP to HTTPS redirect (handled by Cloudflare automatically)
+
+# Backward compatibility redirects
+/slack-icon-generator    /    301
+/emoji-generator         /    301
+/reaction-generator      /    301
+
+# API endpoints (if future implementation)
+/api/*    /.netlify/functions/:splat    200
+
+# 404 fallback for SPA
+/*    /index.html    200

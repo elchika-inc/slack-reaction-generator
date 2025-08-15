@@ -1,0 +1,30 @@
+# Robots.txt for Slack Reaction Generator
+# https://slack-reaction-generator.elchika.app/
+
+User-agent: *
+Allow: /
+Disallow: /node_modules/
+Disallow: /src/
+Disallow: /__docs__/
+
+# Sitemap location
+Sitemap: https://slack-reaction-generator.elchika.app/sitemap.xml
+
+# Crawl-delay (seconds)
+Crawl-delay: 1
+
+# Allow major search engines
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: Baiduspider
+Allow: /

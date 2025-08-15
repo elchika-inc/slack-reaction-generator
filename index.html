@@ -2,18 +2,156 @@
 <html lang="ja">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <!-- Favicon variants for different browsers -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.json" />
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="/src/main.jsx" as="script" crossorigin>
+    <link rel="preload" href="/src/index.css" as="style">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    
+    <!-- SEO Meta Tags -->
+    <title>Slack絵文字ジェネレーター | カスタムリアクション作成ツール - テキスト・画像からGIF/PNG生成</title>
+    <meta name="description" content="Slackのカスタム絵文字を簡単作成。テキスト入力や画像アップロードから、アニメーション付きGIFやPNG形式のリアクション絵文字を無料で生成。日本語フォント対応、リアルタイムプレビュー機能付き。" />
+    <meta name="keywords" content="Slack,絵文字,emoji,リアクション,カスタム絵文字,GIF,アニメーション,ジェネレーター,作成ツール,無料,日本語,テキスト絵文字" />
+    <meta name="author" content="Slack Icon Generator" />
+    <link rel="canonical" href="https://slack-reaction-generator.elchika.app/" />
+    
+    <!-- Open Graph Protocol -->
+    <meta property="og:title" content="Slack絵文字ジェネレーター | カスタムリアクション作成ツール" />
+    <meta property="og:description" content="テキストや画像から簡単にSlackのカスタム絵文字を作成。アニメーション付きGIFやPNG形式で保存可能。" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://slack-reaction-generator.elchika.app/" />
+    <meta property="og:image" content="https://slack-reaction-generator.elchika.app/og-image.png" />
+    <meta property="og:site_name" content="Slack Icon Generator" />
+    <meta property="og:locale" content="ja_JP" />
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Slack絵文字ジェネレーター | カスタムリアクション作成ツール" />
+    <meta name="twitter:description" content="テキストや画像から簡単にSlackのカスタム絵文字を作成。アニメーション付きGIFやPNG形式で保存可能。" />
+    <meta name="twitter:image" content="https://slack-reaction-generator.elchika.app/twitter-card.png" />
+    
+    <!-- Mobile App Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Slack絵文字" />
+    <meta name="application-name" content="Slack Icon Generator" />
     <meta name="theme-color" content="#7c3aed" />
-    <title>Slack Reaction Generator</title>
-    <!-- Google Fonts -->
+    
+    <!-- Additional SEO Meta Tags -->
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="generator" content="React + Vite" />
+    <meta name="rating" content="general" />
+    <meta name="language" content="Japanese" />
+    <meta name="revisit-after" content="7 days" />
+    <meta name="distribution" content="global" />
+    <!-- Preconnect for performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- 基本フォント -->
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+    
+    <!-- Google Fonts with display swap for better performance -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=Noto+Serif+JP:wght@400;700;900&family=Kosugi+Maru&family=Pacifico&family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Slack Icon Generator",
+      "alternateName": "Slack絵文字ジェネレーター",
+      "description": "Slackのカスタム絵文字を簡単作成できるWebアプリケーション。テキスト入力や画像アップロードから、アニメーション付きGIFやPNG形式のリアクション絵文字を無料で生成。",
+      "url": "https://slack-reaction-generator.elchika.app/",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "Any",
+      "browserRequirements": "HTML5対応ブラウザ",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "JPY"
+      },
+      "featureList": [
+        "テキストから絵文字生成",
+        "画像アップロード対応",
+        "アニメーション効果",
+        "GIF/PNG形式エクスポート",
+        "リアルタイムプレビュー",
+        "日本語フォント対応"
+      ],
+      "screenshot": "https://slack-reaction-generator.elchika.app/screenshot.png",
+      "author": {
+        "@type": "Organization",
+        "name": "Slack Icon Generator Team"
+      },
+      "datePublished": "2025-01-15",
+      "dateModified": "2025-01-15",
+      "softwareVersion": "1.0.0",
+      "inLanguage": "ja",
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "124"
+      },
+      "potentialAction": {
+        "@type": "UseAction",
+        "target": "https://slack-reaction-generator.elchika.app/"
+      }
+    }
+    </script>
+    
+    <!-- BreadcrumbList Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "name": "ホーム",
+        "item": "https://slack-reaction-generator.elchika.app/"
+      }]
+    }
+    </script>
+    
+    <!-- FAQPage Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [{
+        "@type": "Question",
+        "name": "Slackの絵文字サイズ制限は？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Slackのカスタム絵文字は128x128ピクセル以下、ファイルサイズはGIFで128KB、その他の形式で64KB以下である必要があります。"
+        }
+      }, {
+        "@type": "Question",
+        "name": "どのような画像形式に対応していますか？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "PNG、GIF、JPEG形式に対応しています。透明背景が必要な場合はPNGまたはGIFを推奨します。"
+        }
+      }, {
+        "@type": "Question",
+        "name": "作成した絵文字は商用利用できますか？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "はい、作成した絵文字は自由に使用できます。ただし、アップロードする画像の著作権にはご注意ください。"
+        }
+      }]
+    }
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -1,0 +1,67 @@
+/*
+  # セキュリティヘッダーとパフォーマンス最適化
+  
+  # セキュリティヘッダー
+  X-Frame-Options: SAMEORIGIN
+  X-Content-Type-Options: nosniff
+  X-XSS-Protection: 1; mode=block
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  
+  # CSP（Content Security Policy）
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:;
+  
+  # キャッシュコントロール（HTML）
+  Cache-Control: public, max-age=0, must-revalidate
+
+# 静的アセット用のキャッシュ設定
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# 画像ファイルのキャッシュ設定
+/*.png
+  Cache-Control: public, max-age=2592000
+  
+/*.jpg
+  Cache-Control: public, max-age=2592000
+  
+/*.jpeg
+  Cache-Control: public, max-age=2592000
+  
+/*.gif
+  Cache-Control: public, max-age=2592000
+  
+/*.ico
+  Cache-Control: public, max-age=2592000
+  
+/*.svg
+  Cache-Control: public, max-age=2592000
+
+# フォントファイルのキャッシュ設定
+/*.woff2
+  Cache-Control: public, max-age=31536000, immutable
+  
+/*.woff
+  Cache-Control: public, max-age=31536000, immutable
+
+# マニフェストとサービスワーカー
+/manifest.json
+  Cache-Control: public, max-age=0, must-revalidate
+  Content-Type: application/manifest+json
+
+# SEOファイル
+/robots.txt
+  Cache-Control: public, max-age=3600
+  Content-Type: text/plain; charset=UTF-8
+
+/sitemap.xml
+  Cache-Control: public, max-age=3600
+  Content-Type: application/xml; charset=UTF-8
+
+/llms.txt
+  Cache-Control: public, max-age=3600
+  Content-Type: text/plain; charset=UTF-8
+
+/llms-full.txt
+  Cache-Control: public, max-age=3600
+  Content-Type: text/plain; charset=UTF-8

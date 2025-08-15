@@ -1,0 +1,249 @@
+# Slack Reaction Generator - 完全ドキュメント
+
+> Slackのカスタム絵文字を簡単に作成できるWebアプリケーション。テキスト入力や画像アップロードから、アニメーション付きGIFやPNG形式のリアクション絵文字を生成します。
+
+## 概要
+
+Slack Reaction Generatorは、Slackワークスペースで使用できるカスタム絵文字を手軽に作成するためのWebベースのツールです。ユーザーはテキストを入力したり、画像をアップロードしたりして、様々なスタイルやアニメーション効果を適用した絵文字を生成できます。
+
+### 主な特徴
+
+- **テキストベース絵文字生成**: 任意のテキストから絵文字を作成
+- **画像アップロード対応**: 既存の画像をSlack絵文字として最適化
+- **豊富なアニメーション**: 回転、バウンス、パルス、シェイクなど
+- **リアルタイムプレビュー**: 編集内容を即座に確認可能
+- **複数フォーマット対応**: GIF（アニメーション）とPNG（静止画）
+- **日本語フォント対応**: 複数の日本語フォントを内蔵
+- **レスポンシブデザイン**: モバイルとデスクトップ両対応
+
+## 技術スタック
+
+### フロントエンド
+- **React 18**: UIコンポーネントライブラリ
+- **Vite**: 高速ビルドツール
+- **Tailwind CSS**: ユーティリティファーストCSSフレームワーク
+
+### 画像処理
+- **Canvas API**: ブラウザネイティブの画像描画
+- **gif.js**: Web WorkerベースのGIF生成ライブラリ
+- **gifenc**: 透明背景対応の代替GIFエンコーダー
+
+### ホスティング
+- **Cloudflare Workers**: エッジコンピューティングプラットフォーム
+- **Cloudflare Pages**: 静的サイトホスティング
+
+## 詳細な使用方法
+
+### 1. テキストから絵文字を作成
+
+#### ステップ1: テキスト入力
+- メインのテキストフィールドに絵文字にしたい文字を入力
+- 最大文字数: 通常2-4文字を推奨（絵文字の視認性のため）
+- 絵文字、特殊文字、日本語も使用可能
+
+#### ステップ2: スタイル設定
+- **フォント選択**:
+  - Noto Sans JP（ゴシック体）
+  - Noto Serif JP（明朝体）
+  - こすぎ丸（丸ゴシック）
+  - Pacifico（装飾英字）
+  - Caveat（手書き風英字）
+
+- **フォントサイズ**: 12px〜128pxの範囲で調整可能
+- **太さ**: Normal、Bold、Extra Boldから選択
+- **スタイル**: 通常、イタリック（斜体）
+
+#### ステップ3: 色設定
+- **テキスト色**: カラーピッカーまたはHEX値で指定
+- **背景色**: 透明または任意の色を選択
+- **グラデーション**: 対応予定
+
+### 2. 画像から絵文字を作成
+
+#### 対応画像形式
+- PNG（推奨）
+- JPEG/JPG
+- GIF（静止画として処理）
+- WebP
+
+#### 画像の最適化
+- 自動リサイズ: 128x128pxに最適化
+- アスペクト比保持オプション
+- 背景除去機能（開発中）
+
+### 3. アニメーション効果
+
+#### 利用可能なアニメーション
+- **なし**: 静止画として出力
+- **回転（Spin）**: 時計回りに360度回転
+- **バウンス（Bounce）**: 上下に弾むアニメーション
+- **パルス（Pulse）**: 拡大縮小を繰り返す
+- **シェイク（Shake）**: 左右に振動
+- **フェード（Fade）**: フェードイン・アウト
+
+#### アニメーション設定
+- **速度**: Slow（2秒）、Normal（1秒）、Fast（0.5秒）
+- **ループ**: 無限ループ（GIF形式のみ）
+
+### 4. エクスポート
+
+#### ファイル形式
+- **PNG**: 静止画、透明背景対応、高品質
+- **GIF**: アニメーション対応、最大256色
+
+#### ダウンロード方法
+1. プレビューで最終確認
+2. 「ダウンロード」ボタンをクリック
+3. ファイル形式を選択
+4. ブラウザのダウンロードフォルダに保存
+
+## Slack絵文字の技術仕様
+
+### サイズ制限
+- **推奨サイズ**: 128x128ピクセル
+- **最大ファイルサイズ**: 
+  - GIF: 128KB
+  - その他: 64KB
+
+### Slackへのアップロード方法
+1. Slackワークスペースの設定を開く
+2. 「絵文字をカスタマイズ」を選択
+3. 「絵文字を追加」をクリック
+4. 生成した画像ファイルを選択
+5. 絵文字の名前を入力（例: :custom_emoji:）
+6. 保存
+
+## プログラマティックアクセス
+
+### Canvas API使用例
+```javascript
+const canvas = document.createElement('canvas');
+const ctx = canvas.getContext('2d');
+canvas.width = 128;
+canvas.height = 128;
+
+// テキスト描画
+ctx.font = 'bold 48px "Noto Sans JP"';
+ctx.textAlign = 'center';
+ctx.textBaseline = 'middle';
+ctx.fillStyle = '#000000';
+ctx.fillText('絵文字', 64, 64);
+```
+
+### GIF生成プロセス
+```javascript
+const gif = new GIF({
+  workers: 2,
+  quality: 10,
+  width: 128,
+  height: 128
+});
+
+// フレーム追加
+for (let i = 0; i < frameCount; i++) {
+  gif.addFrame(canvas, {delay: 100});
+}
+
+// レンダリング
+gif.on('finished', function(blob) {
+  // ダウンロード処理
+});
+gif.render();
+```
+
+## パフォーマンス最適化
+
+### 実装済みの最適化
+- Web Workersによる非同期GIF生成
+- Canvas要素の再利用
+- メモリ効率的なフレームバッファリング
+- 遅延読み込み（Lazy Loading）
+- コード分割（Code Splitting）
+
+### ブラウザ要件
+- Chrome 90以降
+- Firefox 88以降
+- Safari 14以降
+- Edge 90以降
+
+## トラブルシューティング
+
+### よくある問題と解決方法
+
+#### GIFが大きすぎる
+- フレーム数を削減
+- 色数を減らす（ディザリング適用）
+- サイズを小さくする
+
+#### 文字が切れる
+- フォントサイズを調整
+- 文字数を減らす
+- パディングを調整
+
+#### アニメーションが動かない
+- GIF形式を選択しているか確認
+- ブラウザのGIF再生設定を確認
+
+## セキュリティとプライバシー
+
+- すべての処理はクライアントサイドで実行
+- 画像やテキストはサーバーに送信されない
+- ユーザーデータの収集なし
+- HTTPSによる暗号化通信
+
+## 今後の開発予定
+
+### 短期計画（1-3ヶ月）
+- SVGインポート機能
+- カスタムフォントアップロード
+- プリセットテンプレート
+
+### 中期計画（3-6ヶ月）
+- バッチ処理機能
+- Slack API統合
+- チーム共有機能
+
+### 長期計画（6ヶ月以降）
+- AIによる絵文字生成
+- アニメーションエディター
+- プラグインシステム
+
+## コントリビューション
+
+オープンソースプロジェクトとして、コントリビューションを歓迎します。
+
+### 開発環境セットアップ
+```bash
+git clone [repository-url]
+cd slack-icon-generator
+npm install
+npm run dev
+```
+
+### ビルドとデプロイ
+```bash
+npm run build
+npm run deploy
+```
+
+## ライセンス
+
+MIT License
+
+Copyright (c) 2025 Slack Reaction Generator
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software.
+
+## お問い合わせ
+
+- **Website**: https://slack-reaction-generator.elchika.app/
+- **Email**: support@example.com
+- **GitHub Issues**: [repository-url]/issues
+
+---
+
+最終更新日: 2025年1月15日
