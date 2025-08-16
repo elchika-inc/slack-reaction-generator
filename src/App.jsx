@@ -64,7 +64,7 @@ function App() {
 
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+      setIsMobile(window.innerWidth < 1024);
     };
     checkMobile();
     window.addEventListener("resize", checkMobile);
@@ -201,7 +201,7 @@ function App() {
 
     // モバイルの場合は自動でダウンロード
     if (isMobile) {
-      const fileName = `slack-icon-${Date.now()}.${
+      const fileName = `slack-reaction-${Date.now()}.${
         iconSettings.animation !== "none" ? "gif" : "png"
       }`;
       try {
@@ -219,14 +219,14 @@ function App() {
       <Header />
 
       <main
-        className={`container mx-auto px-2 sm:px-4 py-4 md:py-8 ${
+        className={`container mx-auto px-2 lg:px-4 py-4 lg:py-8 ${
           isMobile ? "pb-80" : ""
         }`}
       >
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-8">
           {/* エディタ部分 */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6">
+            <div className="bg-white rounded-xl shadow-lg p-4 lg:p-6">
               <IconEditor
                 settings={iconSettings}
                 onChange={handleSettingsChange}

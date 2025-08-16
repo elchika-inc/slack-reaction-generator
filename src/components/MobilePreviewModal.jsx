@@ -57,7 +57,7 @@ function MobilePreviewModal({ isOpen, onClose, settings, previewData }) {
   }, [settings, isOpen])
 
   const handleDownload = async () => {
-    const fileName = `slack-icon-${Date.now()}.${settings.animation !== 'none' ? 'gif' : 'png'}`
+    const fileName = `slack-reaction-${Date.now()}.${settings.animation !== 'none' ? 'gif' : 'png'}`
     
     try {
       // アニメーションの場合はGIFを生成

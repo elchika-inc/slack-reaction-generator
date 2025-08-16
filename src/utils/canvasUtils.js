@@ -424,17 +424,29 @@ export const drawAnimationFrame = (ctx, settings, frame, totalFrames) => {
   // テキストを描画
   // アニメーションに応じて色を変更
   if (settings.animation === 'rainbow') {
+    // レインボーアニメーション時はグラデーションを無効化してレインボー色を使用
     const hue = progress * 360
-    const modifiedSettings = { ...settings, fontColor: `hsl(${hue}, 100%, 50%)` }
-    drawTextOnly(ctx, modifiedSettings)
-  } else if (settings.animation === 'blink') {
-    // 点滅効果：セカンドカラーと交互に切り替え
-    const useSecondary = Math.sin(progress * Math.PI * 4) > 0
     const modifiedSettings = { 
       ...settings, 
-      fontColor: useSecondary ? settings.fontColor : (settings.secondaryColor || '#FFD700')
+      textColorType: 'solid',  // グラデーションを無効化
+      fontColor: `hsl(${hue}, 100%, 50%)` 
     }
     drawTextOnly(ctx, modifiedSettings)
+  } else if (settings.animation === 'blink') {
+    // 点滅効果：グラデーションとセカンドカラーで切り替え
+    const useSecondary = Math.sin(progress * Math.PI * 4) > 0
+    if (useSecondary) {
+      // セカンドカラーを単色で表示
+      const modifiedSettings = { 
+        ...settings, 
+        textColorType: 'solid',  // グラデーションを無効化
+        fontColor: settings.secondaryColor || '#FFD700'
+      }
+      drawTextOnly(ctx, modifiedSettings)
+    } else {
+      // 通常の設定（グラデーションが設定されていればグラデーションを使用）
+      drawTextOnly(ctx, settings)
+    }
   } else {
     drawTextOnly(ctx, settings)
   }

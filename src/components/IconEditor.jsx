@@ -8,25 +8,25 @@ function IconEditor({ settings, onChange, isMobile }) {
   const [showGradient1Picker, setShowGradient1Picker] = useState(false)
   const [showGradient2Picker, setShowGradient2Picker] = useState(false)
   
-  // アニメーション用のstate
-  const [showAnimationSpeed, setShowAnimationSpeed] = useState(settings.animation !== 'none')
-  const [showSecondaryColor, setShowSecondaryColor] = useState(
-    settings.animation === 'glow' || settings.animation === 'blink'
-  )
+  // アニメーション用のstate（削除）
+  // const [showAnimationSpeed, setShowAnimationSpeed] = useState(settings.animation !== 'none')
+  // const [showSecondaryColor, setShowSecondaryColor] = useState(
+  //   settings.animation === 'glow' || settings.animation === 'blink'
+  // )
   
-  // グラデーション設定表示用のstate
-  const [showGradientSettings, setShowGradientSettings] = useState(settings.textColorType === 'gradient')
+  // グラデーション設定表示用のstate（削除）
+  // const [showGradientSettings, setShowGradientSettings] = useState(settings.textColorType === 'gradient')
   
-  // アニメーション設定が変更されたときに更新
-  useEffect(() => {
-    setShowAnimationSpeed(settings.animation !== 'none')
-    setShowSecondaryColor(settings.animation === 'glow' || settings.animation === 'blink')
-  }, [settings.animation])
+  // アニメーション設定が変更されたときに更新（削除）
+  // useEffect(() => {
+  //   setShowAnimationSpeed(settings.animation !== 'none')
+  //   setShowSecondaryColor(settings.animation === 'glow' || settings.animation === 'blink')
+  // }, [settings.animation])
   
-  // 文字色タイプが変更されたときに更新
-  useEffect(() => {
-    setShowGradientSettings(settings.textColorType === 'gradient')
-  }, [settings.textColorType])
+  // 文字色タイプが変更されたときに更新（削除）
+  // useEffect(() => {
+  //   setShowGradientSettings(settings.textColorType === 'gradient')
+  // }, [settings.textColorType])
 
   const fonts = [
     // 日本語フォント
@@ -78,7 +78,7 @@ function IconEditor({ settings, onChange, isMobile }) {
           onChange={(e) => onChange({ text: e.target.value })}
           maxLength={30}
           rows={3}
-          className="w-full px-3 py-3 md:py-2 text-base md:text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none font-mono"
+          className="w-full px-3 py-3 lg:py-2 text-base lg:text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none font-mono"
           placeholder="例: OK\n了解\n👍"
         />
         <div className="mt-1 flex justify-between text-xs text-gray-500">
@@ -121,7 +121,7 @@ function IconEditor({ settings, onChange, isMobile }) {
 
       {/* カラー設定 */}
       <div className="space-y-4 mt-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               文字色
@@ -185,12 +185,8 @@ function IconEditor({ settings, onChange, isMobile }) {
               </div>
             )}
             
-            {/* グラデーション設定（アコーディオン） */}
-            <div 
-              className={`overflow-hidden transition-all duration-300 ease-out ${
-                showGradientSettings ? 'max-h-[400px] opacity-100' : 'max-h-0 opacity-0'
-              }`}
-            >
+            {/* グラデーション設定 */}
+            {settings.textColorType === 'gradient' && (
               <div className="space-y-2 mt-2">
                 {/* グラデーション方向 */}
                 <div className="flex gap-2">
@@ -231,7 +227,7 @@ function IconEditor({ settings, onChange, isMobile }) {
                         className="w-4 h-4 rounded mr-2 border border-gray-300"
                         style={{ backgroundColor: settings.gradientColor1 }}
                       />
-                      開始色: {settings.gradientColor1}
+                      {settings.gradientColor1}
                     </span>
                   </button>
                   {showGradient1Picker && (
@@ -259,7 +255,7 @@ function IconEditor({ settings, onChange, isMobile }) {
                         className="w-4 h-4 rounded mr-2 border border-gray-300"
                         style={{ backgroundColor: settings.gradientColor2 }}
                       />
-                      終了色: {settings.gradientColor2}
+                      {settings.gradientColor2}
                     </span>
                   </button>
                   {showGradient2Picker && (
@@ -276,7 +272,7 @@ function IconEditor({ settings, onChange, isMobile }) {
                   )}
                 </div>
               </div>
-            </div>
+            )}
           </div>
           
           {/* 背景設定 */}
@@ -346,7 +342,7 @@ function IconEditor({ settings, onChange, isMobile }) {
                 <div className="relative">
                   <button
                     onClick={() => setShowBgColorPicker(!showBgColorPicker)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg flex items-center justify-between active:bg-gray-50 text-sm"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg flex items-center justify-center active:bg-gray-50 text-sm"
                   >
                     <span className="flex items-center">
                       <span
@@ -383,7 +379,7 @@ function IconEditor({ settings, onChange, isMobile }) {
         <label className="block text-sm font-medium text-gray-700 mb-3">
           アニメーション効果
         </label>
-        <div className={`grid ${isMobile ? 'grid-cols-3 gap-1.5' : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3'}`}>
+        <div className={`grid ${isMobile ? 'grid-cols-3 gap-1.5' : 'grid-cols-1 lg:grid-cols-3 gap-3'}`}>
           {animations.map((anim) => (
             <button
               key={anim.value}
@@ -407,55 +403,49 @@ function IconEditor({ settings, onChange, isMobile }) {
       </div>
 
       {/* セカンドカラー（グローと点滅のみ） */}
-      <div 
-        className={`overflow-hidden transition-all duration-300 ease-out ${
-          showSecondaryColor ? 'max-h-[300px] opacity-100' : 'max-h-0 opacity-0'
-        }`}
-      >
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            セカンドカラー（{settings.animation === 'glow' ? 'グロー' : '点滅'}効果用）
-          </label>
-          <div className="relative">
-            <button
-              onClick={() => setShowSecondaryColorPicker(!showSecondaryColorPicker)}
-              className="w-full px-3 py-3 md:py-2 border border-gray-300 rounded-lg flex items-center justify-between active:bg-gray-50"
-            >
-              <span className="flex items-center">
-                <span
-                  className="w-6 h-6 rounded mr-2 border border-gray-300"
-                  style={{ backgroundColor: settings.secondaryColor || '#FFD700' }}
-                />
-                {settings.secondaryColor || '#FFD700'}
-              </span>
-            </button>
-            {showSecondaryColorPicker && (
-              <div className="absolute z-10 mt-2">
-                <div
-                  className="fixed inset-0"
-                  onClick={() => setShowSecondaryColorPicker(false)}
-                />
-                <SketchPicker
-                  color={settings.secondaryColor || '#FFD700'}
-                  onChange={(color) => onChange({ secondaryColor: color.hex })}
-                />
-              </div>
-            )}
+      {(settings.animation === 'glow' || settings.animation === 'blink') && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              セカンドカラー（{settings.animation === 'glow' ? 'グロー' : '点滅'}効果用）
+            </label>
+            <div className="relative">
+              <button
+                onClick={() => setShowSecondaryColorPicker(!showSecondaryColorPicker)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg flex items-center justify-center active:bg-gray-50 text-sm"
+              >
+                <span className="flex items-center">
+                  <span
+                    className="w-4 h-4 rounded mr-2 border border-gray-300"
+                    style={{ backgroundColor: settings.secondaryColor || '#FFD700' }}
+                  />
+                  {settings.secondaryColor || '#FFD700'}
+                </span>
+              </button>
+              {showSecondaryColorPicker && (
+                <div className="absolute z-10 mt-2">
+                  <div
+                    className="fixed inset-0"
+                    onClick={() => setShowSecondaryColorPicker(false)}
+                  />
+                  <SketchPicker
+                    color={settings.secondaryColor || '#FFD700'}
+                    onChange={(color) => onChange({ secondaryColor: color.hex })}
+                  />
+                </div>
+              )}
+            </div>
+            <p className="mt-1 text-xs text-gray-500">
+              {settings.animation === 'glow' 
+                ? 'グロー効果の光の色を設定します' 
+                : '点滅時に切り替わる色を設定します'}
+            </p>
           </div>
-          <p className="mt-1 text-xs text-gray-500">
-            {settings.animation === 'glow' 
-              ? 'グロー効果の光の色を設定します' 
-              : '点滅時に切り替わる色を設定します'}
-          </p>
         </div>
-      </div>
+      )}
 
       {/* アニメーション速度 */}
-      <div 
-        className={`overflow-hidden transition-all duration-300 ease-out ${
-          showAnimationSpeed ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
-        }`}
-      >
+      {settings.animation !== 'none' && (
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-3">
             アニメーション速度
@@ -508,21 +498,17 @@ function IconEditor({ settings, onChange, isMobile }) {
             </div>
           )}
         </div>
-      </div>
+      )}
 
       {/* ノート */}
-      <div 
-        className={`overflow-hidden transition-all duration-300 ease-out ${
-          showAnimationSpeed ? 'max-h-[200px] opacity-100' : 'max-h-0 opacity-0'
-        }`}
-      >
+      {settings.animation !== 'none' && (
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
           <p className="text-sm text-yellow-800">
             <strong>注意:</strong> アニメーション付きアイコンはGIF形式でエクスポートされます。
             ファイルサイズが128KBを超える場合は自動的に最適化されます。
           </p>
         </div>
-      </div>
+      )}
     </div>
   )
 }

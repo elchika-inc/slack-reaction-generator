@@ -158,7 +158,7 @@ function PreviewPanel({ settings, previewData, onRegenerate, isMobile }) {
   }, [settings]);
 
   const handleDownload = async () => {
-    const fileName = `slack-icon-${Date.now()}.${
+    const fileName = `slack-reaction-${Date.now()}.${
       settings.animation !== "none" ? "gif" : "png"
     }`;
 
