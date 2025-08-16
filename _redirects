@@ -6,7 +6,7 @@
 # HTTP to HTTPS redirect (handled by Cloudflare automatically)
 
 # Backward compatibility redirects
-/slack-icon-generator    /    301
+/slack-reaction-generator    /    301
 /emoji-generator         /    301
 /reaction-generator      /    301
 

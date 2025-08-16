@@ -64,7 +64,7 @@ Desktop.ini
 .cache
 
 # Claude AI
-.claude/
+.claude
 
 # Cloudflare
 .wrangler

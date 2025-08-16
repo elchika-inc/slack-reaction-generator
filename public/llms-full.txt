@@ -215,7 +215,7 @@ gif.render();
 ### 開発環境セットアップ
 ```bash
 git clone [repository-url]
-cd slack-icon-generator
+cd slack-reaction-generator
 npm install
 npm run dev
 ```
