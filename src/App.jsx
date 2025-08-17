@@ -1,8 +1,17 @@
 import { useState, useEffect, useRef } from "react";
-import { saveAs } from "file-saver";
+// file-saverを遅延読み込み
+let saveAs = null;
+const loadFileSaver = async () => {
+  if (!saveAs) {
+    const module = await import('file-saver');
+    saveAs = module.saveAs;
+  }
+  return saveAs;
+};
 import Header from "./components/Header";
 import IconEditor from "./components/IconEditor";
 import PreviewPanel from "./components/PreviewPanel";
+import { shouldEnableFeature, getOptimalImageQuality } from "./utils/networkAware";
 // gifencライブラリを使用（透明背景サポート向上）
 // import { generateIconData, drawAnimationFrame, drawTextIcon } from './utils/canvasUtilsGifenc'
 // 従来のgif.jsを使いたい場合は以下をコメントアウト解除
@@ -68,6 +77,12 @@ function App() {
     };
     checkMobile();
     window.addEventListener("resize", checkMobile);
+    
+    // ネットワーク状況に基づいてアニメーションを調整
+    if (!shouldEnableFeature('animations')) {
+      setIconSettings(prev => ({ ...prev, animation: 'none' }));
+    }
+    
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
@@ -218,7 +233,8 @@ function App() {
       try {
         const response = await fetch(data);
         const blob = await response.blob();
-        saveAs(blob, fileName);
+        const fileSaver = await loadFileSaver();
+        fileSaver(blob, fileName);
       } catch (error) {
         console.error("ダウンロードエラー:", error);
       }
@@ -233,28 +249,31 @@ function App() {
         className={`container mx-auto px-2 lg:px-4 py-4 lg:py-8 ${
           isMobile ? "pb-80" : ""
         }`}
+        role="main"
+        aria-label="Slack絵文字作成エディタ"
       >
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-8">
           {/* エディタ部分 */}
-          <div className="lg:col-span-2">
+          <section className="lg:col-span-2" aria-label="絵文字設定エディタ">
             <div className="bg-white rounded-xl shadow-lg p-4 lg:p-6">
+              <h2 className="sr-only">絵文字の設定とカスタマイズ</h2>
               <IconEditor
                 settings={iconSettings}
                 onChange={handleSettingsChange}
                 isMobile={isMobile}
               />
             </div>
-          </div>
+          </section>
 
           {/* デスクトップ用プレビュー */}
           {!isMobile && (
-            <div className="lg:col-span-1">
+            <section className="lg:col-span-1" aria-label="絵文字プレビュー">
               <PreviewPanel
                 settings={iconSettings}
                 previewData={previewData}
                 onRegenerate={handleGeneratePreview}
               />
-            </div>
+            </section>
           )}
         </div>
       </main>

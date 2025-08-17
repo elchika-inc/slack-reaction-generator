@@ -192,6 +192,9 @@ function MobilePreviewModal({ isOpen, onClose, settings, previewData }) {
                       alt="プレビュー"
                       className="w-full h-full"
                       style={{ imageRendering: 'pixelated' }}
+                      loading="lazy"
+                      width="32"
+                      height="32"
                     />
                   )}
                 </div>

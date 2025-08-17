@@ -1,198 +1,110 @@
-# Slack 絵文字ジェネレーター 🎨
+# Slack Reaction Generator
 
-[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/naoto24kawa/slack-reaction-generator)
+Create custom Slack emojis effortlessly! Generate animated GIFs and PNG reactions from text or images with real-time preview.
 
-Slack のカスタムリアクション絵文字を簡単に作成できる Web アプリケーションです。テキストや画像からアニメーション付きの GIF/PNG 形式の絵文字を生成できます。
+## 🚀 Features
 
-## ✨ 特徴
+- **Text to Emoji**: Convert any text into custom Slack reactions
+- **Image Upload**: Transform your images into Slack-compatible emojis
+- **Animation Effects**: Add engaging animations like glow, pulse, bounce, and more
+- **Real-time Preview**: See your creation instantly as you edit
+- **Multiple Formats**: Export as GIF (animated) or PNG (static)
+- **Japanese Font Support**: Full support for Japanese characters
+- **Mobile Optimized**: Responsive design for all devices
+- **Slack Ready**: Automatically sized for Slack's requirements (128x128px)
 
-- 📝 **テキストから絵文字生成** - 日本語フォント対応、サイズ・色自由にカスタマイズ
-- 🖼️ **画像アップロード対応** - JPG/PNG/GIF 形式の画像から絵文字作成
-- 🎬 **豊富なアニメーション** - 点滅、回転、バウンス、グロー効果など
-- 🎨 **グラデーション対応** - テキストにグラデーション効果を適用可能
-- 📱 **レスポンシブデザイン** - PC/スマホ両対応
-- 🚀 **高速処理** - Canvas API と Web Workers による高速な GIF 生成
-- 🌐 **完全無料** - サーバーレスで動作、登録不要
+## 🎯 Quick Start
 
-## 🛠️ 技術スタック
+1. **Visit the App**: [https://slack-reaction-generator.elchika.app/](https://slack-reaction-generator.elchika.app/)
+2. **Enter Text**: Type your message or upload an image
+3. **Customize**: Choose colors, fonts, and animations
+4. **Preview**: See your emoji in real-time
+5. **Download**: Get your custom emoji ready for Slack
 
-- **フロントエンド**
-  - React 18
-  - Vite
-  - Tailwind CSS
-  - Canvas API
-- **画像処理**
-  - gif.js - GIF アニメーション生成
-  - gifenc - 透明背景サポート向上版（オプション）
-  - file-saver - ファイルダウンロード
-- **ホスティング**
-  - Cloudflare Workers/Pages
-  - GitHub Actions (自動デプロイ)
+## 📱 How to Use
 
-## 🚀 はじめ方
+### Text Mode
+1. Enter your text in the input field
+2. Select font family and size
+3. Choose text color (solid or gradient)
+4. Pick background type (transparent or colored)
+5. Add animation effects if desired
+6. Download your emoji
 
-### 必要要件
+### Image Mode
+1. Upload your image (PNG, JPG, GIF supported)
+2. Adjust size and position
+3. Apply filters or effects
+4. Preview and download
 
-- Node.js 18 以上
-- npm または yarn
+## 🎨 Customization Options
 
-### インストール
+### Fonts
+- Noto Sans JP (Japanese)
+- Noto Serif JP (Japanese Serif)
+- Kosugi Maru (Rounded Japanese)
+- Pacifico (Decorative)
+- Caveat (Handwritten)
 
-```bash
-# リポジトリをクローン
-git clone https://github.com/naoto24kawa/slack-reaction-generator.git
-cd slack-reaction-generator
+### Animations
+- **None**: Static emoji
+- **Glow**: Pulsing glow effect
+- **Pulse**: Size pulsing animation
+- **Bounce**: Bouncing motion
+- **Shake**: Shaking effect
+- **Rotate**: Rotation animation
+- **Blink**: Blinking effect
 
-# 依存関係をインストール
-npm install
-```
+### Colors
+- Solid colors with color picker
+- Gradient effects (vertical/horizontal)
+- Transparent backgrounds
+- Custom background colors
 
-### 開発サーバー起動
+## 📋 Slack Requirements
 
-```bash
-# 開発サーバーを起動（localhost:5173）
-npm run dev
-```
+- **Size**: 128x128 pixels maximum
+- **File Size**: 
+  - GIF: 128KB maximum
+  - PNG/JPG: 64KB maximum
+- **Formats**: PNG, GIF, JPEG supported
 
-### ビルド
+Our generator automatically optimizes your emojis to meet these requirements.
 
-```bash
-# プロダクションビルド
-npm run build
+## 🔧 Technical Features
 
-# ビルドプレビュー
-npm run preview
-```
+- **Progressive Web App (PWA)**: Install on mobile devices
+- **Offline Capable**: Works without internet after first visit
+- **Fast Loading**: Optimized performance with lazy loading
+- **SEO Optimized**: Full metadata and structured data
+- **Accessibility**: Screen reader friendly
 
-### Cloudflare Workers へのデプロイ
+## 🌐 Browser Support
 
-```bash
-# Wrangler CLIでデプロイ
-npm run deploy
+- Chrome 80+
+- Firefox 75+
+- Safari 13+
+- Edge 80+
+- Mobile browsers (iOS Safari, Chrome Mobile)
 
-# Workers開発サーバー（localhost:8787）
-npm run dev:worker
-```
+## 📄 License
 
-## 📋 使い方
+This project is open source and available under the [MIT License](LICENSE).
 
-1. **テキスト入力または画像アップロード**
+## 🤝 Contributing
 
-   - テキストモード: 絵文字にしたいテキストを入力
-   - 画像モード: 画像ファイルを選択またはドラッグ&ドロップ
+Contributions are welcome! Please feel free to submit issues and pull requests.
 
-2. **スタイルをカスタマイズ**
+## 📞 Support
 
-   - フォントサイズ、色、背景色を調整
-   - アニメーション効果を選択
-   - グラデーション設定（テキストモードのみ）
+If you encounter any issues or have questions:
+- Create an issue on GitHub
+- Visit our [website](https://slack-reaction-generator.elchika.app/)
 
-3. **プレビュー確認**
+## 🏷️ Tags
 
-   - リアルタイムでプレビュー表示
-   - 128×128px（実際のサイズ）と拡大版を同時確認
-
-4. **ダウンロード**
-   - PNG 形式: 静止画として保存
-   - GIF 形式: アニメーション付きで保存
-
-## 🎨 アニメーション効果
-
-- **なし** - 静止画
-- **点滅** - フェードイン/アウト
-- **回転** - 360 度回転
-- **ズーム** - 拡大縮小
-- **バウンス** - 上下に跳ねる
-- **シェイク** - 左右に振動
-- **パルス** - 脈動効果
-- **レインボー** - 虹色変化（テキストのみ）
-- **グロー** - 発光効果（テキストのみ）
-- **ウェーブ** - 波打ち効果（テキストのみ）
-
-## 📁 プロジェクト構造
-
-```
-slack-reaction-generator/
-├── src/
-│   ├── App.jsx              # メインアプリケーション
-│   ├── components/
-│   │   ├── Header.jsx        # ヘッダーコンポーネント
-│   │   ├── IconEditor.jsx    # アイコン設定UI
-│   │   └── PreviewPanel.jsx  # プレビューパネル
-│   ├── utils/
-│   │   ├── canvasUtils.js    # Canvas処理（gif.js版）
-│   │   └── canvasUtilsGifenc.js # Canvas処理（gifenc版）
-│   └── main.jsx              # エントリーポイント
-├── public/                   # 静的ファイル
-├── dist/                     # ビルド出力
-├── wrangler.toml             # Cloudflare Workers設定
-├── vite.config.js            # Viteビルド設定
-├── tailwind.config.js        # Tailwind CSS設定
-└── package.json              # プロジェクト設定
-```
-
-## 🔧 設定
-
-### 環境変数
-
-Cloudflare Workers への自動デプロイには以下のシークレットが必要:
-
-- `CLOUDFLARE_API_TOKEN` - Cloudflare API トークン
-- `CLOUDFLARE_ACCOUNT_ID` - Cloudflare アカウント ID
-
-### GitHub Actions
-
-`.github/workflows/deploy.yml`で main ブランチへの push 時に自動デプロイが設定されています。
-
-## 📝 開発ガイド
-
-### 透明背景サポートの切り替え
-
-`src/App.jsx`で GIF ライブラリを切り替え可能:
-
-```javascript
-// gifenc版（透明背景サポート向上）
-import { generateIconData } from "./utils/canvasUtilsGifenc";
-
-// gif.js版（デフォルト、高速）
-import { generateIconData } from "./utils/canvasUtils";
-```
-
-### カスタムフォントの追加
-
-`index.html`の Google Fonts リンクにフォントを追加:
-
-```html
-<link
-  href="https://fonts.googleapis.com/css2?family=YourFont:wght@400;700&display=swap"
-  rel="stylesheet"
-/>
-```
-
-## 🤝 コントリビューション
-
-プルリクエストは歓迎です！大きな変更の場合は、まず issue を開いて変更内容を議論してください。
-
-1. Fork it
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📄 ライセンス
-
-このプロジェクトは MIT ライセンスの下で公開されています。詳細は[LICENSE](LICENSE)ファイルを参照してください。
-
-## 🙏 謝辞
-
-- [gif.js](https://github.com/jnordberg/gif.js) - GIF エンコーディングライブラリ
-- [gifenc](https://github.com/mattdesl/gifenc) - 透明背景対応 GIF ライブラリ
-- [Cloudflare Workers](https://workers.cloudflare.com/) - エッジコンピューティングプラットフォーム
-
-## 📞 サポート
-
-問題が発生した場合は、[Issues](https://github.com/naoto24kawa/slack-reaction-generator/issues)でお知らせください。
+`slack` `emoji` `generator` `reaction` `gif` `animation` `custom` `japanese` `web-app` `pwa`
 
 ---
 
-Built with ❤️ for Slack users everywhere
+Made with ❤️ for the Slack community

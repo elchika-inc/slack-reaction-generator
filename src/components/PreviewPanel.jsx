@@ -211,7 +211,7 @@ function PreviewPanel({ settings, previewData, onRegenerate, isMobile }) {
 
   return (
     <div
-      className={`bg-white rounded-xl shadow-lg p-6 ${
+      className={`bg-white rounded-xl shadow-lg p-6 preview-container ${
         isMobile ? "" : "sticky top-8"
       }`}
     >
@@ -240,7 +240,7 @@ function PreviewPanel({ settings, previewData, onRegenerate, isMobile }) {
       {/* プレビューエリア */}
       <div
         className={`
-          rounded-lg ${isMobile ? "p-4" : "p-8"} mb-6 transition-colors
+          rounded-lg ${isMobile ? "p-4" : "p-8"} mb-6 transition-colors preview-area
           ${theme === "dark" ? "bg-gray-800" : "bg-gray-100"}
         `}
       >

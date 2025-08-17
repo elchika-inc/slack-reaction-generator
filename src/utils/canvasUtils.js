@@ -1,4 +1,12 @@
-import GIF from 'gif.js'
+// GIFライブラリを遅延読み込み
+let GIF = null;
+const loadGIF = async () => {
+  if (!GIF) {
+    const module = await import('gif.js');
+    GIF = module.default;
+  }
+  return GIF;
+};
 import { CANVAS_CONFIG, isDecorativeFont, calculatePadding, calculateFontSize } from '../constants/canvasConstants'
 import { renderText } from './textRenderer'
 
@@ -190,6 +198,9 @@ const drawPolygon = (ctx, x, y, sides, radius) => {
 }
 
 const generateAnimatedGIF = async (canvas, settings) => {
+  // GIFライブラリを先に読み込む
+  const GIFConstructor = await loadGIF();
+  
   return new Promise((resolve) => {
     // 一時キャンバスを作成（各フレーム描画用）
     const frameCanvas = document.createElement('canvas')
@@ -198,7 +209,7 @@ const generateAnimatedGIF = async (canvas, settings) => {
     const frameCtx = frameCanvas.getContext('2d', { willReadFrequently: true })
     
     // GIFアニメーションでは透明色を使用しない（背景色を持つため）
-    const gif = new GIF({
+    const gif = new GIFConstructor({
       workers: 2,
       quality: 10,
       width: 128,

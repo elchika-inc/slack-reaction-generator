@@ -11,6 +11,32 @@
   * {
     touch-action: manipulation;
   }
+  
+  /* フォント読み込み時のCLS防止のためのフォールバック */
+  .font-noto-sans {
+    font-family: "Noto Sans JP", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    font-display: swap;
+  }
+  
+  .font-noto-serif {
+    font-family: "Noto Serif JP", Georgia, "Times New Roman", serif;
+    font-display: swap;
+  }
+  
+  .font-kosugi {
+    font-family: "Kosugi Maru", "Noto Sans JP", system-ui, sans-serif;
+    font-display: swap;
+  }
+  
+  .font-pacifico {
+    font-family: "Pacifico", cursive, sans-serif;
+    font-display: swap;
+  }
+  
+  .font-caveat {
+    font-family: "Caveat", cursive, sans-serif;
+    font-display: swap;
+  }
 }
 
 @layer components {
@@ -19,6 +45,32 @@
     image-rendering: pixelated;
     image-rendering: -moz-crisp-edges;
     image-rendering: crisp-edges;
+    /* CLSを防ぐため最小サイズを保証 */
+    min-width: 128px;
+    min-height: 128px;
+    max-width: 128px;
+    max-height: 128px;
+  }
+  
+  .icon-canvas-small {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    min-height: 32px;
+    max-width: 32px;
+    max-height: 32px;
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+  }
+  
+  /* プレビュー領域のCLS防止 */
+  .preview-container {
+    min-height: 200px; /* プレビュー要素の最小高さを確保 */
+  }
+  
+  .preview-area {
+    min-height: 160px; /* キャンバス表示部分の最小高さ */
   }
   
   .btn-primary {

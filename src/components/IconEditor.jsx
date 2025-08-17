@@ -1,6 +1,8 @@
-import { SketchPicker } from 'react-color'
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, lazy, Suspense } from 'react'
 import { CANVAS_CONFIG, getSpeedLabel, calculateFPS } from '../constants/canvasConstants'
+
+// ColorPickerを動的インポート
+const ColorPicker = lazy(() => import('./ColorPicker'))
 
 function IconEditor({ settings, onChange, isMobile }) {
   const [showFontColorPicker, setShowFontColorPicker] = useState(false)
@@ -37,41 +39,49 @@ function IconEditor({ settings, onChange, isMobile }) {
     <div className="space-y-6">
       {/* テキスト入力 */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label htmlFor="emoji-text-input" className="block text-sm font-medium text-gray-700 mb-2">
           テキスト
+          <span className="text-xs text-gray-500 ml-1">(最大30文字)</span>
         </label>
         <textarea
+          id="emoji-text-input"
           value={settings.text}
           onChange={(e) => onChange({ text: e.target.value })}
           maxLength={30}
           rows={3}
           className="w-full px-3 py-3 lg:py-2 text-base lg:text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none font-mono"
-          placeholder="例: OK\n了解\n👍"
+          aria-describedby="text-help"
+          placeholder="例: OK&#10;了解&#10;👍"
         />
-        <div className="mt-1 flex justify-between text-xs text-gray-500">
+        <div id="text-help" className="mt-1 flex justify-between text-xs text-gray-500" aria-live="polite">
           <span>Enterキーで改行 • 文字数に応じて自動調整</span>
-          <span>{settings.text.length} / 30</span>
+          <span aria-label={`現在の文字数: ${settings.text.length}文字、最大30文字`}>
+            {settings.text.length} / 30
+          </span>
         </div>
       </div>
 
       {/* フォント選択 */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-3">
-          フォント
-        </label>
-        <div className={`grid ${isMobile ? 'grid-cols-3 gap-1.5' : 'grid-cols-5 gap-2'}`}>
+      <fieldset>
+        <legend className="block text-sm font-medium text-gray-700 mb-3">
+          フォント選択
+        </legend>
+        <div className={`grid ${isMobile ? 'grid-cols-3 gap-1.5' : 'grid-cols-5 gap-2'}`} role="radiogroup" aria-label="フォントファミリー選択">
           {fonts.map((font) => (
             <button
               key={font.value}
               onClick={() => onChange({ fontFamily: font.value })}
               className={`
-                ${isMobile ? 'p-2' : 'p-3'} rounded-lg border text-center transition-all active:scale-95
+                ${isMobile ? 'p-2' : 'p-3'} rounded-lg border text-center transition-all active:scale-95 focus:outline-none focus:ring-2 focus:ring-purple-500
                 ${
                   settings.fontFamily === font.value
                     ? 'border-purple-500 bg-purple-50 ring-2 ring-purple-200'
                     : 'border-gray-300 hover:bg-gray-50 active:bg-gray-100'
                 }
               `}
+              role="radio"
+              aria-checked={settings.fontFamily === font.value}
+              aria-label={`${font.label}${font.hasJapanese ? ' 日本語対応' : ''}${font.hasEnglish ? ' 英語対応' : ''}`}
             >
               <div className={`${isMobile ? 'text-[10px]' : 'text-xs'} text-gray-600 mb-1`}>{font.label}</div>
               <div 
@@ -84,7 +94,7 @@ function IconEditor({ settings, onChange, isMobile }) {
             </button>
           ))}
         </div>
-      </div>
+      </fieldset>
 
       {/* カラー設定 */}
       <div className="space-y-4 mt-6">
@@ -138,16 +148,18 @@ function IconEditor({ settings, onChange, isMobile }) {
                   </span>
                 </button>
                 {showFontColorPicker && (
-                  <div className="absolute z-10 mt-2">
-                    <div
-                      className="fixed inset-0"
-                      onClick={() => setShowFontColorPicker(false)}
-                    />
-                    <SketchPicker
-                      color={settings.fontColor}
-                      onChange={(color) => onChange({ fontColor: color.hex })}
-                    />
-                  </div>
+                  <>
+                    <div className="fixed inset-0 z-30" onClick={() => setShowFontColorPicker(false)} />
+                    <div className="absolute z-40 mt-2 right-0">
+                      <Suspense fallback={<div className="p-3 bg-gray-100 rounded" />}>
+                        <ColorPicker
+                          color={settings.fontColor}
+                          onChange={(color) => onChange({ fontColor: color })}
+                          onClose={() => setShowFontColorPicker(false)}
+                        />
+                      </Suspense>
+                    </div>
+                  </>
                 )}
               </div>
             )}
@@ -198,16 +210,18 @@ function IconEditor({ settings, onChange, isMobile }) {
                     </span>
                   </button>
                   {showGradient1Picker && (
-                    <div className="absolute z-10 mt-2">
-                      <div
-                        className="fixed inset-0"
-                        onClick={() => setShowGradient1Picker(false)}
-                      />
-                      <SketchPicker
-                        color={settings.gradientColor1}
-                        onChange={(color) => onChange({ gradientColor1: color.hex })}
-                      />
-                    </div>
+                    <>
+                      <div className="fixed inset-0 z-30" onClick={() => setShowGradient1Picker(false)} />
+                      <div className="absolute z-40 mt-2 right-0">
+                        <Suspense fallback={<div className="p-3 bg-gray-100 rounded" />}>
+                          <ColorPicker
+                            color={settings.gradientColor1}
+                            onChange={(color) => onChange({ gradientColor1: color })}
+                            onClose={() => setShowGradient1Picker(false)}
+                          />
+                        </Suspense>
+                      </div>
+                    </>
                   )}
                 </div>
                 
@@ -226,16 +240,18 @@ function IconEditor({ settings, onChange, isMobile }) {
                     </span>
                   </button>
                   {showGradient2Picker && (
-                    <div className="absolute z-10 mt-2">
-                      <div
-                        className="fixed inset-0"
-                        onClick={() => setShowGradient2Picker(false)}
-                      />
-                      <SketchPicker
-                        color={settings.gradientColor2}
-                        onChange={(color) => onChange({ gradientColor2: color.hex })}
-                      />
-                    </div>
+                    <>
+                      <div className="fixed inset-0 z-30" onClick={() => setShowGradient2Picker(false)} />
+                      <div className="absolute z-40 mt-2 right-0">
+                        <Suspense fallback={<div className="p-3 bg-gray-100 rounded" />}>
+                          <ColorPicker
+                            color={settings.gradientColor2}
+                            onChange={(color) => onChange({ gradientColor2: color })}
+                            onClose={() => setShowGradient2Picker(false)}
+                          />
+                        </Suspense>
+                      </div>
+                    </>
                   )}
                 </div>
               </div>
@@ -288,16 +304,18 @@ function IconEditor({ settings, onChange, isMobile }) {
                     </span>
                   </button>
                   {showBgColorPicker && settings.backgroundType === 'color' && (
-                    <div className="absolute z-10 mt-2 right-0">
-                      <div
-                        className="fixed inset-0"
-                        onClick={() => setShowBgColorPicker(false)}
-                      />
-                      <SketchPicker
-                        color={settings.backgroundColor || '#FFFFFF'}
-                        onChange={(color) => onChange({ backgroundColor: color.hex })}
-                      />
-                    </div>
+                    <>
+                      <div className="fixed inset-0 z-30" onClick={() => setShowBgColorPicker(false)} />
+                      <div className="absolute z-40 mt-2 right-0">
+                        <Suspense fallback={<div className="p-3 bg-gray-100 rounded" />}>
+                          <ColorPicker
+                            color={settings.backgroundColor || '#FFFFFF'}
+                            onChange={(color) => onChange({ backgroundColor: color })}
+                            onClose={() => setShowBgColorPicker(false)}
+                          />
+                        </Suspense>
+                      </div>
+                    </>
                   )}
                 </div>
               </div>
@@ -320,16 +338,18 @@ function IconEditor({ settings, onChange, isMobile }) {
                     </span>
                   </button>
                   {showBgColorPicker && (
-                    <div className="absolute z-10 mt-2 right-0">
-                      <div
-                        className="fixed inset-0"
-                        onClick={() => setShowBgColorPicker(false)}
-                      />
-                      <SketchPicker
-                        color={settings.backgroundColor || '#FFFFFF'}
-                        onChange={(color) => onChange({ backgroundColor: color.hex })}
-                      />
-                    </div>
+                    <>
+                      <div className="fixed inset-0 z-30" onClick={() => setShowBgColorPicker(false)} />
+                      <div className="absolute z-40 mt-2 right-0">
+                        <Suspense fallback={<div className="p-3 bg-gray-100 rounded" />}>
+                          <ColorPicker
+                            color={settings.backgroundColor || '#FFFFFF'}
+                            onChange={(color) => onChange({ backgroundColor: color })}
+                            onClose={() => setShowBgColorPicker(false)}
+                          />
+                        </Suspense>
+                      </div>
+                    </>
                   )}
                 </div>
                 <p className="mt-1 text-xs text-gray-500">
@@ -390,16 +410,18 @@ function IconEditor({ settings, onChange, isMobile }) {
                 </span>
               </button>
               {showSecondaryColorPicker && (
-                <div className="absolute z-10 mt-2">
-                  <div
-                    className="fixed inset-0"
-                    onClick={() => setShowSecondaryColorPicker(false)}
-                  />
-                  <SketchPicker
-                    color={settings.secondaryColor || '#FFD700'}
-                    onChange={(color) => onChange({ secondaryColor: color.hex })}
-                  />
-                </div>
+                <>
+                  <div className="fixed inset-0 z-30" onClick={() => setShowSecondaryColorPicker(false)} />
+                  <div className="absolute z-40 mt-2 right-0">
+                    <Suspense fallback={<div className="p-3 bg-gray-100 rounded" />}>
+                      <ColorPicker
+                        color={settings.secondaryColor || '#FFD700'}
+                        onChange={(color) => onChange({ secondaryColor: color })}
+                        onClose={() => setShowSecondaryColorPicker(false)}
+                      />
+                    </Suspense>
+                  </div>
+                </>
               )}
             </div>
             <p className="mt-1 text-xs text-gray-500">
