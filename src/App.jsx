@@ -153,14 +153,21 @@ function App() {
 
             if (deltaTime >= delay) {
               smallFrameRef.current = (smallFrameRef.current + 1) % frameCount;
+              // 32x32キャンバスをクリア
+              smallCtx.clearRect(0, 0, 32, 32);
+              // 32x32にスケールダウンして描画
+              smallCtx.save();
+              smallCtx.scale(0.25, 0.25); // 32/128 = 0.25
+              // 背景色を描画（128x128サイズで）
               smallCtx.fillStyle = iconSettings.backgroundColor || "#FFFFFF";
-              smallCtx.fillRect(0, 0, 32, 32);
+              smallCtx.fillRect(0, 0, 128, 128);
               drawAnimationFrame(
                 smallCtx,
                 iconSettings,
                 smallFrameRef.current,
                 frameCount
               );
+              smallCtx.restore();
               smallLastTime = currentTime;
             }
 
@@ -174,7 +181,11 @@ function App() {
           ctx.clearRect(0, 0, 128, 128);
           smallCtx.clearRect(0, 0, 32, 32);
           drawTextIcon(ctx, iconSettings);
+          // 32x32も生成（128x128をスケールダウン）
+          smallCtx.save();
+          smallCtx.scale(0.25, 0.25); // 32/128 = 0.25
           drawTextIcon(smallCtx, iconSettings);
+          smallCtx.restore();
         }
       }
     });

@@ -1,5 +1,6 @@
 import { SketchPicker } from 'react-color'
 import { useState, useRef, useEffect } from 'react'
+import { CANVAS_CONFIG, getSpeedLabel, calculateFPS } from '../constants/canvasConstants'
 
 function IconEditor({ settings, onChange, isMobile }) {
   const [showFontColorPicker, setShowFontColorPicker] = useState(false)
@@ -7,26 +8,6 @@ function IconEditor({ settings, onChange, isMobile }) {
   const [showSecondaryColorPicker, setShowSecondaryColorPicker] = useState(false)
   const [showGradient1Picker, setShowGradient1Picker] = useState(false)
   const [showGradient2Picker, setShowGradient2Picker] = useState(false)
-  
-  // アニメーション用のstate（削除）
-  // const [showAnimationSpeed, setShowAnimationSpeed] = useState(settings.animation !== 'none')
-  // const [showSecondaryColor, setShowSecondaryColor] = useState(
-  //   settings.animation === 'glow' || settings.animation === 'blink'
-  // )
-  
-  // グラデーション設定表示用のstate（削除）
-  // const [showGradientSettings, setShowGradientSettings] = useState(settings.textColorType === 'gradient')
-  
-  // アニメーション設定が変更されたときに更新（削除）
-  // useEffect(() => {
-  //   setShowAnimationSpeed(settings.animation !== 'none')
-  //   setShowSecondaryColor(settings.animation === 'glow' || settings.animation === 'blink')
-  // }, [settings.animation])
-  
-  // 文字色タイプが変更されたときに更新（削除）
-  // useEffect(() => {
-  //   setShowGradientSettings(settings.textColorType === 'gradient')
-  // }, [settings.textColorType])
 
   const fonts = [
     // 日本語フォント
@@ -51,20 +32,6 @@ function IconEditor({ settings, onChange, isMobile }) {
     { value: 'fade', label: 'フェード', description: 'フェードイン/アウト' },
   ]
 
-  // 速度ラベルを生成
-  const getSpeedLabel = (ms) => {
-    const fps = Math.round(1000 / ms)
-    if (ms <= 20) return '超高速'
-    if (ms <= 30) return '高速'
-    if (ms <= 40) return '標準'
-    if (ms <= 60) return '低速'
-    return '超低速'
-  }
-  
-  // FPS計算
-  const calculateFPS = (ms) => {
-    return (1000 / ms).toFixed(1)
-  }
 
   return (
     <div className="space-y-6">
@@ -458,14 +425,14 @@ function IconEditor({ settings, onChange, isMobile }) {
                 min="20"
                 max="100"
                 step="1"
-                value={120 - settings.animationSpeed}
+                value={CANVAS_CONFIG.ANIMATION_SPEED_INVERT_BASE - settings.animationSpeed}
                 onChange={(e) => {
-                  const invertedValue = 120 - parseInt(e.target.value)
+                  const invertedValue = CANVAS_CONFIG.ANIMATION_SPEED_INVERT_BASE - parseInt(e.target.value)
                   onChange({ animationSpeed: invertedValue })
                 }}
                 className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                 style={{
-                  background: `linear-gradient(to right, #9333ea 0%, #9333ea ${((120 - settings.animationSpeed) - 20) / 80 * 100}%, #e5e7eb ${((120 - settings.animationSpeed) - 20) / 80 * 100}%, #e5e7eb 100%)`
+                  background: `linear-gradient(to right, #9333ea 0%, #9333ea ${((CANVAS_CONFIG.ANIMATION_SPEED_INVERT_BASE - settings.animationSpeed) - CANVAS_CONFIG.MIN_ANIMATION_SPEED) / (CANVAS_CONFIG.MAX_ANIMATION_SPEED - CANVAS_CONFIG.MIN_ANIMATION_SPEED) * 100}%, #e5e7eb ${((CANVAS_CONFIG.ANIMATION_SPEED_INVERT_BASE - settings.animationSpeed) - CANVAS_CONFIG.MIN_ANIMATION_SPEED) / (CANVAS_CONFIG.MAX_ANIMATION_SPEED - CANVAS_CONFIG.MIN_ANIMATION_SPEED) * 100}%, #e5e7eb 100%)`
                 }}
               />
               <div className="flex justify-between text-xs text-gray-500">
@@ -481,14 +448,14 @@ function IconEditor({ settings, onChange, isMobile }) {
                 min="20"
                 max="100"
                 step="1"
-                value={120 - settings.animationSpeed}
+                value={CANVAS_CONFIG.ANIMATION_SPEED_INVERT_BASE - settings.animationSpeed}
                 onChange={(e) => {
-                  const invertedValue = 120 - parseInt(e.target.value)
+                  const invertedValue = CANVAS_CONFIG.ANIMATION_SPEED_INVERT_BASE - parseInt(e.target.value)
                   onChange({ animationSpeed: invertedValue })
                 }}
                 className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                 style={{
-                  background: `linear-gradient(to right, #9333ea 0%, #9333ea ${((120 - settings.animationSpeed) - 20) / 80 * 100}%, #e5e7eb ${((120 - settings.animationSpeed) - 20) / 80 * 100}%, #e5e7eb 100%)`
+                  background: `linear-gradient(to right, #9333ea 0%, #9333ea ${((CANVAS_CONFIG.ANIMATION_SPEED_INVERT_BASE - settings.animationSpeed) - CANVAS_CONFIG.MIN_ANIMATION_SPEED) / (CANVAS_CONFIG.MAX_ANIMATION_SPEED - CANVAS_CONFIG.MIN_ANIMATION_SPEED) * 100}%, #e5e7eb ${((CANVAS_CONFIG.ANIMATION_SPEED_INVERT_BASE - settings.animationSpeed) - CANVAS_CONFIG.MIN_ANIMATION_SPEED) / (CANVAS_CONFIG.MAX_ANIMATION_SPEED - CANVAS_CONFIG.MIN_ANIMATION_SPEED) * 100}%, #e5e7eb 100%)`
                 }}
               />
               <div className="flex justify-between text-xs text-gray-500">

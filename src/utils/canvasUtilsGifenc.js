@@ -17,7 +17,7 @@ export const generateIconData = async (settings, canvas) => {
   
   canvas.width = 128
   canvas.height = 128
-  const ctx = canvas.getContext('2d')
+  const ctx = canvas.getContext('2d', { willReadFrequently: true })
   
   // Clear canvas
   ctx.clearRect(0, 0, 128, 128)
@@ -257,9 +257,10 @@ export const drawAnimationFrame = (ctx, settings, frame, totalFrames) => {
   if (settings.animation === 'rainbow') {
     const hue = progress * 360
     const modifiedSettings = { ...settings, fontColor: `hsl(${hue}, 100%, 50%)` }
-    drawTextOnly(ctx, modifiedSettings)
+    renderText(ctx, modifiedSettings, { skipBackground: true })
   } else {
-    drawTextOnly(ctx, settings)
+    // 通常の設定でテキストを描画
+    renderText(ctx, settings, { skipBackground: true })
   }
   
   ctx.restore()

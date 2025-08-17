@@ -1,12 +1,14 @@
 import GIF from 'gif.js'
+import { CANVAS_CONFIG, isDecorativeFont, calculatePadding, calculateFontSize } from '../constants/canvasConstants'
+import { renderText } from './textRenderer'
 
 export const generateIconData = async (settings, canvas) => {
   // アニメーションがある場合は専用の処理
   if (settings.animation !== 'none') {
     // GIF生成用の新しいキャンバスを作成
     const gifCanvas = document.createElement('canvas')
-    gifCanvas.width = 128
-    gifCanvas.height = 128
+    gifCanvas.width = CANVAS_CONFIG.SIZE
+    gifCanvas.height = CANVAS_CONFIG.SIZE
     return await generateAnimatedGIF(gifCanvas, settings)
   }
   
@@ -15,12 +17,12 @@ export const generateIconData = async (settings, canvas) => {
     canvas = document.createElement('canvas')
   }
   
-  canvas.width = 128
-  canvas.height = 128
-  const ctx = canvas.getContext('2d', { alpha: true })  // アルファチャンネルを明示的に有効化
+  canvas.width = CANVAS_CONFIG.SIZE
+  canvas.height = CANVAS_CONFIG.SIZE
+  const ctx = canvas.getContext('2d', { alpha: true, willReadFrequently: true })  // アルファチャンネルを明示的に有効化、頻繁な読み込みを最適化
   
   // Clear canvas with transparent background
-  ctx.clearRect(0, 0, 128, 128)
+  ctx.clearRect(0, 0, CANVAS_CONFIG.SIZE, CANVAS_CONFIG.SIZE)
   
   // 透明背景の場合、globalCompositeOperationを設定
   if (settings.backgroundType === 'transparent') {
@@ -38,112 +40,16 @@ export const drawTextIcon = (ctx, settings) => {
   // アニメーションがある場合は常に背景色を塗る（GIFは透明非対応）
   // アニメーションがない場合は、backgroundTypeに応じて背景を設定
   if (settings.animation !== 'none' || settings.backgroundType === 'color') {
-    ctx.fillStyle = settings.backgroundColor || '#FFFFFF'
-    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+    ctx.fillStyle = settings.backgroundColor || CANVAS_CONFIG.DEFAULT_BACKGROUND_COLOR
+    // 固定サイズで背景を描画
+    ctx.fillRect(0, 0, CANVAS_CONFIG.SIZE, CANVAS_CONFIG.SIZE)
   }
   // backgroundType === 'transparent' の場合は何も塗らない（透明背景）
   
   // テキストを描画（改行対応）
-  drawTextWithLineBreaks(ctx, settings)
+  renderText(ctx, settings)
 }
 
-// 改行対応のテキスト描画
-const drawTextWithLineBreaks = (ctx, settings) => {
-  const lines = settings.text.split('\n').filter(line => line.trim())
-  const lineCount = lines.length
-  
-  if (lineCount === 0) return
-  
-  // キャンバスサイズを取得
-  const canvasSize = ctx.canvas.width
-  
-  // フォントファミリーはそのまま使用（引用符も含めて）
-  const fontFamily = settings.fontFamily
-  
-  // 装飾的フォントの判定
-  const isDecorativeFont = fontFamily.includes('Pacifico') || fontFamily.includes('Caveat')
-  
-  // キャンバスの余白を考慮した描画エリア（装飾的フォントはより余白を取る）
-  const padding = isDecorativeFont ? canvasSize * 0.1 : canvasSize * 0.02  // 装飾的フォントは10%、通常は2%
-  const maxWidth = canvasSize - (padding * 2)
-  const maxHeight = canvasSize - (padding * 2)
-  
-  // ベースフォントサイズ（装飾的フォントは小さめに）
-  const baseFontSize = isDecorativeFont ? canvasSize * 0.6 : canvasSize * 0.8  // 装飾的フォントは60%、通常は80%
-  
-  ctx.save()
-  ctx.translate(canvasSize / 2, canvasSize / 2) // 中心を原点に
-  
-  // 各行の幅を計測
-  // 装飾的フォントにはnormalウェイトを使用
-  let fontWeight = 'bold'
-  if (fontFamily.includes('M PLUS') || fontFamily.includes('M+')) {
-    fontWeight = '900'
-  } else if (isDecorativeFont) {
-    fontWeight = 'normal'  // 装飾的フォントはnormalウェイト
-  }
-  ctx.font = `${fontWeight} ${baseFontSize}px ${fontFamily}`
-  const maxLineWidth = Math.max(...lines.map(line => ctx.measureText(line).width))
-  
-  // テキスト全体の高さを計算（装飾的フォントは行間を広く）
-  const lineHeight = isDecorativeFont ? baseFontSize * 1.1 : baseFontSize * 0.9
-  const totalHeight = lineHeight * lineCount
-  
-  // 縦横独立でスケールを計算（枠いっぱいに表示）
-  let scaleX = 1
-  let scaleY = 1
-  
-  if (maxLineWidth > 0) {
-    scaleX = maxWidth / maxLineWidth
-  }
-  if (totalHeight > 0) {
-    scaleY = maxHeight / totalHeight
-  }
-  
-  // 装飾的フォントはスケールをさらに制限（はみ出し防止）
-  if (isDecorativeFont) {
-    scaleX = Math.min(scaleX, 0.9)  // 最大90%にスケール制限
-    scaleY = Math.min(scaleY, 0.9)
-  }
-  
-  // 縦横独立でスケールを適用（アスペクト比は崩れる）
-  ctx.scale(scaleX, scaleY)
-  
-  // グラデーションまたは単色を設定
-  if (settings.textColorType === 'gradient') {
-    // グラデーションを作成
-    let gradient
-    if (settings.gradientDirection === 'horizontal') {
-      // 左右グラデーション（テキストの幅に合わせる）
-      gradient = ctx.createLinearGradient(-maxLineWidth/2, 0, maxLineWidth/2, 0)
-    } else {
-      // 上下グラデーション（テキストの高さに合わせる）
-      gradient = ctx.createLinearGradient(0, -totalHeight/2, 0, totalHeight/2)
-    }
-    gradient.addColorStop(0, settings.gradientColor1 || settings.fontColor)
-    gradient.addColorStop(1, settings.gradientColor2 || settings.secondaryColor || '#FFD700')
-    ctx.fillStyle = gradient
-  } else {
-    // 単色
-    ctx.fillStyle = settings.fontColor
-  }
-  
-  ctx.font = `${fontWeight} ${baseFontSize}px ${fontFamily}`
-  ctx.textAlign = 'center'
-  ctx.textBaseline = 'middle'
-  
-  // 各行を描画（完全に中央に配置）
-  const lineGap = lineHeight - baseFontSize  // 実際の行間
-  const actualTextHeight = baseFontSize * lineCount + lineGap * (lineCount - 1)
-  const startY = -(actualTextHeight / 2) + (baseFontSize / 2)
-  
-  lines.forEach((line, index) => {
-    const y = startY + (index * lineHeight)
-    ctx.fillText(line, 0, y)
-  })
-  
-  ctx.restore()
-}
 
 const drawImage = async (ctx, settings) => {
   return new Promise((resolve) => {
@@ -289,7 +195,7 @@ const generateAnimatedGIF = async (canvas, settings) => {
     const frameCanvas = document.createElement('canvas')
     frameCanvas.width = 128
     frameCanvas.height = 128
-    const frameCtx = frameCanvas.getContext('2d')
+    const frameCtx = frameCanvas.getContext('2d', { willReadFrequently: true })
     
     // GIFアニメーションでは透明色を使用しない（背景色を持つため）
     const gif = new GIF({
@@ -352,8 +258,8 @@ const generateAnimatedGIF = async (canvas, settings) => {
 export const drawAnimationFrame = (ctx, settings, frame, totalFrames) => {
   const progress = frame / totalFrames
   
-  // キャンバスサイズを取得
-  const canvasSize = ctx.canvas.width
+  // キャンバスサイズは固定値128を使用
+  const canvasSize = 128
   
   // キャンバスをクリアしない（白背景を維持）
   // ctx.clearRect(0, 0, canvasSize, canvasSize)
@@ -377,7 +283,7 @@ export const drawAnimationFrame = (ctx, settings, frame, totalFrames) => {
       
     case 'rotate':
       // 回転
-      const center = canvasSize / 2
+      const center = 64
       ctx.translate(center, center)
       ctx.rotate(progress * Math.PI * 2)
       ctx.translate(-center, -center)
@@ -385,7 +291,7 @@ export const drawAnimationFrame = (ctx, settings, frame, totalFrames) => {
       
     case 'bounce':
       // バウンス
-      const bounceHeight = canvasSize * 0.15
+      const bounceHeight = 19.2  // 128 * 0.15
       const bounce = Math.abs(Math.sin(progress * Math.PI * 2)) * bounceHeight
       ctx.translate(0, -bounce)
       break
@@ -393,7 +299,7 @@ export const drawAnimationFrame = (ctx, settings, frame, totalFrames) => {
     case 'pulse':
       // パルス（拡大縮小）
       const scale = 1 + Math.sin(progress * Math.PI * 2) * 0.2
-      const pulseCenter = canvasSize / 2
+      const pulseCenter = 64
       ctx.translate(pulseCenter, pulseCenter)
       ctx.scale(scale, scale)
       ctx.translate(-pulseCenter, -pulseCenter)
@@ -410,7 +316,7 @@ export const drawAnimationFrame = (ctx, settings, frame, totalFrames) => {
       
     case 'slide':
       // スライド
-      const slideDistance = canvasSize * 0.23
+      const slideDistance = 29.44  // 128 * 0.23
       const slideX = Math.sin(progress * Math.PI * 2) * slideDistance
       ctx.translate(slideX, 0)
       break
@@ -431,7 +337,7 @@ export const drawAnimationFrame = (ctx, settings, frame, totalFrames) => {
       textColorType: 'solid',  // グラデーションを無効化
       fontColor: `hsl(${hue}, 100%, 50%)` 
     }
-    drawTextOnly(ctx, modifiedSettings)
+    renderText(ctx, modifiedSettings, { skipBackground: true })
   } else if (settings.animation === 'blink') {
     // 点滅効果：グラデーションとセカンドカラーで切り替え
     const useSecondary = Math.sin(progress * Math.PI * 4) > 0
@@ -442,19 +348,20 @@ export const drawAnimationFrame = (ctx, settings, frame, totalFrames) => {
         textColorType: 'solid',  // グラデーションを無効化
         fontColor: settings.secondaryColor || '#FFD700'
       }
-      drawTextOnly(ctx, modifiedSettings)
+      renderText(ctx, modifiedSettings, { skipBackground: true })
     } else {
       // 通常の設定（グラデーションが設定されていればグラデーションを使用）
-      drawTextOnly(ctx, settings)
+      renderText(ctx, settings, { skipBackground: true })
     }
   } else {
-    drawTextOnly(ctx, settings)
+    // 通常の設定でテキストを描画
+    renderText(ctx, settings, { skipBackground: true })
   }
   
   ctx.restore()
 }
 
-// テキストのみを描画（背景なし、アニメーション用）
+// テキストのみを描画
 const drawTextOnly = (ctx, settings) => {
   const lines = settings.text.split('\n').filter(line => line.trim())
   const lineCount = lines.length
@@ -464,19 +371,13 @@ const drawTextOnly = (ctx, settings) => {
   // キャンバスサイズを取得
   const canvasSize = ctx.canvas.width
   
-  // フォントファミリーはそのまま使用（引用符も含めて）
-  const fontFamily = settings.fontFamily
-  
-  // 装飾的フォントの判定
-  const isDecorativeFont = fontFamily.includes('Pacifico') || fontFamily.includes('Caveat')
-  
-  // キャンバスの余白を考慮した描画エリア（装飾的フォントはより余白を取る）
-  const padding = isDecorativeFont ? canvasSize * 0.1 : canvasSize * 0.02  // 装飾的フォントは10%、通常は2%
+  // キャンバスの余白を考慮した描画エリア
+  const padding = canvasSize * 0.078
   const maxWidth = canvasSize - (padding * 2)
   const maxHeight = canvasSize - (padding * 2)
   
-  // ベースフォントサイズ（装飾的フォントは小さめに）
-  const baseFontSize = isDecorativeFont ? canvasSize * 0.6 : canvasSize * 0.8  // 装飾的フォントは60%、通常は80%
+  // ベースフォントサイズ（キャンバスサイズに応じて調整）
+  const baseFontSize = canvasSize * 0.47
   
   ctx.save()
   
@@ -485,21 +386,14 @@ const drawTextOnly = (ctx, settings) => {
   ctx.translate(canvasSize / 2, canvasSize / 2)
   
   // 各行の幅を計測
-  // 装飾的フォントにはnormalウェイトを使用
-  let fontWeight = 'bold'
-  if (fontFamily.includes('M PLUS') || fontFamily.includes('M+')) {
-    fontWeight = '900'
-  } else if (isDecorativeFont) {
-    fontWeight = 'normal'  // 装飾的フォントはnormalウェイト
-  }
-  ctx.font = `${fontWeight} ${baseFontSize}px ${fontFamily}`
+  ctx.font = `bold ${baseFontSize}px ${settings.fontFamily}`
   const maxLineWidth = Math.max(...lines.map(line => ctx.measureText(line).width))
   
-  // テキスト全体の高さを計算（装飾的フォントは行間を広く）
-  const lineHeight = isDecorativeFont ? baseFontSize * 1.1 : baseFontSize * 0.9
+  // テキスト全体の高さを計算
+  const lineHeight = baseFontSize * 1.1
   const totalHeight = lineHeight * lineCount
   
-  // 縦横独立でスケールを計算（枠いっぱいに表示）
+  // 横方向と縦方向のスケールを計算
   let scaleX = 1
   let scaleY = 1
   
@@ -510,43 +404,16 @@ const drawTextOnly = (ctx, settings) => {
     scaleY = maxHeight / totalHeight
   }
   
-  // 装飾的フォントはスケールをさらに制限（はみ出し防止）
-  if (isDecorativeFont) {
-    scaleX = Math.min(scaleX, 0.9)  // 最大90%にスケール制限
-    scaleY = Math.min(scaleY, 0.9)
-  }
-  
-  // 縦横独立でスケールを適用（アスペクト比は崩れる）
+  // スケールを適用（縦横独立してスケーリング）
   ctx.scale(scaleX, scaleY)
   
-  // グラデーションまたは単色を設定
-  if (settings.textColorType === 'gradient') {
-    // グラデーションを作成
-    let gradient
-    if (settings.gradientDirection === 'horizontal') {
-      // 左右グラデーション（テキストの幅に合わせる）
-      gradient = ctx.createLinearGradient(-maxLineWidth/2, 0, maxLineWidth/2, 0)
-    } else {
-      // 上下グラデーション（テキストの高さに合わせる）
-      gradient = ctx.createLinearGradient(0, -totalHeight/2, 0, totalHeight/2)
-    }
-    gradient.addColorStop(0, settings.gradientColor1 || settings.fontColor)
-    gradient.addColorStop(1, settings.gradientColor2 || settings.secondaryColor || '#FFD700')
-    ctx.fillStyle = gradient
-  } else {
-    // 単色
-    ctx.fillStyle = settings.fontColor
-  }
-  
-  ctx.font = `${fontWeight} ${baseFontSize}px ${fontFamily}`
+  ctx.fillStyle = settings.fontColor
+  ctx.font = `bold ${baseFontSize}px ${settings.fontFamily}`
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
   
-  // 各行を描画（完全に中央に配置）
-  const lineGap = lineHeight - baseFontSize  // 実際の行間
-  const actualTextHeight = baseFontSize * lineCount + lineGap * (lineCount - 1)
-  const startY = -(actualTextHeight / 2) + (baseFontSize / 2)
-  
+  // 各行を描画
+  const startY = -(totalHeight / 2) + (lineHeight / 2)
   lines.forEach((line, index) => {
     const y = startY + (index * lineHeight)
     ctx.fillText(line, 0, y)

@@ -107,16 +107,21 @@ function PreviewPanel({ settings, previewData, onRegenerate, isMobile }) {
 
             if (deltaTime >= delay) {
               smallFrameRef.current = (smallFrameRef.current + 1) % frameCount;
-              // 背景色を描画
+              // 32x32キャンバスをクリア
+              smallCtx.clearRect(0, 0, 32, 32);
+              // 32x32にスケールダウンして描画
+              smallCtx.save();
+              smallCtx.scale(0.25, 0.25); // 32/128 = 0.25
+              // 背景色を描画（128x128サイズで）
               smallCtx.fillStyle = settings.backgroundColor || "#FFFFFF";
-              smallCtx.fillRect(0, 0, 32, 32);
-              // 32x32キャンバスに描画（canvasUtilsが自動でスケーリング）
+              smallCtx.fillRect(0, 0, 128, 128);
               drawAnimationFrame(
                 smallCtx,
                 settings,
                 smallFrameRef.current,
                 frameCount
               );
+              smallCtx.restore();
               smallLastTime = currentTime;
             }
 
@@ -139,8 +144,11 @@ function PreviewPanel({ settings, previewData, onRegenerate, isMobile }) {
           generateIconData(settings, canvas).then((url) => {
             setDataUrl(url);
           });
-          // 32x32も生成（canvasUtilsが自動でスケーリング）
+          // 32x32も生成（128x128をスケールダウン）
+          smallCtx.save();
+          smallCtx.scale(0.25, 0.25); // 32/128 = 0.25
           drawTextIcon(smallCtx, settings);
+          smallCtx.restore();
         }
       }
     });
