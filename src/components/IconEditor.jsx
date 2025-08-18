@@ -1,9 +1,7 @@
-import { useState, useRef, useEffect, lazy, Suspense } from 'react'
-import { CANVAS_CONFIG, getSpeedLabel, calculateFPS } from '../constants/canvasConstants'
+import { useState, useRef, useEffect } from 'react'
+import { CANVAS_CONFIG } from '../constants/canvasConstants'
 import { preloadImage } from '../utils/imageCache'
 
-// ColorPickerを動的インポート
-const ColorPicker = lazy(() => import('./ColorPicker'))
 
 function IconEditor({ settings, onChange, isMobile }) {
   const [showFontColorPicker, setShowFontColorPicker] = useState(false)

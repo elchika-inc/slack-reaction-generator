@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { saveAs } from "file-saver";
 // gifencライブラリを使用（透明背景サポート向上）
-// import { generateIconData, drawAnimationFrame, drawTextIcon } from '../utils/canvasUtilsGifenc'
 // 従来のgif.jsを使いたい場合は以下をコメントアウト解除
 import {
   generateIconData,
@@ -9,11 +8,10 @@ import {
   drawTextIcon,
 } from "../utils/canvasUtils";
 
-function PreviewPanel({ settings, previewData, onRegenerate, isMobile }) {
+function PreviewPanel({ settings, isMobile }) {
   const [theme, setTheme] = useState("light");
   const canvasRef = useRef(null);
   const smallCanvasRef = useRef(null);
-  const [dataUrl, setDataUrl] = useState(null);
   const animationRef = useRef(null);
   const smallAnimationRef = useRef(null);
   const frameRef = useRef(0);
@@ -135,18 +133,14 @@ function PreviewPanel({ settings, previewData, onRegenerate, isMobile }) {
           animateSmall(0);
 
           // ダウンロード用のデータURLも生成しておく
-          generateIconData(settings, null).then((url) => {
-            setDataUrl(url);
-          });
+          generateIconData(settings, null);
         } else {
           // アニメーションなしの場合は静止画を生成
           // canvasをクリアしてから描画
           ctx.clearRect(0, 0, 128, 128);
           smallCtx.clearRect(0, 0, 32, 32);
 
-          generateIconData(settings, canvas).then((url) => {
-            setDataUrl(url);
-          });
+          generateIconData(settings, canvas);
           // 32x32も生成（128x128をスケールダウン）
           smallCtx.save();
           smallCtx.scale(0.25, 0.25); // 32/128 = 0.25

@@ -7,9 +7,31 @@ const loadGIF = async () => {
   }
   return GIF;
 };
-import { CANVAS_CONFIG, isDecorativeFont, calculatePadding, calculateFontSize } from '../constants/canvasConstants'
+import { CANVAS_CONFIG } from '../constants/canvasConstants'
 import { renderText } from './textRenderer'
-import { getOrLoadImage, preloadImage } from './imageCache'
+import { getOrLoadImage } from './imageCache'
+
+// アニメーション定数
+const ANIMATION_CONSTANTS = {
+  FULL_ROTATION: Math.PI * 2,
+  BOUNCE_HEIGHT_FACTOR: 19.2,
+  PULSE_SCALE_RANGE: 0.2,
+  SLIDE_DISTANCE_FACTOR: 29.44,
+  GLOW_BLUR_MAX: 30,
+  GLOW_BLUR_MIN: 5,
+  FADE_AMPLITUDE: 0.5,
+  RAINBOW_HUE_FULL: 360,
+  BLINK_FREQUENCY: 4,
+  HSL_SATURATION: 100,
+  HSL_LIGHTNESS: 50,
+  MINIMUM_GIF_DELAY: 30,
+  GIF_DELAY_PRECISION: 10,
+  DEFAULT_AMPLITUDE: 50,
+  OPACITY_MAX: 100,
+  SIZE_MAX: 100,
+  POSITION_MAX: 100,
+  CENTER_POSITION: 50
+}
 
 export const generateIconData = async (settings, canvas) => {
   // テキストまたは画像のアニメーションがある場合は専用の処理
@@ -88,10 +110,10 @@ const drawImageLayer = (ctx, settings, progress = 0) => {
     ctx.save()
     
     // 透過度設定（フェードアニメーションの場合は後で適用）
-    let baseAlpha = (settings.imageOpacity || 100) / 100
+    let baseAlpha = (settings.imageOpacity || ANIMATION_CONSTANTS.OPACITY_MAX) / ANIMATION_CONSTANTS.OPACITY_MAX
     
     // 画像のサイズ計算（%ベース）
-    const maxSize = CANVAS_CONFIG.SIZE * (settings.imageSize || 50) / 100
+    const maxSize = CANVAS_CONFIG.SIZE * (settings.imageSize || ANIMATION_CONSTANTS.CENTER_POSITION) / ANIMATION_CONSTANTS.SIZE_MAX
     
     // アスペクト比を保持してサイズ計算
     const scale = Math.min(maxSize / img.width, maxSize / img.height)
@@ -99,14 +121,14 @@ const drawImageLayer = (ctx, settings, progress = 0) => {
     const height = img.height * scale
     
     // 位置計算（0-100%を0-128pxに変換）
-    const centerX = CANVAS_CONFIG.SIZE * (settings.imageX || 50) / 100
-    const centerY = CANVAS_CONFIG.SIZE * (settings.imageY || 50) / 100
+    const centerX = CANVAS_CONFIG.SIZE * (settings.imageX || ANIMATION_CONSTANTS.CENTER_POSITION) / ANIMATION_CONSTANTS.POSITION_MAX
+    const centerY = CANVAS_CONFIG.SIZE * (settings.imageY || ANIMATION_CONSTANTS.CENTER_POSITION) / ANIMATION_CONSTANTS.POSITION_MAX
     
     // 画像アニメーションを適用（画像の中心を基準に）
     if (settings.imageAnimation && settings.imageAnimation !== 'none') {
       // フェードアニメーションの特別処理
       if (settings.imageAnimation === 'fade') {
-        const fadeAlpha = (Math.sin(progress * Math.PI * 2) + 1) / 2
+        const fadeAlpha = (Math.sin(progress * ANIMATION_CONSTANTS.FULL_ROTATION) + 1) / 2
         ctx.globalAlpha = baseAlpha * fadeAlpha
       } else {
         ctx.globalAlpha = baseAlpha
@@ -116,35 +138,38 @@ const drawImageLayer = (ctx, settings, progress = 0) => {
           case 'rotate':
             // 画像自体の中心で回転
             ctx.translate(centerX, centerY)
-            ctx.rotate(progress * Math.PI * 2)
+            ctx.rotate(progress * ANIMATION_CONSTANTS.FULL_ROTATION)
             ctx.translate(-centerX, -centerY)
             break
             
-          case 'bounce':
+          case 'bounce': {
             // バウンス（上下に跳ねる）
-            const amplitudeFactor = (settings.imageAnimationAmplitude || 50) / 100
-            const bounceHeight = 19.2 * amplitudeFactor
-            const bounce = Math.abs(Math.sin(progress * Math.PI * 2)) * bounceHeight
+            const amplitudeFactor = (settings.imageAnimationAmplitude || ANIMATION_CONSTANTS.DEFAULT_AMPLITUDE) / ANIMATION_CONSTANTS.OPACITY_MAX
+            const bounceHeight = ANIMATION_CONSTANTS.BOUNCE_HEIGHT_FACTOR * amplitudeFactor
+            const bounce = Math.abs(Math.sin(progress * ANIMATION_CONSTANTS.FULL_ROTATION)) * bounceHeight
             ctx.translate(0, -bounce)
             break
+          }
             
-          case 'pulse':
+          case 'pulse': {
             // 画像自体の中心で拡大縮小
-            const pulseAmplitudeFactor = (settings.imageAnimationAmplitude || 50) / 100
-            const scaleRange = 0.2 * pulseAmplitudeFactor
-            const scaleValue = 1 + Math.sin(progress * Math.PI * 2) * scaleRange
+            const pulseAmplitudeFactor = (settings.imageAnimationAmplitude || ANIMATION_CONSTANTS.DEFAULT_AMPLITUDE) / ANIMATION_CONSTANTS.OPACITY_MAX
+            const scaleRange = ANIMATION_CONSTANTS.PULSE_SCALE_RANGE * pulseAmplitudeFactor
+            const scaleValue = 1 + Math.sin(progress * ANIMATION_CONSTANTS.FULL_ROTATION) * scaleRange
             ctx.translate(centerX, centerY)
             ctx.scale(scaleValue, scaleValue)
             ctx.translate(-centerX, -centerY)
             break
+          }
             
-          case 'slide':
+          case 'slide': {
             // スライド（左右に移動）
-            const slideAmplitudeFactor = (settings.imageAnimationAmplitude || 50) / 100
-            const slideDistance = 29.44 * slideAmplitudeFactor
-            const slideX = Math.sin(progress * Math.PI * 2) * slideDistance
+            const slideAmplitudeFactor = (settings.imageAnimationAmplitude || ANIMATION_CONSTANTS.DEFAULT_AMPLITUDE) / ANIMATION_CONSTANTS.OPACITY_MAX
+            const slideDistance = ANIMATION_CONSTANTS.SLIDE_DISTANCE_FACTOR * slideAmplitudeFactor
+            const slideX = Math.sin(progress * ANIMATION_CONSTANTS.FULL_ROTATION) * slideDistance
             ctx.translate(slideX, 0)
             break
+          }
         }
       }
     } else {
@@ -168,143 +193,12 @@ const drawImageLayer = (ctx, settings, progress = 0) => {
 
 
 
-const drawImage = async (ctx, settings) => {
-  return new Promise((resolve) => {
-    const img = new Image()
-    img.onload = () => {
-      // 画像をキャンバスにフィットさせる
-      const scale = Math.min(128 / img.width, 128 / img.height)
-      const width = img.width * scale
-      const height = img.height * scale
-      const x = (128 - width) / 2
-      const y = (128 - height) / 2
-      
-      ctx.drawImage(img, x, y, width, height)
-      resolve()
-    }
-    img.src = settings.imageData
-  })
-}
 
-const drawBackground = (ctx, color, shape) => {
-  ctx.fillStyle = color
-  drawShape(ctx, shape, 'fill')
-}
 
-const drawShape = (ctx, shape, method) => {
-  ctx.beginPath()
-  
-  switch (shape) {
-    case 'circle':
-      ctx.arc(64, 64, 60, 0, Math.PI * 2)
-      break
-      
-    case 'rounded':
-      roundRect(ctx, 4, 4, 120, 120, 20)
-      break
-      
-    case 'triangle':
-      ctx.moveTo(64, 10)
-      ctx.lineTo(118, 118)
-      ctx.lineTo(10, 118)
-      ctx.closePath()
-      break
-      
-    case 'star':
-      drawStar(ctx, 64, 64, 5, 50, 25)
-      break
-      
-    case 'heart':
-      drawHeart(ctx, 64, 64, 50)
-      break
-      
-    case 'hexagon':
-      drawPolygon(ctx, 64, 64, 6, 60)
-      break
-      
-    case 'speech':
-      roundRect(ctx, 10, 10, 100, 80, 15)
-      ctx.moveTo(30, 90)
-      ctx.lineTo(20, 110)
-      ctx.lineTo(50, 90)
-      break
-      
-    case 'square':
-    default:
-      ctx.rect(4, 4, 120, 120)
-      break
-  }
-  
-  if (method === 'fill') {
-    ctx.fill()
-  } else {
-    ctx.stroke()
-  }
-}
 
-const roundRect = (ctx, x, y, width, height, radius) => {
-  ctx.moveTo(x + radius, y)
-  ctx.lineTo(x + width - radius, y)
-  ctx.quadraticCurveTo(x + width, y, x + width, y + radius)
-  ctx.lineTo(x + width, y + height - radius)
-  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height)
-  ctx.lineTo(x + radius, y + height)
-  ctx.quadraticCurveTo(x, y + height, x, y + height - radius)
-  ctx.lineTo(x, y + radius)
-  ctx.quadraticCurveTo(x, y, x + radius, y)
-}
 
-const drawStar = (ctx, cx, cy, spikes, outerRadius, innerRadius) => {
-  let rot = Math.PI / 2 * 3
-  let x = cx
-  let y = cy
-  const step = Math.PI / spikes
-  
-  ctx.moveTo(cx, cy - outerRadius)
-  
-  for (let i = 0; i < spikes; i++) {
-    x = cx + Math.cos(rot) * outerRadius
-    y = cy + Math.sin(rot) * outerRadius
-    ctx.lineTo(x, y)
-    rot += step
-    
-    x = cx + Math.cos(rot) * innerRadius
-    y = cy + Math.sin(rot) * innerRadius
-    ctx.lineTo(x, y)
-    rot += step
-  }
-  
-  ctx.lineTo(cx, cy - outerRadius)
-  ctx.closePath()
-}
 
-const drawHeart = (ctx, x, y, size) => {
-  ctx.moveTo(x, y + size / 4)
-  ctx.quadraticCurveTo(x, y, x - size / 4, y)
-  ctx.quadraticCurveTo(x - size / 2, y, x - size / 2, y + size / 4)
-  ctx.quadraticCurveTo(x - size / 2, y + size / 2, x, y + size * 3 / 4)
-  ctx.quadraticCurveTo(x + size / 2, y + size / 2, x + size / 2, y + size / 4)
-  ctx.quadraticCurveTo(x + size / 2, y, x + size / 4, y)
-  ctx.quadraticCurveTo(x, y, x, y + size / 4)
-}
 
-const drawPolygon = (ctx, x, y, sides, radius) => {
-  const angle = (Math.PI * 2) / sides
-  
-  ctx.moveTo(
-    x + radius * Math.cos(0),
-    y + radius * Math.sin(0)
-  )
-  
-  for (let i = 1; i <= sides; i++) {
-    ctx.lineTo(
-      x + radius * Math.cos(angle * i),
-      y + radius * Math.sin(angle * i)
-    )
-  }
-  
-  ctx.closePath()
-}
 
 const generateAnimatedGIF = async (canvas, settings) => {
   // GIFライブラリを先に読み込む
@@ -338,15 +232,14 @@ const generateAnimatedGIF = async (canvas, settings) => {
     // GIFの遅延値設定
     // 多くのGIFビューアは20ms未満を100msに強制変更するため、最小30msに設定
     let gifDelay = requestedDelay
-    if (requestedDelay < 30) {
-      gifDelay = 30  // より安全な最小値を30msに設定
+    if (requestedDelay < ANIMATION_CONSTANTS.MINIMUM_GIF_DELAY) {
+      gifDelay = ANIMATION_CONSTANTS.MINIMUM_GIF_DELAY  // より安全な最小値を設定
     }
     
     // GIF遅延は1/100秒単位（10ms刻み）なので、最も近い値に丸める
-    gifDelay = Math.round(gifDelay / 10) * 10
+    gifDelay = Math.round(gifDelay / ANIMATION_CONSTANTS.GIF_DELAY_PRECISION) * ANIMATION_CONSTANTS.GIF_DELAY_PRECISION
     
     // デバッグ用：実際の遅延値をコンソールに出力
-    console.log(`Animation Speed Settings: requested=${requestedDelay}ms, final=${gifDelay}ms, frames=${frameCount}`)
     
     for (let i = 0; i < frameCount; i++) {
       // フレームキャンバスを背景色で塗りつぶす
@@ -394,53 +287,58 @@ export const drawAnimationFrame = (ctx, settings, frame, totalFrames) => {
         // 点滅 - セカンドカラーと交互に切り替え（色のみの変更、トランスフォームなし）
         break
         
-      case 'rotate':
+      case 'rotate': {
         // 回転（テキストのみに適用）
         const center = 64
         ctx.translate(center, center)
-        ctx.rotate(progress * Math.PI * 2)
+        ctx.rotate(progress * ANIMATION_CONSTANTS.FULL_ROTATION)
         ctx.translate(-center, -center)
         break
+      }
         
-      case 'bounce':
+      case 'bounce': {
         // バウンス - amplitudeで高さを制御（テキストのみに適用）
-        const amplitudeFactor = (settings.animationAmplitude || 50) / 100
-        const bounceHeight = 19.2 * amplitudeFactor  // 128 * 0.15 * amplitude
-        const bounce = Math.abs(Math.sin(progress * Math.PI * 2)) * bounceHeight
+        const amplitudeFactor = (settings.animationAmplitude || ANIMATION_CONSTANTS.DEFAULT_AMPLITUDE) / ANIMATION_CONSTANTS.OPACITY_MAX
+        const bounceHeight = ANIMATION_CONSTANTS.BOUNCE_HEIGHT_FACTOR * amplitudeFactor  // 128 * 0.15 * amplitude
+        const bounce = Math.abs(Math.sin(progress * ANIMATION_CONSTANTS.FULL_ROTATION)) * bounceHeight
         ctx.translate(0, -bounce)
         break
+      }
         
-      case 'pulse':
+      case 'pulse': {
         // パルス（拡大縮小）- amplitudeで変化量を制御（テキストのみに適用）
-        const pulseAmplitudeFactor = (settings.animationAmplitude || 50) / 100
-        const scaleRange = 0.2 * pulseAmplitudeFactor  // 基本の0.2に振幅を乗算
-        const scale = 1 + Math.sin(progress * Math.PI * 2) * scaleRange
+        const pulseAmplitudeFactor = (settings.animationAmplitude || ANIMATION_CONSTANTS.DEFAULT_AMPLITUDE) / ANIMATION_CONSTANTS.OPACITY_MAX
+        const scaleRange = ANIMATION_CONSTANTS.PULSE_SCALE_RANGE * pulseAmplitudeFactor  // 基本の0.2に振幅を乗算
+        const scale = 1 + Math.sin(progress * ANIMATION_CONSTANTS.FULL_ROTATION) * scaleRange
         const pulseCenter = 64
         ctx.translate(pulseCenter, pulseCenter)
         ctx.scale(scale, scale)
         ctx.translate(-pulseCenter, -pulseCenter)
         break
+      }
         
-      case 'glow':
+      case 'glow': {
         // グロー効果 - セカンドカラーで光らせる（テキストのみに適用）
-        const glow = Math.abs(Math.sin(progress * Math.PI * 2))
+        const glow = Math.abs(Math.sin(progress * ANIMATION_CONSTANTS.FULL_ROTATION))
         ctx.shadowColor = settings.secondaryColor || '#FFD700'
-        ctx.shadowBlur = glow * 30 + 5
+        ctx.shadowBlur = glow * ANIMATION_CONSTANTS.GLOW_BLUR_MAX + ANIMATION_CONSTANTS.GLOW_BLUR_MIN
         ctx.shadowOffsetX = 0
         ctx.shadowOffsetY = 0
         break
+      }
         
-      case 'slide':
+      case 'slide': {
         // スライド - amplitudeで距離を制御（テキストのみに適用）
-        const slideAmplitudeFactor = (settings.animationAmplitude || 50) / 100
-        const slideDistance = 29.44 * slideAmplitudeFactor  // 128 * 0.23 * amplitude
-        const slideX = Math.sin(progress * Math.PI * 2) * slideDistance
+        const slideAmplitudeFactor = (settings.animationAmplitude || ANIMATION_CONSTANTS.DEFAULT_AMPLITUDE) / ANIMATION_CONSTANTS.OPACITY_MAX
+        const slideDistance = ANIMATION_CONSTANTS.SLIDE_DISTANCE_FACTOR * slideAmplitudeFactor  // 128 * 0.23 * amplitude
+        const slideX = Math.sin(progress * ANIMATION_CONSTANTS.FULL_ROTATION) * slideDistance
         ctx.translate(slideX, 0)
         break
+      }
         
       case 'fade':
         // フェード（テキストのみに適用）
-        ctx.globalAlpha = (Math.sin(progress * Math.PI * 2) + 1) / 2
+        ctx.globalAlpha = (Math.sin(progress * ANIMATION_CONSTANTS.FULL_ROTATION) + 1) / 2
         break
     }
   }
@@ -448,16 +346,16 @@ export const drawAnimationFrame = (ctx, settings, frame, totalFrames) => {
   // テキストを描画（アニメーションに応じて色を変更）
   if (settings.animation === 'rainbow') {
     // レインボーアニメーション時はグラデーションを無効化してレインボー色を使用
-    const hue = progress * 360
+    const hue = progress * ANIMATION_CONSTANTS.RAINBOW_HUE_FULL
     const modifiedSettings = { 
       ...settings, 
       textColorType: 'solid',  // グラデーションを無効化
-      fontColor: `hsl(${hue}, 100%, 50%)` 
+      fontColor: `hsl(${hue}, ${ANIMATION_CONSTANTS.HSL_SATURATION}%, ${ANIMATION_CONSTANTS.HSL_LIGHTNESS}%)` 
     }
     renderText(ctx, modifiedSettings, { skipBackground: true })
   } else if (settings.animation === 'blink') {
     // 点滅効果：グラデーションとセカンドカラーで切り替え
-    const useSecondary = Math.sin(progress * Math.PI * 4) > 0
+    const useSecondary = Math.sin(progress * ANIMATION_CONSTANTS.FULL_ROTATION * ANIMATION_CONSTANTS.BLINK_FREQUENCY) > 0
     if (useSecondary) {
       // セカンドカラーを単色で表示
       const modifiedSettings = { 
@@ -483,77 +381,4 @@ export const drawAnimationFrame = (ctx, settings, frame, totalFrames) => {
   }
 }
 
-// テキストのみを描画
-const drawTextOnly = (ctx, settings) => {
-  const lines = settings.text.split('\n').filter(line => line.trim())
-  const lineCount = lines.length
-  
-  if (lineCount === 0) return
-  
-  // キャンバスサイズを取得
-  const canvasSize = ctx.canvas.width
-  
-  // キャンバスの余白を考慮した描画エリア
-  const padding = canvasSize * 0.078
-  const maxWidth = canvasSize - (padding * 2)
-  const maxHeight = canvasSize - (padding * 2)
-  
-  // ベースフォントサイズ（キャンバスサイズに応じて調整）
-  const baseFontSize = canvasSize * 0.47
-  
-  ctx.save()
-  
-  // 現在のトランスフォームを保持しつつ、中心を原点に
-  const currentTransform = ctx.getTransform()
-  ctx.translate(canvasSize / 2, canvasSize / 2)
-  
-  // 各行の幅を計測
-  ctx.font = `bold ${baseFontSize}px ${settings.fontFamily}`
-  const maxLineWidth = Math.max(...lines.map(line => ctx.measureText(line).width))
-  
-  // テキスト全体の高さを計算
-  const lineHeight = baseFontSize * 1.1
-  const totalHeight = lineHeight * lineCount
-  
-  // 横方向と縦方向のスケールを計算
-  let scaleX = 1
-  let scaleY = 1
-  
-  if (maxLineWidth > 0) {
-    scaleX = maxWidth / maxLineWidth
-  }
-  if (totalHeight > 0) {
-    scaleY = maxHeight / totalHeight
-  }
-  
-  // スケールを適用（縦横独立してスケーリング）
-  ctx.scale(scaleX, scaleY)
-  
-  ctx.fillStyle = settings.fontColor
-  ctx.font = `bold ${baseFontSize}px ${settings.fontFamily}`
-  ctx.textAlign = 'center'
-  ctx.textBaseline = 'middle'
-  
-  // 各行を描画
-  const startY = -(totalHeight / 2) + (lineHeight / 2)
-  lines.forEach((line, index) => {
-    const y = startY + (index * lineHeight)
-    ctx.fillText(line, 0, y)
-  })
-  
-  ctx.restore()
-}
 
-// 画像のみを描画
-const drawImageOnly = async (ctx, settings) => {
-  const img = new Image()
-  img.src = settings.imageData
-  if (img.complete) {
-    const scale = Math.min(128 / img.width, 128 / img.height)
-    const width = img.width * scale
-    const height = img.height * scale
-    const x = (128 - width) / 2
-    const y = (128 - height) / 2
-    ctx.drawImage(img, x, y, width, height)
-  }
-}

@@ -1,8 +1,7 @@
 import { CANVAS_CONFIG, isDecorativeFont, calculatePadding, calculateFontSize } from '../constants/canvasConstants'
 
 // 統一されたテキスト描画関数
-export const renderText = (ctx, settings, options = {}) => {
-  const { skipBackground = false } = options
+export const renderText = (ctx, settings) => {
   
   const lines = settings.text.split('\n').filter(line => line.trim())
   const lineCount = lines.length

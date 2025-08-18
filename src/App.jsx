@@ -11,9 +11,8 @@ const loadFileSaver = async () => {
 import Header from "./components/Header";
 import IconEditor from "./components/IconEditor";
 import PreviewPanel from "./components/PreviewPanel";
-import { shouldEnableFeature, getOptimalImageQuality } from "./utils/networkAware";
+import { shouldEnableFeature } from "./utils/networkAware";
 // gifencライブラリを使用（透明背景サポート向上）
-// import { generateIconData, drawAnimationFrame, drawTextIcon } from './utils/canvasUtilsGifenc'
 // 従来のgif.jsを使いたい場合は以下をコメントアウト解除
 import {
   generateIconData,
@@ -100,7 +99,6 @@ function App() {
   useEffect(() => {
     if (!isMobile) return;
 
-    console.log('Mobile preview effect triggered', iconSettings.animation, iconSettings.imageAnimation);
 
     // アニメーション停止
     if (animationRef.current) {

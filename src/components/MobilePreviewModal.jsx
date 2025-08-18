@@ -3,9 +3,8 @@ import { saveAs } from 'file-saver'
 // gifencライブラリを使用（透明背景サポート向上）
 import { generateIconData, drawAnimationFrame } from '../utils/canvasUtilsGifenc'
 // 従来のgif.jsを使いたい場合は以下をコメントアウト解除
-// import { generateIconData, drawAnimationFrame } from '../utils/canvasUtils'
 
-function MobilePreviewModal({ isOpen, onClose, settings, previewData }) {
+function MobilePreviewModal({ isOpen, onClose, settings }) {
   const [dataUrl, setDataUrl] = useState(null)
   const canvasRef = useRef(null)
   const [theme, setTheme] = useState('light')
