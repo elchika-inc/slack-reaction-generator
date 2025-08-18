@@ -66,6 +66,8 @@ function App() {
     imageSize: 50, // 画像のサイズ（0-100%）
     imageOpacity: 100, // 画像の透過度（0-100%）
     imagePosition: 'back', // 画像の前後位置（'front' or 'back'）
+    imageAnimation: 'none', // 画像のアニメーション
+    imageAnimationAmplitude: 50, // 画像アニメーションの幅（0-100%）
   });
   const [previewData, setPreviewData] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
@@ -97,6 +99,8 @@ function App() {
   // モバイル用プレビュー描画
   useEffect(() => {
     if (!isMobile) return;
+
+    console.log('Mobile preview effect triggered', iconSettings.animation, iconSettings.imageAnimation);
 
     // アニメーション停止
     if (animationRef.current) {
@@ -140,8 +144,11 @@ function App() {
         smallCanvas.height = 32;
         const smallCtx = smallCanvas.getContext("2d", { alpha: true });
 
-        // アニメーションがある場合はリアルタイムで描画
-        if (iconSettings.animation !== "none") {
+        // テキストまたは画像のアニメーションがある場合はリアルタイムで描画
+        const hasTextAnimation = iconSettings.animation && iconSettings.animation !== "none";
+        const hasImageAnimation = iconSettings.imageData && iconSettings.imageAnimation && iconSettings.imageAnimation !== "none";
+        
+        if (hasTextAnimation || hasImageAnimation) {
           frameRef.current = 0;
           smallFrameRef.current = 0;
           const frameCount = 30;

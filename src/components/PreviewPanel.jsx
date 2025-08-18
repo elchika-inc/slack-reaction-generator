@@ -72,7 +72,10 @@ function PreviewPanel({ settings, previewData, onRegenerate, isMobile }) {
         const smallCtx = smallCanvas.getContext("2d", { alpha: true }); // アルファチャンネルを明示的に有効化
 
         // アニメーションがある場合はリアルタイムで描画
-        if (settings.animation !== "none") {
+        const hasTextAnimation = settings.animation && settings.animation !== "none";
+        const hasImageAnimation = settings.imageData && settings.imageAnimation && settings.imageAnimation !== "none";
+        
+        if (hasTextAnimation || hasImageAnimation) {
           frameRef.current = 0;
           smallFrameRef.current = 0;
           const frameCount = 30; // GIFと同じフレーム数

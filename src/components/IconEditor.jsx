@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, lazy, Suspense } from 'react'
 import { CANVAS_CONFIG, getSpeedLabel, calculateFPS } from '../constants/canvasConstants'
+import { preloadImage } from '../utils/imageCache'
 
 // ColorPickerを動的インポート
 const ColorPicker = lazy(() => import('./ColorPicker'))
@@ -552,8 +553,11 @@ function IconEditor({ settings, onChange, isMobile }) {
                   const file = e.target.files[0]
                   if (file) {
                     const reader = new FileReader()
-                    reader.onload = (event) => {
-                      onChange({ imageData: event.target.result })
+                    reader.onload = async (event) => {
+                      const dataUrl = event.target.result
+                      // 画像を事前読み込み
+                      await preloadImage(dataUrl)
+                      onChange({ imageData: dataUrl })
                     }
                     reader.readAsDataURL(file)
                   }
@@ -737,6 +741,63 @@ function IconEditor({ settings, onChange, isMobile }) {
                       </div>
                     </div>
                   </div>
+                </div>
+
+                {/* 画像アニメーション設定 */}
+                <div className="space-y-3 mt-4 pt-4 border-t border-gray-200">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-2">画像アニメーション</label>
+                    <div className="grid grid-cols-3 gap-1">
+                      {[
+                        { value: 'none', label: 'なし' },
+                        { value: 'rotate', label: '回転' },
+                        { value: 'bounce', label: 'バウンス' },
+                        { value: 'pulse', label: 'パルス' },
+                        { value: 'slide', label: 'スライド' },
+                        { value: 'fade', label: 'フェード' },
+                      ].map((anim) => (
+                        <button
+                          key={anim.value}
+                          onClick={() => onChange({ imageAnimation: anim.value })}
+                          className={`py-2 px-1 rounded text-xs transition-all ${
+                            settings.imageAnimation === anim.value
+                              ? 'bg-purple-600 text-white'
+                              : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                          }`}
+                        >
+                          {anim.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 画像アニメーション幅（バウンス、パルス、スライドのみ） */}
+                  {settings.imageAnimation !== 'none' && (settings.imageAnimation === 'bounce' || settings.imageAnimation === 'pulse' || settings.imageAnimation === 'slide') && (
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">
+                        画像アニメーション幅
+                      </label>
+                      <div className="space-y-1">
+                        <input
+                          type="range"
+                          min="10"
+                          max="100"
+                          step="5"
+                          value={settings.imageAnimationAmplitude || 50}
+                          onChange={(e) => onChange({ imageAnimationAmplitude: parseInt(e.target.value) })}
+                          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                          style={{
+                            background: `linear-gradient(to right, #9333ea 0%, #9333ea ${((settings.imageAnimationAmplitude || 50) - 10) / 90 * 100}%, #e5e7eb ${((settings.imageAnimationAmplitude || 50) - 10) / 90 * 100}%, #e5e7eb 100%)`
+                          }}
+                        />
+                        <div className="flex justify-between text-xs text-gray-500">
+                          <span>小さく</span>
+                          <span className="text-purple-600 font-medium">{settings.imageAnimationAmplitude || 50}%</span>
+                          <span>大きく</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </>
             )}

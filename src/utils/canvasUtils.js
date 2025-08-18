@@ -13,7 +13,10 @@ import { getOrLoadImage, preloadImage } from './imageCache'
 
 export const generateIconData = async (settings, canvas) => {
   // テキストまたは画像のアニメーションがある場合は専用の処理
-  if (settings.animation !== 'none' || (settings.imageData && settings.imageAnimation !== 'none')) {
+  const hasTextAnimation = settings.animation && settings.animation !== 'none';
+  const hasImageAnimation = settings.imageData && settings.imageAnimation && settings.imageAnimation !== 'none';
+  
+  if (hasTextAnimation || hasImageAnimation) {
     // GIF生成用の新しいキャンバスを作成
     const gifCanvas = document.createElement('canvas')
     gifCanvas.width = CANVAS_CONFIG.SIZE
@@ -48,7 +51,10 @@ export const drawTextIcon = (ctx, settings) => {
   // 背景を設定
   // アニメーションがある場合は常に背景色を塗る（GIFは透明非対応）
   // アニメーションがない場合は、backgroundTypeに応じて背景を設定
-  if (settings.animation !== 'none' || settings.backgroundType === 'color') {
+  const hasTextAnimation = settings.animation && settings.animation !== 'none';
+  const hasImageAnimation = settings.imageData && settings.imageAnimation && settings.imageAnimation !== 'none';
+  
+  if (hasTextAnimation || hasImageAnimation || settings.backgroundType === 'color') {
     ctx.fillStyle = settings.backgroundColor || CANVAS_CONFIG.DEFAULT_BACKGROUND_COLOR
     // 固定サイズで背景を描画
     ctx.fillRect(0, 0, CANVAS_CONFIG.SIZE, CANVAS_CONFIG.SIZE)
@@ -369,33 +375,27 @@ const generateAnimatedGIF = async (canvas, settings) => {
 export const drawAnimationFrame = (ctx, settings, frame, totalFrames) => {
   const progress = frame / totalFrames
   
-  // キャンバスサイズは固定値128を使用
-  const canvasSize = 128
+  // 画像が後ろの場合は先に描画（独立した処理）
+  if (settings.imageData && settings.imagePosition === 'back') {
+    drawImageLayer(ctx, settings, progress)
+  }
   
-  // キャンバスをクリアしない（白背景を維持）
-  // ctx.clearRect(0, 0, canvasSize, canvasSize)
-  
-  // テキストアニメーションのみを適用（画像アニメーションはdrawImageLayer内で処理）
+  // テキストアニメーションを独立して適用
   ctx.save()
   
   // settings.animation が none の場合はスキップ
   if (settings.animation && settings.animation !== 'none') {
     switch (settings.animation) {
       case 'rainbow':
-        // HSL色空間で色を変化させる
-        const hue = progress * 360
-        const color = `hsl(${hue}, 100%, 50%)`
-        // オリジナルのfontColorを上書き
+        // HSL色空間で色を変化させる（色のみの変更、トランスフォームなし）
         break
         
       case 'blink':
-        // 点滅 - セカンドカラーと交互に切り替え
-        // Math.sin(progress * Math.PI * 4) > 0 でタイミングを判定
-        // セカンドカラーを使用する場合は後でfontColorを変更
+        // 点滅 - セカンドカラーと交互に切り替え（色のみの変更、トランスフォームなし）
         break
         
       case 'rotate':
-        // 回転
+        // 回転（テキストのみに適用）
         const center = 64
         ctx.translate(center, center)
         ctx.rotate(progress * Math.PI * 2)
@@ -403,7 +403,7 @@ export const drawAnimationFrame = (ctx, settings, frame, totalFrames) => {
         break
         
       case 'bounce':
-        // バウンス - amplitudeで高さを制御（10%-100% → 0.1-1.0倍）
+        // バウンス - amplitudeで高さを制御（テキストのみに適用）
         const amplitudeFactor = (settings.animationAmplitude || 50) / 100
         const bounceHeight = 19.2 * amplitudeFactor  // 128 * 0.15 * amplitude
         const bounce = Math.abs(Math.sin(progress * Math.PI * 2)) * bounceHeight
@@ -411,7 +411,7 @@ export const drawAnimationFrame = (ctx, settings, frame, totalFrames) => {
         break
         
       case 'pulse':
-        // パルス（拡大縮小）- amplitudeで変化量を制御
+        // パルス（拡大縮小）- amplitudeで変化量を制御（テキストのみに適用）
         const pulseAmplitudeFactor = (settings.animationAmplitude || 50) / 100
         const scaleRange = 0.2 * pulseAmplitudeFactor  // 基本の0.2に振幅を乗算
         const scale = 1 + Math.sin(progress * Math.PI * 2) * scaleRange
@@ -422,7 +422,7 @@ export const drawAnimationFrame = (ctx, settings, frame, totalFrames) => {
         break
         
       case 'glow':
-        // グロー効果 - セカンドカラーで光らせる
+        // グロー効果 - セカンドカラーで光らせる（テキストのみに適用）
         const glow = Math.abs(Math.sin(progress * Math.PI * 2))
         ctx.shadowColor = settings.secondaryColor || '#FFD700'
         ctx.shadowBlur = glow * 30 + 5
@@ -431,7 +431,7 @@ export const drawAnimationFrame = (ctx, settings, frame, totalFrames) => {
         break
         
       case 'slide':
-        // スライド - amplitudeで距離を制御
+        // スライド - amplitudeで距離を制御（テキストのみに適用）
         const slideAmplitudeFactor = (settings.animationAmplitude || 50) / 100
         const slideDistance = 29.44 * slideAmplitudeFactor  // 128 * 0.23 * amplitude
         const slideX = Math.sin(progress * Math.PI * 2) * slideDistance
@@ -439,19 +439,13 @@ export const drawAnimationFrame = (ctx, settings, frame, totalFrames) => {
         break
         
       case 'fade':
-        // フェード
+        // フェード（テキストのみに適用）
         ctx.globalAlpha = (Math.sin(progress * Math.PI * 2) + 1) / 2
         break
     }
   }
   
-  // 画像が後ろの場合は先に描画
-  if (settings.imageData && settings.imagePosition === 'back') {
-    drawImageLayer(ctx, settings, progress)
-  }
-  
-  // テキストを描画
-  // アニメーションに応じて色を変更
+  // テキストを描画（アニメーションに応じて色を変更）
   if (settings.animation === 'rainbow') {
     // レインボーアニメーション時はグラデーションを無効化してレインボー色を使用
     const hue = progress * 360
@@ -481,12 +475,12 @@ export const drawAnimationFrame = (ctx, settings, frame, totalFrames) => {
     renderText(ctx, settings, { skipBackground: true })
   }
   
-  // 画像が前の場合は後に描画
+  ctx.restore()
+  
+  // 画像が前の場合は後に描画（独立した処理）
   if (settings.imageData && settings.imagePosition === 'front') {
     drawImageLayer(ctx, settings, progress)
   }
-  
-  ctx.restore()
 }
 
 // テキストのみを描画
