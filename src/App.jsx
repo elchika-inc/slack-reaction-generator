@@ -54,6 +54,7 @@ function App() {
     backgroundColor: "#FFFFFF",
     animation: "none",
     animationSpeed: 20, // デフォルトを超高速（20ms）に設定
+    animationAmplitude: 50, // アニメーション幅の制御（デフォルト50%）
     textColorType: "solid", // 'solid' or 'gradient'
     gradientColor1: getRandomColor(),
     gradientColor2: getRandomColor(),
@@ -138,7 +139,7 @@ function App() {
           smallFrameRef.current = 0;
           const frameCount = 30;
           const requestedDelay = iconSettings.animationSpeed || 33;
-          const delay = requestedDelay < 20 ? 20 : requestedDelay;
+          const delay = requestedDelay < 30 ? 30 : requestedDelay;
           let lastTime = 0;
           let smallLastTime = 0;
 

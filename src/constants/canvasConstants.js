@@ -21,9 +21,9 @@ export const CANVAS_CONFIG = {
   
   // アニメーション設定
   DEFAULT_ANIMATION_SPEED: 50,
-  MIN_ANIMATION_SPEED: 20,
+  MIN_ANIMATION_SPEED: 30,  // GIF互換性のため30msに変更
   MAX_ANIMATION_SPEED: 100,
-  ANIMATION_SPEED_INVERT_BASE: 120,      // UIの速度スライダー逆転用
+  ANIMATION_SPEED_INVERT_BASE: 130,      // UIの速度スライダー逆転用（30ms基準に調整）
   
   // フォントファミリー判定
   DECORATIVE_FONTS: ['Pacifico', 'Caveat'],

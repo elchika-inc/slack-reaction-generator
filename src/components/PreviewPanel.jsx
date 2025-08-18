@@ -79,8 +79,8 @@ function PreviewPanel({ settings, previewData, onRegenerate, isMobile }) {
           // animationSpeedは既にミリ秒単位
           const requestedDelay = settings.animationSpeed || 33;
 
-          // GIFと同じ制限を適用（20ms未満は20msに）
-          const delay = requestedDelay < 20 ? 20 : requestedDelay;
+          // GIFと同じ制限を適用（30ms未満は30msに）
+          const delay = requestedDelay < 30 ? 30 : requestedDelay;
           let lastTime = 0;
           let smallLastTime = 0;
 

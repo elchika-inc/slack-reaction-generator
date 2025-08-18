@@ -216,7 +216,9 @@ const generateAnimatedGIF = async (canvas, settings) => {
       height: 128,
       workerScript: '/gif.worker.js',
       // transparent オプションを削除（透明色を使用しない）
-      repeat: 0  // ループ再生
+      repeat: 0,  // ループ再生
+      // ビューア互換性を向上させるためのオプション
+      dither: false  // ディザリングを無効化してより一貫した再生速度を実現
     })
     
     // フレーム数を30に固定
@@ -224,15 +226,18 @@ const generateAnimatedGIF = async (canvas, settings) => {
     // animationSpeedは既にミリ秒単位で保存されている
     const requestedDelay = settings.animationSpeed || 33
     
-    // GIFビューアには最小遅延の制限がある（通常20ms）
-    // 20ms未満の値は無視されて100msになる可能性がある
-    // 安全な範囲: 20ms以上
+    // GIFの遅延値設定
+    // 多くのGIFビューアは20ms未満を100msに強制変更するため、最小30msに設定
     let gifDelay = requestedDelay
-    if (requestedDelay < 20) {
-      // 20ms未満の場合は20msに設定（これ以下だと100msになる可能性）
-      gifDelay = 20
-      // Speed too fast, adjusted to 20ms
+    if (requestedDelay < 30) {
+      gifDelay = 30  // より安全な最小値を30msに設定
     }
+    
+    // GIF遅延は1/100秒単位（10ms刻み）なので、最も近い値に丸める
+    gifDelay = Math.round(gifDelay / 10) * 10
+    
+    // デバッグ用：実際の遅延値をコンソールに出力
+    console.log(`Animation Speed Settings: requested=${requestedDelay}ms, final=${gifDelay}ms, frames=${frameCount}`)
     
     for (let i = 0; i < frameCount; i++) {
       // フレームキャンバスを背景色で塗りつぶす
@@ -293,15 +298,18 @@ export const drawAnimationFrame = (ctx, settings, frame, totalFrames) => {
       break
       
     case 'bounce':
-      // バウンス
-      const bounceHeight = 19.2  // 128 * 0.15
+      // バウンス - amplitudeで高さを制御（10%-100% → 0.1-1.0倍）
+      const amplitudeFactor = (settings.animationAmplitude || 50) / 100
+      const bounceHeight = 19.2 * amplitudeFactor  // 128 * 0.15 * amplitude
       const bounce = Math.abs(Math.sin(progress * Math.PI * 2)) * bounceHeight
       ctx.translate(0, -bounce)
       break
       
     case 'pulse':
-      // パルス（拡大縮小）
-      const scale = 1 + Math.sin(progress * Math.PI * 2) * 0.2
+      // パルス（拡大縮小）- amplitudeで変化量を制御
+      const pulseAmplitudeFactor = (settings.animationAmplitude || 50) / 100
+      const scaleRange = 0.2 * pulseAmplitudeFactor  // 基本の0.2に振幅を乗算
+      const scale = 1 + Math.sin(progress * Math.PI * 2) * scaleRange
       const pulseCenter = 64
       ctx.translate(pulseCenter, pulseCenter)
       ctx.scale(scale, scale)
@@ -318,8 +326,9 @@ export const drawAnimationFrame = (ctx, settings, frame, totalFrames) => {
       break
       
     case 'slide':
-      // スライド
-      const slideDistance = 29.44  // 128 * 0.23
+      // スライド - amplitudeで距離を制御
+      const slideAmplitudeFactor = (settings.animationAmplitude || 50) / 100
+      const slideDistance = 29.44 * slideAmplitudeFactor  // 128 * 0.23 * amplitude
       const slideX = Math.sin(progress * Math.PI * 2) * slideDistance
       ctx.translate(slideX, 0)
       break

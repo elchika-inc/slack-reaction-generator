@@ -10,6 +10,39 @@ function IconEditor({ settings, onChange, isMobile }) {
   const [showSecondaryColorPicker, setShowSecondaryColorPicker] = useState(false)
   const [showGradient1Picker, setShowGradient1Picker] = useState(false)
   const [showGradient2Picker, setShowGradient2Picker] = useState(false)
+  
+  // アニメーション幅のローカル状態とデバウンス処理
+  const [localAnimationAmplitude, setLocalAnimationAmplitude] = useState(settings.animationAmplitude || 50)
+  const amplitudeTimeoutRef = useRef(null)
+
+  // settingsのanimationAmplitudeが外部から変更された場合の同期
+  useEffect(() => {
+    setLocalAnimationAmplitude(settings.animationAmplitude || 50)
+  }, [settings.animationAmplitude])
+
+  const handleAmplitudeChange = (value) => {
+    // ローカル状態は即座に更新（UIの応答性向上）
+    setLocalAnimationAmplitude(value)
+    
+    // 既存のタイマーをクリア
+    if (amplitudeTimeoutRef.current) {
+      clearTimeout(amplitudeTimeoutRef.current)
+    }
+    
+    // デバウンス処理（300ms後に実際の設定を更新）
+    amplitudeTimeoutRef.current = setTimeout(() => {
+      onChange({ animationAmplitude: value })
+    }, 300)
+  }
+
+  // クリーンアップ
+  useEffect(() => {
+    return () => {
+      if (amplitudeTimeoutRef.current) {
+        clearTimeout(amplitudeTimeoutRef.current)
+      }
+    }
+  }, [])
 
   const fonts = [
     // 日本語フォント
@@ -433,57 +466,95 @@ function IconEditor({ settings, onChange, isMobile }) {
         </div>
       )}
 
-      {/* アニメーション速度 */}
+      {/* アニメーション設定 */}
       {settings.animation !== 'none' && (
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-3">
-            アニメーション速度
-          </label>
-          {isMobile ? (
-            // モバイル用シンプル版
-            <div className="space-y-2">
-              <input
-                type="range"
-                min="20"
-                max="100"
-                step="1"
-                value={CANVAS_CONFIG.ANIMATION_SPEED_INVERT_BASE - settings.animationSpeed}
-                onChange={(e) => {
-                  const invertedValue = CANVAS_CONFIG.ANIMATION_SPEED_INVERT_BASE - parseInt(e.target.value)
-                  onChange({ animationSpeed: invertedValue })
-                }}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                style={{
-                  background: `linear-gradient(to right, #9333ea 0%, #9333ea ${((CANVAS_CONFIG.ANIMATION_SPEED_INVERT_BASE - settings.animationSpeed) - CANVAS_CONFIG.MIN_ANIMATION_SPEED) / (CANVAS_CONFIG.MAX_ANIMATION_SPEED - CANVAS_CONFIG.MIN_ANIMATION_SPEED) * 100}%, #e5e7eb ${((CANVAS_CONFIG.ANIMATION_SPEED_INVERT_BASE - settings.animationSpeed) - CANVAS_CONFIG.MIN_ANIMATION_SPEED) / (CANVAS_CONFIG.MAX_ANIMATION_SPEED - CANVAS_CONFIG.MIN_ANIMATION_SPEED) * 100}%, #e5e7eb 100%)`
-                }}
-              />
-              <div className="flex justify-between text-xs text-gray-500">
-                <span>遅い</span>
-                <span>速い</span>
+        <div className="space-y-4">
+          {/* アニメーション速度 */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-3">
+              アニメーション速度
+            </label>
+            {isMobile ? (
+              // モバイル用シンプル版
+              <div className="space-y-2">
+                <input
+                  type="range"
+                  min="30"
+                  max="100"
+                  step="1"
+                  value={CANVAS_CONFIG.ANIMATION_SPEED_INVERT_BASE - settings.animationSpeed}
+                  onChange={(e) => {
+                    const invertedValue = CANVAS_CONFIG.ANIMATION_SPEED_INVERT_BASE - parseInt(e.target.value)
+                    onChange({ animationSpeed: invertedValue })
+                  }}
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                  style={{
+                    background: `linear-gradient(to right, #9333ea 0%, #9333ea ${((CANVAS_CONFIG.ANIMATION_SPEED_INVERT_BASE - settings.animationSpeed) - CANVAS_CONFIG.MIN_ANIMATION_SPEED) / (CANVAS_CONFIG.MAX_ANIMATION_SPEED - CANVAS_CONFIG.MIN_ANIMATION_SPEED) * 100}%, #e5e7eb ${((CANVAS_CONFIG.ANIMATION_SPEED_INVERT_BASE - settings.animationSpeed) - CANVAS_CONFIG.MIN_ANIMATION_SPEED) / (CANVAS_CONFIG.MAX_ANIMATION_SPEED - CANVAS_CONFIG.MIN_ANIMATION_SPEED) * 100}%, #e5e7eb 100%)`
+                  }}
+                />
+                <div className="flex justify-between text-xs text-gray-500">
+                  <span>遅い</span>
+                  <span>速い</span>
+                </div>
               </div>
-            </div>
-          ) : (
-            // デスクトップ用詳細版
-            <div className="space-y-2">
-              <input
-                type="range"
-                min="20"
-                max="100"
-                step="1"
-                value={CANVAS_CONFIG.ANIMATION_SPEED_INVERT_BASE - settings.animationSpeed}
-                onChange={(e) => {
-                  const invertedValue = CANVAS_CONFIG.ANIMATION_SPEED_INVERT_BASE - parseInt(e.target.value)
-                  onChange({ animationSpeed: invertedValue })
-                }}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                style={{
-                  background: `linear-gradient(to right, #9333ea 0%, #9333ea ${((CANVAS_CONFIG.ANIMATION_SPEED_INVERT_BASE - settings.animationSpeed) - CANVAS_CONFIG.MIN_ANIMATION_SPEED) / (CANVAS_CONFIG.MAX_ANIMATION_SPEED - CANVAS_CONFIG.MIN_ANIMATION_SPEED) * 100}%, #e5e7eb ${((CANVAS_CONFIG.ANIMATION_SPEED_INVERT_BASE - settings.animationSpeed) - CANVAS_CONFIG.MIN_ANIMATION_SPEED) / (CANVAS_CONFIG.MAX_ANIMATION_SPEED - CANVAS_CONFIG.MIN_ANIMATION_SPEED) * 100}%, #e5e7eb 100%)`
-                }}
-              />
-              <div className="flex justify-between text-xs text-gray-500">
-                <span>遅い</span>
-                <span>速い</span>
+            ) : (
+              // デスクトップ用詳細版
+              <div className="space-y-2">
+                <input
+                  type="range"
+                  min="30"
+                  max="100"
+                  step="1"
+                  value={CANVAS_CONFIG.ANIMATION_SPEED_INVERT_BASE - settings.animationSpeed}
+                  onChange={(e) => {
+                    const invertedValue = CANVAS_CONFIG.ANIMATION_SPEED_INVERT_BASE - parseInt(e.target.value)
+                    onChange({ animationSpeed: invertedValue })
+                  }}
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                  style={{
+                    background: `linear-gradient(to right, #9333ea 0%, #9333ea ${((CANVAS_CONFIG.ANIMATION_SPEED_INVERT_BASE - settings.animationSpeed) - CANVAS_CONFIG.MIN_ANIMATION_SPEED) / (CANVAS_CONFIG.MAX_ANIMATION_SPEED - CANVAS_CONFIG.MIN_ANIMATION_SPEED) * 100}%, #e5e7eb ${((CANVAS_CONFIG.ANIMATION_SPEED_INVERT_BASE - settings.animationSpeed) - CANVAS_CONFIG.MIN_ANIMATION_SPEED) / (CANVAS_CONFIG.MAX_ANIMATION_SPEED - CANVAS_CONFIG.MIN_ANIMATION_SPEED) * 100}%, #e5e7eb 100%)`
+                  }}
+                />
+                <div className="flex justify-between text-xs text-gray-500">
+                  <span>遅い</span>
+                  <span>速い</span>
+                </div>
               </div>
+            )}
+          </div>
+
+          {/* アニメーション幅制御（バウンス、パルス、スライドのみ） */}
+          {(settings.animation === 'bounce' || settings.animation === 'pulse' || settings.animation === 'slide') && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                アニメーション幅
+              </label>
+              <div className="space-y-2">
+                <input
+                  type="range"
+                  min="10"
+                  max="100"
+                  step="5"
+                  value={localAnimationAmplitude}
+                  onChange={(e) => {
+                    handleAmplitudeChange(parseInt(e.target.value))
+                  }}
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                  style={{
+                    background: `linear-gradient(to right, #9333ea 0%, #9333ea ${(localAnimationAmplitude - 10) / 90 * 100}%, #e5e7eb ${(localAnimationAmplitude - 10) / 90 * 100}%, #e5e7eb 100%)`
+                  }}
+                />
+                <div className="flex justify-between text-xs text-gray-500">
+                  <span>小さく</span>
+                  <span className="text-purple-600 font-medium">{localAnimationAmplitude}%</span>
+                  <span>大きく</span>
+                </div>
+              </div>
+              <p className="mt-1 text-xs text-gray-500">
+                {settings.animation === 'bounce' && 'バウンスの高さを調整'}
+                {settings.animation === 'pulse' && '拡大縮小の変化量を調整'}
+                {settings.animation === 'slide' && 'スライドの距離を調整'}
+              </p>
             </div>
           )}
         </div>
