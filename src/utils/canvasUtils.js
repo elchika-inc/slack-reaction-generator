@@ -9,10 +9,11 @@ const loadGIF = async () => {
 };
 import { CANVAS_CONFIG, isDecorativeFont, calculatePadding, calculateFontSize } from '../constants/canvasConstants'
 import { renderText } from './textRenderer'
+import { getOrLoadImage, preloadImage } from './imageCache'
 
 export const generateIconData = async (settings, canvas) => {
-  // アニメーションがある場合は専用の処理
-  if (settings.animation !== 'none') {
+  // テキストまたは画像のアニメーションがある場合は専用の処理
+  if (settings.animation !== 'none' || (settings.imageData && settings.imageAnimation !== 'none')) {
     // GIF生成用の新しいキャンバスを作成
     const gifCanvas = document.createElement('canvas')
     gifCanvas.width = CANVAS_CONFIG.SIZE
@@ -56,7 +57,7 @@ export const drawTextIcon = (ctx, settings) => {
   
   // 画像が後ろの場合は先に描画
   if (settings.imageData && settings.imagePosition === 'back') {
-    drawImageLayer(ctx, settings)
+    drawImageLayer(ctx, settings, 0)  // 静止画の場合はprogress=0
   }
   
   // テキストを描画（改行対応）
@@ -64,20 +65,24 @@ export const drawTextIcon = (ctx, settings) => {
   
   // 画像が前の場合は後に描画
   if (settings.imageData && settings.imagePosition === 'front') {
-    drawImageLayer(ctx, settings)
+    drawImageLayer(ctx, settings, 0)  // 静止画の場合はprogress=0
   }
 }
 
 // 画像レイヤーを描画
-const drawImageLayer = (ctx, settings) => {
-  const img = new Image()
-  img.src = settings.imageData
+const drawImageLayer = (ctx, settings, progress = 0) => {
+  if (!settings.imageData) return
   
-  if (img.complete) {
+  // キャッシュから画像を取得
+  const img = getOrLoadImage(settings.imageData)
+  if (!img) return
+  
+  // 画像が読み込み済みまたはキャッシュされている場合
+  if (img.complete || img.naturalWidth > 0) {
     ctx.save()
     
-    // 透過度設定
-    ctx.globalAlpha = (settings.imageOpacity || 100) / 100
+    // 透過度設定（フェードアニメーションの場合は後で適用）
+    let baseAlpha = (settings.imageOpacity || 100) / 100
     
     // 画像のサイズ計算（%ベース）
     const maxSize = CANVAS_CONFIG.SIZE * (settings.imageSize || 50) / 100
@@ -88,13 +93,73 @@ const drawImageLayer = (ctx, settings) => {
     const height = img.height * scale
     
     // 位置計算（0-100%を0-128pxに変換）
-    const x = (CANVAS_CONFIG.SIZE * (settings.imageX || 50) / 100) - (width / 2)
-    const y = (CANVAS_CONFIG.SIZE * (settings.imageY || 50) / 100) - (height / 2)
+    const centerX = CANVAS_CONFIG.SIZE * (settings.imageX || 50) / 100
+    const centerY = CANVAS_CONFIG.SIZE * (settings.imageY || 50) / 100
+    
+    // 画像アニメーションを適用（画像の中心を基準に）
+    if (settings.imageAnimation && settings.imageAnimation !== 'none') {
+      // フェードアニメーションの特別処理
+      if (settings.imageAnimation === 'fade') {
+        const fadeAlpha = (Math.sin(progress * Math.PI * 2) + 1) / 2
+        ctx.globalAlpha = baseAlpha * fadeAlpha
+      } else {
+        ctx.globalAlpha = baseAlpha
+        
+        // その他のアニメーション（回転、バウンス、パルス、スライド）
+        switch (settings.imageAnimation) {
+          case 'rotate':
+            // 画像自体の中心で回転
+            ctx.translate(centerX, centerY)
+            ctx.rotate(progress * Math.PI * 2)
+            ctx.translate(-centerX, -centerY)
+            break
+            
+          case 'bounce':
+            // バウンス（上下に跳ねる）
+            const amplitudeFactor = (settings.imageAnimationAmplitude || 50) / 100
+            const bounceHeight = 19.2 * amplitudeFactor
+            const bounce = Math.abs(Math.sin(progress * Math.PI * 2)) * bounceHeight
+            ctx.translate(0, -bounce)
+            break
+            
+          case 'pulse':
+            // 画像自体の中心で拡大縮小
+            const pulseAmplitudeFactor = (settings.imageAnimationAmplitude || 50) / 100
+            const scaleRange = 0.2 * pulseAmplitudeFactor
+            const scaleValue = 1 + Math.sin(progress * Math.PI * 2) * scaleRange
+            ctx.translate(centerX, centerY)
+            ctx.scale(scaleValue, scaleValue)
+            ctx.translate(-centerX, -centerY)
+            break
+            
+          case 'slide':
+            // スライド（左右に移動）
+            const slideAmplitudeFactor = (settings.imageAnimationAmplitude || 50) / 100
+            const slideDistance = 29.44 * slideAmplitudeFactor
+            const slideX = Math.sin(progress * Math.PI * 2) * slideDistance
+            ctx.translate(slideX, 0)
+            break
+        }
+      }
+    } else {
+      ctx.globalAlpha = baseAlpha
+    }
+    
+    // 画像を描画（中心座標から左上座標を計算）
+    const x = centerX - (width / 2)
+    const y = centerY - (height / 2)
     
     ctx.drawImage(img, x, y, width, height)
     ctx.restore()
+  } else {
+    // 画像が読み込まれていない場合、読み込み完了後に再描画
+    img.onload = () => {
+      // 既に描画済みの内容と同じロジック
+      drawImageLayer(ctx, settings, progress)
+    }
   }
 }
+
 
 
 const drawImage = async (ctx, settings) => {
@@ -310,76 +375,79 @@ export const drawAnimationFrame = (ctx, settings, frame, totalFrames) => {
   // キャンバスをクリアしない（白背景を維持）
   // ctx.clearRect(0, 0, canvasSize, canvasSize)
   
-  // テキストまたは画像にアニメーションを適用
+  // テキストアニメーションのみを適用（画像アニメーションはdrawImageLayer内で処理）
   ctx.save()
   
-  switch (settings.animation) {
-    case 'rainbow':
-      // HSL色空間で色を変化させる
-      const hue = progress * 360
-      const color = `hsl(${hue}, 100%, 50%)`
-      // オリジナルのfontColorを上書き
-      break
-      
-    case 'blink':
-      // 点滅 - セカンドカラーと交互に切り替え
-      // Math.sin(progress * Math.PI * 4) > 0 でタイミングを判定
-      // セカンドカラーを使用する場合は後でfontColorを変更
-      break
-      
-    case 'rotate':
-      // 回転
-      const center = 64
-      ctx.translate(center, center)
-      ctx.rotate(progress * Math.PI * 2)
-      ctx.translate(-center, -center)
-      break
-      
-    case 'bounce':
-      // バウンス - amplitudeで高さを制御（10%-100% → 0.1-1.0倍）
-      const amplitudeFactor = (settings.animationAmplitude || 50) / 100
-      const bounceHeight = 19.2 * amplitudeFactor  // 128 * 0.15 * amplitude
-      const bounce = Math.abs(Math.sin(progress * Math.PI * 2)) * bounceHeight
-      ctx.translate(0, -bounce)
-      break
-      
-    case 'pulse':
-      // パルス（拡大縮小）- amplitudeで変化量を制御
-      const pulseAmplitudeFactor = (settings.animationAmplitude || 50) / 100
-      const scaleRange = 0.2 * pulseAmplitudeFactor  // 基本の0.2に振幅を乗算
-      const scale = 1 + Math.sin(progress * Math.PI * 2) * scaleRange
-      const pulseCenter = 64
-      ctx.translate(pulseCenter, pulseCenter)
-      ctx.scale(scale, scale)
-      ctx.translate(-pulseCenter, -pulseCenter)
-      break
-      
-    case 'glow':
-      // グロー効果 - セカンドカラーで光らせる
-      const glow = Math.abs(Math.sin(progress * Math.PI * 2))
-      ctx.shadowColor = settings.secondaryColor || '#FFD700'
-      ctx.shadowBlur = glow * 30 + 5
-      ctx.shadowOffsetX = 0
-      ctx.shadowOffsetY = 0
-      break
-      
-    case 'slide':
-      // スライド - amplitudeで距離を制御
-      const slideAmplitudeFactor = (settings.animationAmplitude || 50) / 100
-      const slideDistance = 29.44 * slideAmplitudeFactor  // 128 * 0.23 * amplitude
-      const slideX = Math.sin(progress * Math.PI * 2) * slideDistance
-      ctx.translate(slideX, 0)
-      break
-      
-    case 'fade':
-      // フェード
-      ctx.globalAlpha = (Math.sin(progress * Math.PI * 2) + 1) / 2
-      break
+  // settings.animation が none の場合はスキップ
+  if (settings.animation && settings.animation !== 'none') {
+    switch (settings.animation) {
+      case 'rainbow':
+        // HSL色空間で色を変化させる
+        const hue = progress * 360
+        const color = `hsl(${hue}, 100%, 50%)`
+        // オリジナルのfontColorを上書き
+        break
+        
+      case 'blink':
+        // 点滅 - セカンドカラーと交互に切り替え
+        // Math.sin(progress * Math.PI * 4) > 0 でタイミングを判定
+        // セカンドカラーを使用する場合は後でfontColorを変更
+        break
+        
+      case 'rotate':
+        // 回転
+        const center = 64
+        ctx.translate(center, center)
+        ctx.rotate(progress * Math.PI * 2)
+        ctx.translate(-center, -center)
+        break
+        
+      case 'bounce':
+        // バウンス - amplitudeで高さを制御（10%-100% → 0.1-1.0倍）
+        const amplitudeFactor = (settings.animationAmplitude || 50) / 100
+        const bounceHeight = 19.2 * amplitudeFactor  // 128 * 0.15 * amplitude
+        const bounce = Math.abs(Math.sin(progress * Math.PI * 2)) * bounceHeight
+        ctx.translate(0, -bounce)
+        break
+        
+      case 'pulse':
+        // パルス（拡大縮小）- amplitudeで変化量を制御
+        const pulseAmplitudeFactor = (settings.animationAmplitude || 50) / 100
+        const scaleRange = 0.2 * pulseAmplitudeFactor  // 基本の0.2に振幅を乗算
+        const scale = 1 + Math.sin(progress * Math.PI * 2) * scaleRange
+        const pulseCenter = 64
+        ctx.translate(pulseCenter, pulseCenter)
+        ctx.scale(scale, scale)
+        ctx.translate(-pulseCenter, -pulseCenter)
+        break
+        
+      case 'glow':
+        // グロー効果 - セカンドカラーで光らせる
+        const glow = Math.abs(Math.sin(progress * Math.PI * 2))
+        ctx.shadowColor = settings.secondaryColor || '#FFD700'
+        ctx.shadowBlur = glow * 30 + 5
+        ctx.shadowOffsetX = 0
+        ctx.shadowOffsetY = 0
+        break
+        
+      case 'slide':
+        // スライド - amplitudeで距離を制御
+        const slideAmplitudeFactor = (settings.animationAmplitude || 50) / 100
+        const slideDistance = 29.44 * slideAmplitudeFactor  // 128 * 0.23 * amplitude
+        const slideX = Math.sin(progress * Math.PI * 2) * slideDistance
+        ctx.translate(slideX, 0)
+        break
+        
+      case 'fade':
+        // フェード
+        ctx.globalAlpha = (Math.sin(progress * Math.PI * 2) + 1) / 2
+        break
+    }
   }
   
   // 画像が後ろの場合は先に描画
   if (settings.imageData && settings.imagePosition === 'back') {
-    drawImageLayer(ctx, settings)
+    drawImageLayer(ctx, settings, progress)
   }
   
   // テキストを描画
@@ -415,7 +483,7 @@ export const drawAnimationFrame = (ctx, settings, frame, totalFrames) => {
   
   // 画像が前の場合は後に描画
   if (settings.imageData && settings.imagePosition === 'front') {
-    drawImageLayer(ctx, settings)
+    drawImageLayer(ctx, settings, progress)
   }
   
   ctx.restore()
