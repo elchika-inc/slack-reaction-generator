@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+import { viteSingleFile } from 'vite-plugin-singlefile'
 
 export default defineConfig({
   resolve: {
@@ -12,6 +13,7 @@ export default defineConfig({
   },
   plugins: [
     react(),
+    viteSingleFile(),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
@@ -76,24 +78,7 @@ export default defineConfig({
     minify: 'esbuild',
     rollupOptions: {
       output: {
-        manualChunks(id) {
-          if (id.includes('node_modules')) {
-            // コアライブラリ（初期読み込み必須）
-            if (id.includes('preact')) {
-              return 'preact-core';
-            }
-            // GIF生成関連（ダウンロード時のみ）
-            if (id.includes('gif.js') || id.includes('gifenc')) {
-              return 'gif-libs-lazy';
-            }
-            // ファイル保存（ダウンロード時のみ）
-            if (id.includes('file-saver')) {
-              return 'file-saver-lazy';
-            }
-            // その他のベンダーコード
-            return null; // メインバンドルに含める
-          }
-        },
+        manualChunks: undefined,
         assetFileNames: (assetInfo) => {
           const info = assetInfo.name.split('.')
           const ext = info[info.length - 1]
@@ -102,14 +87,13 @@ export default defineConfig({
           }
           return `assets/[name]-[hash][extname]`
         },
-        chunkFileNames: 'assets/js/[name]-[hash].js',
-        entryFileNames: 'assets/js/[name]-[hash].js'
+        inlineDynamicImports: true
       }
     },
     reportCompressedSize: false,
     chunkSizeWarningLimit: 1000,
-    cssCodeSplit: true,
-    assetsInlineLimit: 4096 // 4kb以下の画像はインライン化
+    cssCodeSplit: false,
+    assetsInlineLimit: 50000000 // 50MBまでインライン化（事実上すべて）
   },
   server: {
     port: 5173,

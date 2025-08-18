@@ -12,6 +12,14 @@ async function extractCriticalCSS() {
   const htmlPath = path.join(distDir, 'index.html');
   
   try {
+    // assetsディレクトリが存在するかチェック
+    try {
+      await fs.access(assetsDir);
+    } catch {
+      console.log('✅ Critical CSS extraction skipped - CSS is already inlined');
+      return;
+    }
+    
     // CSSファイルを動的に見つける
     const files = await fs.readdir(assetsDir);
     const cssFile = files.find(file => file.startsWith('index-') && file.endsWith('.css'));
