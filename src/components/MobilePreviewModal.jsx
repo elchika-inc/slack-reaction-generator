@@ -79,7 +79,7 @@ function MobilePreviewModal({ isOpen, onClose, settings, previewData }) {
         saveAs(blob, fileName)
       }
     } catch (error) {
-      console.error('ダウンロードエラー:', error)
+      // Download error
     }
   }
 
@@ -98,7 +98,7 @@ function MobilePreviewModal({ isOpen, onClose, settings, previewData }) {
           text: 'カスタムSlackアイコンを作成しました！',
         })
       } catch (err) {
-        console.error('シェアエラー:', err)
+        // Share error
       }
     }
   }

@@ -115,7 +115,7 @@ function App() {
         try {
           await document.fonts.load(`${fontWeight} 16px ${fontFamily}`);
         } catch (e) {
-          console.error("Font loading error:", e, fontFamily);
+          // Font loading error
         }
       }
     };
@@ -236,7 +236,7 @@ function App() {
         const fileSaver = await loadFileSaver();
         fileSaver(blob, fileName);
       } catch (error) {
-        console.error("ダウンロードエラー:", error);
+        // Download error
       }
     }
   };

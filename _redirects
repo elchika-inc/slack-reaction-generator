@@ -5,9 +5,8 @@
 
 # HTTP to HTTPS redirect (handled by Cloudflare automatically)
 
-# Legacy asset redirects to handle old cached references
-/assets/index.css    /assets/index-0GYnHZRS.css    301
-/assets/js/vendor.js    /assets/js/index-JJEIWga1.js    301
+# Legacy asset redirects (removed - no longer needed)
+# These paths are now handled by the build system
 
 # Backward compatibility redirects
 /slack-reaction-generator    /    301

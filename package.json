@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build && npm run postbuild",
-    "postbuild": "node scripts/prerender.js && node scripts/extract-critical-css.js && cp _headers dist/ && cp _redirects dist/ 2>/dev/null || true",
+    "postbuild": "node scripts/prerender.js && node scripts/extract-critical-css.js && cp _headers dist/ && cp _redirects dist/ && cp public/sitemap.xml dist/ && cp public/robots.txt dist/ 2>/dev/null || true",
     "preview": "vite preview",
     "lint": "eslint src --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "deploy": "npm run build && npx wrangler pages deploy dist",

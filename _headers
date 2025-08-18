@@ -66,6 +66,7 @@
 /sitemap.xml
   Cache-Control: public, max-age=3600
   Content-Type: application/xml; charset=UTF-8
+  X-Content-Type-Options: nosniff
 
 /llms.txt
   Cache-Control: public, max-age=3600

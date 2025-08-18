@@ -51,9 +51,9 @@ function PreviewPanel({ settings, previewData, onRegenerate, isMobile }) {
         try {
           // フォントの読み込みを確認
           await document.fonts.load(`${fontWeight} 16px ${fontFamily}`);
-          console.log(`Font loaded successfully: ${fontWeight} ${fontFamily}`);
+          // Font loaded successfully
         } catch (e) {
-          console.error("Font loading error:", e, fontFamily);
+          // Font loading error
           // エラー時でも描画を続行
         }
       }
@@ -195,7 +195,7 @@ function PreviewPanel({ settings, previewData, onRegenerate, isMobile }) {
         saveAs(blob, fileName);
       }
     } catch (error) {
-      console.error("ダウンロードエラー:", error);
+      // Download error
     }
   };
 

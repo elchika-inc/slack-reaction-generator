@@ -231,16 +231,8 @@ const generateAnimatedGIF = async (canvas, settings) => {
     if (requestedDelay < 20) {
       // 20ms未満の場合は20msに設定（これ以下だと100msになる可能性）
       gifDelay = 20
-      console.warn(`警告: 要求された速度${requestedDelay}msは速すぎます。20msに調整しました。`)
+      // Speed too fast, adjusted to 20ms
     }
-    
-    // デバッグ用ログ
-    console.log('GIF生成設定:', {
-      frameCount,
-      requestedDelay,
-      actualDelay: gifDelay,
-      expectedFPS: (1000 / gifDelay).toFixed(1)
-    })
     
     for (let i = 0; i < frameCount; i++) {
       // フレームキャンバスを背景色で塗りつぶす
