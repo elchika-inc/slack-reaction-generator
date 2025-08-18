@@ -8,8 +8,6 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=()
   
-  # CSP（Content Security Policy） - 一時的に無効化
-  # Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; img-src 'self' data: blob:; connect-src 'self' data: https://fonts.googleapis.com https://fonts.gstatic.com; worker-src 'self' blob:;
   
   # キャッシュコントロール（HTML）
   Cache-Control: public, max-age=0, must-revalidate
