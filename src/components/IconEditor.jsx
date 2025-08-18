@@ -16,10 +16,19 @@ function IconEditor({ settings, onChange, isMobile }) {
   const [localAnimationAmplitude, setLocalAnimationAmplitude] = useState(settings.animationAmplitude || 50)
   const amplitudeTimeoutRef = useRef(null)
 
+  // アニメーション速度のローカル状態とデバウンス処理
+  const [localAnimationSpeed, setLocalAnimationSpeed] = useState(settings.animationSpeed || 33)
+  const speedTimeoutRef = useRef(null)
+
   // settingsのanimationAmplitudeが外部から変更された場合の同期
   useEffect(() => {
     setLocalAnimationAmplitude(settings.animationAmplitude || 50)
   }, [settings.animationAmplitude])
+
+  // settingsのanimationSpeedが外部から変更された場合の同期
+  useEffect(() => {
+    setLocalAnimationSpeed(settings.animationSpeed || 33)
+  }, [settings.animationSpeed])
 
   const handleAmplitudeChange = (value) => {
     // ローカル状態は即座に更新（UIの応答性向上）
@@ -36,11 +45,29 @@ function IconEditor({ settings, onChange, isMobile }) {
     }, 300)
   }
 
+  const handleSpeedChange = (value) => {
+    // ローカル状態は即座に更新（UIの応答性向上）
+    setLocalAnimationSpeed(value)
+    
+    // 既存のタイマーをクリア
+    if (speedTimeoutRef.current) {
+      clearTimeout(speedTimeoutRef.current)
+    }
+    
+    // デバウンス処理（300ms後に実際の設定を更新）
+    speedTimeoutRef.current = setTimeout(() => {
+      onChange({ animationSpeed: value })
+    }, 300)
+  }
+
   // クリーンアップ
   useEffect(() => {
     return () => {
       if (amplitudeTimeoutRef.current) {
         clearTimeout(amplitudeTimeoutRef.current)
+      }
+      if (speedTimeoutRef.current) {
+        clearTimeout(speedTimeoutRef.current)
       }
     }
   }, [])
@@ -440,14 +467,14 @@ function IconEditor({ settings, onChange, isMobile }) {
                   min="30"
                   max="100"
                   step="1"
-                  value={CANVAS_CONFIG.ANIMATION_SPEED_INVERT_BASE - settings.animationSpeed}
+                  value={CANVAS_CONFIG.ANIMATION_SPEED_INVERT_BASE - localAnimationSpeed}
                   onChange={(e) => {
                     const invertedValue = CANVAS_CONFIG.ANIMATION_SPEED_INVERT_BASE - parseInt(e.target.value)
-                    onChange({ animationSpeed: invertedValue })
+                    handleSpeedChange(invertedValue)
                   }}
                   className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                   style={{
-                    background: `linear-gradient(to right, #9333ea 0%, #9333ea ${((CANVAS_CONFIG.ANIMATION_SPEED_INVERT_BASE - settings.animationSpeed) - CANVAS_CONFIG.MIN_ANIMATION_SPEED) / (CANVAS_CONFIG.MAX_ANIMATION_SPEED - CANVAS_CONFIG.MIN_ANIMATION_SPEED) * 100}%, #e5e7eb ${((CANVAS_CONFIG.ANIMATION_SPEED_INVERT_BASE - settings.animationSpeed) - CANVAS_CONFIG.MIN_ANIMATION_SPEED) / (CANVAS_CONFIG.MAX_ANIMATION_SPEED - CANVAS_CONFIG.MIN_ANIMATION_SPEED) * 100}%, #e5e7eb 100%)`
+                    background: `linear-gradient(to right, #9333ea 0%, #9333ea ${((CANVAS_CONFIG.ANIMATION_SPEED_INVERT_BASE - localAnimationSpeed) - CANVAS_CONFIG.MIN_ANIMATION_SPEED) / (CANVAS_CONFIG.MAX_ANIMATION_SPEED - CANVAS_CONFIG.MIN_ANIMATION_SPEED) * 100}%, #e5e7eb ${((CANVAS_CONFIG.ANIMATION_SPEED_INVERT_BASE - localAnimationSpeed) - CANVAS_CONFIG.MIN_ANIMATION_SPEED) / (CANVAS_CONFIG.MAX_ANIMATION_SPEED - CANVAS_CONFIG.MIN_ANIMATION_SPEED) * 100}%, #e5e7eb 100%)`
                   }}
                 />
                 <div className="flex justify-between text-xs text-gray-500">
@@ -595,13 +622,13 @@ function IconEditor({ settings, onChange, isMobile }) {
                 {/* 前後位置切り替え */}
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-2">レイヤー順序</label>
-                  <div className="flex rounded-lg border border-gray-300 overflow-hidden">
+                  <div className="flex gap-2">
                     <button
                       onClick={() => onChange({ imagePosition: 'back' })}
-                      className={`flex-1 px-3 py-2 text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
+                      className={`flex-1 px-3 py-2 text-sm font-medium rounded-lg border transition-all active:scale-95 flex items-center justify-center gap-2 ${
                         settings.imagePosition === 'back'
-                          ? 'bg-purple-600 text-white'
-                          : 'bg-white text-gray-700 hover:bg-gray-50'
+                          ? 'border-purple-500 bg-purple-50 ring-2 ring-purple-200 text-purple-700'
+                          : 'border-gray-300 hover:bg-gray-50 active:bg-gray-100 text-gray-700'
                       }`}
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -612,10 +639,10 @@ function IconEditor({ settings, onChange, isMobile }) {
                     </button>
                     <button
                       onClick={() => onChange({ imagePosition: 'front' })}
-                      className={`flex-1 px-3 py-2 text-sm font-medium transition-colors flex items-center justify-center gap-2 border-l ${
+                      className={`flex-1 px-3 py-2 text-sm font-medium rounded-lg border transition-all active:scale-95 flex items-center justify-center gap-2 ${
                         settings.imagePosition === 'front'
-                          ? 'bg-purple-600 text-white'
-                          : 'bg-white text-gray-700 hover:bg-gray-50'
+                          ? 'border-purple-500 bg-purple-50 ring-2 ring-purple-200 text-purple-700'
+                          : 'border-gray-300 hover:bg-gray-50 active:bg-gray-100 text-gray-700'
                       }`}
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -759,10 +786,10 @@ function IconEditor({ settings, onChange, isMobile }) {
                         <button
                           key={anim.value}
                           onClick={() => onChange({ imageAnimation: anim.value })}
-                          className={`py-2 px-1 rounded text-xs transition-all ${
+                          className={`py-2 px-1 rounded-lg border text-xs transition-all active:scale-95 ${
                             settings.imageAnimation === anim.value
-                              ? 'bg-purple-600 text-white'
-                              : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                              ? 'border-purple-500 bg-purple-50 ring-2 ring-purple-200 text-purple-700'
+                              : 'border-gray-300 hover:bg-gray-50 active:bg-gray-100 text-gray-700'
                           }`}
                         >
                           {anim.label}
