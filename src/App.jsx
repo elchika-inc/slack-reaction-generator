@@ -59,6 +59,13 @@ function App() {
     gradientColor1: getRandomColor(),
     gradientColor2: getRandomColor(),
     gradientDirection: "vertical", // 'vertical' or 'horizontal'
+    // 画像関連の設定
+    imageData: null, // 画像データ（base64）
+    imageX: 50, // 画像のX位置（0-100%）
+    imageY: 50, // 画像のY位置（0-100%）
+    imageSize: 50, // 画像のサイズ（0-100%）
+    imageOpacity: 100, // 画像の透過度（0-100%）
+    imagePosition: 'back', // 画像の前後位置（'front' or 'back'）
   });
   const [previewData, setPreviewData] = useState(null);
   const [isMobile, setIsMobile] = useState(false);

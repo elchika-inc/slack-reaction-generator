@@ -54,8 +54,46 @@ export const drawTextIcon = (ctx, settings) => {
   }
   // backgroundType === 'transparent' の場合は何も塗らない（透明背景）
   
+  // 画像が後ろの場合は先に描画
+  if (settings.imageData && settings.imagePosition === 'back') {
+    drawImageLayer(ctx, settings)
+  }
+  
   // テキストを描画（改行対応）
   renderText(ctx, settings)
+  
+  // 画像が前の場合は後に描画
+  if (settings.imageData && settings.imagePosition === 'front') {
+    drawImageLayer(ctx, settings)
+  }
+}
+
+// 画像レイヤーを描画
+const drawImageLayer = (ctx, settings) => {
+  const img = new Image()
+  img.src = settings.imageData
+  
+  if (img.complete) {
+    ctx.save()
+    
+    // 透過度設定
+    ctx.globalAlpha = (settings.imageOpacity || 100) / 100
+    
+    // 画像のサイズ計算（%ベース）
+    const maxSize = CANVAS_CONFIG.SIZE * (settings.imageSize || 50) / 100
+    
+    // アスペクト比を保持してサイズ計算
+    const scale = Math.min(maxSize / img.width, maxSize / img.height)
+    const width = img.width * scale
+    const height = img.height * scale
+    
+    // 位置計算（0-100%を0-128pxに変換）
+    const x = (CANVAS_CONFIG.SIZE * (settings.imageX || 50) / 100) - (width / 2)
+    const y = (CANVAS_CONFIG.SIZE * (settings.imageY || 50) / 100) - (height / 2)
+    
+    ctx.drawImage(img, x, y, width, height)
+    ctx.restore()
+  }
 }
 
 
@@ -339,6 +377,11 @@ export const drawAnimationFrame = (ctx, settings, frame, totalFrames) => {
       break
   }
   
+  // 画像が後ろの場合は先に描画
+  if (settings.imageData && settings.imagePosition === 'back') {
+    drawImageLayer(ctx, settings)
+  }
+  
   // テキストを描画
   // アニメーションに応じて色を変更
   if (settings.animation === 'rainbow') {
@@ -368,6 +411,11 @@ export const drawAnimationFrame = (ctx, settings, frame, totalFrames) => {
   } else {
     // 通常の設定でテキストを描画
     renderText(ctx, settings, { skipBackground: true })
+  }
+  
+  // 画像が前の場合は後に描画
+  if (settings.imageData && settings.imagePosition === 'front') {
+    drawImageLayer(ctx, settings)
   }
   
   ctx.restore()
