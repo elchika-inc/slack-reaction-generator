@@ -2,76 +2,113 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Common Commands
+## Development Commands
 
-### Development
+### Essential Commands
 ```bash
-npm run dev              # Start development server on port 5173
-npm run preview          # Preview production build on port 4173
-npm run lint             # Run ESLint
+# Development
+npm run dev              # Start development server at http://localhost:5173
+
+# Build & Deploy
+npm run build           # Production build with asset optimization
+npm run preview        # Preview production build at http://localhost:4173
+npm run deploy         # Build and deploy to Cloudflare Pages
+
+# Quality Checks
+npm run lint           # Run ESLint checks
+npm run test          # Run Vitest tests
+npm run test:coverage # Run tests with coverage report
+
+# Cleanup
+npm run clean         # Remove dist/, node_modules/.vite/, .wrangler/
 ```
 
-### Building and Deployment
+### Testing
 ```bash
-npm run build            # Production build to dist/
-npm run postbuild        # Post-build processing (prerender, CSS extraction, asset copying)
-npm run deploy           # Build and deploy to Cloudflare Pages
-npm run clean            # Remove build artifacts
+npm run test:watch    # Watch mode for test development
+npm run test:ui       # Interactive UI test runner
+npm run test:run      # Run tests once (CI mode)
 ```
-
-The build process includes:
-1. Vite bundle with Terser minification and aggressive optimizations
-2. Prerendering script that optimizes the loading placeholder
-3. Critical CSS extraction and inlining
-4. Asset copying (_headers, _redirects for Cloudflare)
 
 ## Architecture Overview
 
-### React-to-Preact Setup
-This project uses **Preact** instead of React for bundle size optimization. Vite config aliases React imports to preact/compat, allowing React components and libraries to work seamlessly.
+### Core Technology Stack
+- **Frontend**: Preact (React-compatible but 3KB bundle) aliased as React in vite.config.js
+- **Build Tool**: Vite with aggressive optimization (terser, purgecss, asset inlining)
+- **Styling**: Tailwind CSS with PurgeCSS for minimal bundle
+- **Canvas Rendering**: HTML5 Canvas API for icon generation
+- **GIF Generation**: gif.js library loaded dynamically
+- **Deployment**: Cloudflare Pages with custom headers and redirects
 
-### Canvas-Based Icon Generation
-Core functionality centers around HTML5 Canvas manipulation:
-- **Static icons**: Direct canvas rendering to PNG via `drawTextIcon()`
-- **Animated icons**: Frame-based GIF generation using gif.js library
-- **Performance optimization**: Lazy loading of heavy libraries (gif.js, file-saver, react-color)
+### Application Structure
 
-### Mobile-First Responsive Design
-Two distinct UI modes controlled by viewport width (1024px breakpoint):
-- **Desktop**: Side-by-side editor and preview panels
-- **Mobile**: Fixed bottom preview with full-screen editor above
+The app is a single-page Slack emoji generator with:
 
-### Key Canvas Utilities (`src/utils/canvasUtils.js`)
-- `generateIconData()`: Main entry point for icon generation
-- `drawTextIcon()`: Static text rendering with font loading and caching
-- `drawAnimationFrame()`: Per-frame animation rendering for GIFs
-- Supports multiple text effects, gradients, and animation types
+1. **Main Entry** (`src/main.jsx`): Mounts App component
+2. **App Component** (`src/App.jsx`): Manages global state and layout
+3. **Component Architecture**:
+   - `IconEditor`: Main editing interface with tabs for different settings
+   - `PreviewPanel`: Real-time canvas preview with download buttons
+   - `editor/` components: Modular settings (Basic, Animation, Image, Optimization)
 
 ### State Management Pattern
-Single central state object in App.jsx containing all icon settings:
-- Text content, fonts, colors, animations
-- Background settings (transparent vs colored)
-- Animation speed and effects
-- Propagated down to child components via props
+- Custom hooks pattern for state encapsulation:
+  - `useIconSettings`: Core icon configuration state
+  - `useCanvasPreview`: Canvas rendering and animation logic
+  - `useFileGeneration`: PNG/GIF export functionality
+  - `useAppState`: Global app state coordination
 
-### PWA Configuration
-Configured as Progressive Web App with:
-- Service worker for offline functionality
-- Font caching for Google Fonts
-- Install prompts for mobile devices
+### Canvas Rendering Pipeline
+1. **Text/Image Input** → `canvasUtils.js` processing
+2. **Frame Generation** → `frameRenderer.js` for animations
+3. **Export Pipeline** → `canvasFactory.js` creates appropriate canvas instances
+4. **Optimization** → `renderingEngine.js` manages render cycles
 
 ### Performance Optimizations
-- **Lazy loading**: Heavy libraries loaded only when needed
-- **Code splitting**: Separate chunks for color picker, GIF generation, file saving
-- **Network awareness**: Feature reduction on slow connections
-- **Critical CSS**: Inlined in HTML for faster first paint
-- **Font optimization**: Preloading with display:swap
+- Dynamic imports for heavy libraries (gif.js, react-color)
+- Image caching with `imageCache.js`
+- Network-aware rendering with `networkAware.js`
+- Animation frame debouncing in `animationHelpers.js`
+- Canvas pooling to reduce memory allocation
 
-### Build Optimization Strategy
-- Manual chunk splitting for vendor libraries
-- Aggressive Terser compression with console removal
-- Asset optimization with 4KB inline threshold
-- Prerendering for better loading UX
+### Build Configuration
+- **Preact aliasing**: All React imports resolve to Preact for smaller bundle
+- **Asset optimization**: 4KB inline threshold, aggressive minification
+- **CSS splitting**: Enabled for better caching
+- **PurgeCSS safelist**: Preserves dynamic Tailwind classes and animations
 
-### Deployment on Cloudflare Pages
-Uses Wrangler configuration in `wrangler.toml` with custom headers and redirects from `_headers` and `_redirects` files.
+## Code Conventions
+
+### Component Patterns
+- Functional components with hooks
+- Lazy loading for heavy components (ColorPicker)
+- Prop spreading avoided for explicit prop passing
+- Event handlers prefixed with `handle` (e.g., `handleTextChange`)
+
+### State Updates
+- Use functional updates for dependent state changes
+- Debounce expensive operations (canvas rendering)
+- Batch related state updates
+
+### Canvas Operations
+- Always clear canvas before drawing
+- Use requestAnimationFrame for animations
+- Dispose of resources (workers, object URLs) in cleanup
+
+### Error Handling
+- Centralized error handler in `utils/errorHandler.js`
+- Graceful fallbacks for unsupported features
+- User-friendly error messages in UI
+
+## Testing Requirements
+- Minimum 70% coverage thresholds (branches, functions, lines, statements)
+- Test files in `__tests__` directories or `*.test.js`
+- Setup file at `src/test/setup.js` for test environment
+- Use Vitest globals (describe, it, expect, vi)
+
+## Deployment Notes
+- Cloudflare Pages deployment via Wrangler
+- Custom headers in `_headers` for security and caching
+- Redirects in `_redirects` for URL handling
+- Static assets in `public/` directory
+- Sitemap and robots.txt for SEO
