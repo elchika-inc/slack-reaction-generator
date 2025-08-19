@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 let saveAs = null;
 const loadFileSaver = async () => {
   if (!saveAs) {
-    const module = await import('file-saver');
+    const module = await import("file-saver");
     saveAs = module.saveAs;
   }
   return saveAs;
@@ -64,8 +64,8 @@ function App() {
     imageY: 50, // 画像のY位置（0-100%）
     imageSize: 50, // 画像のサイズ（0-100%）
     imageOpacity: 100, // 画像の透過度（0-100%）
-    imagePosition: 'back', // 画像の前後位置（'front' or 'back'）
-    imageAnimation: 'none', // 画像のアニメーション
+    imagePosition: "back", // 画像の前後位置（'front' or 'back'）
+    imageAnimation: "none", // 画像のアニメーション
     imageAnimationAmplitude: 50, // 画像アニメーションの幅（0-100%）
     // サイズ最適化設定
     canvasSize: 128, // 出力キャンバスサイズ（64 or 128）
@@ -91,19 +91,18 @@ function App() {
     };
     checkMobile();
     window.addEventListener("resize", checkMobile);
-    
+
     // ネットワーク状況に基づいてアニメーションを調整
-    if (!shouldEnableFeature('animations')) {
-      setIconSettings(prev => ({ ...prev, animation: 'none' }));
+    if (!shouldEnableFeature("animations")) {
+      setIconSettings((prev) => ({ ...prev, animation: "none" }));
     }
-    
+
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
   // モバイル用プレビュー描画
   useEffect(() => {
     if (!isMobile) return;
-
 
     // アニメーション停止
     if (animationRef.current) {
@@ -141,17 +140,27 @@ function App() {
         const canvasSize = iconSettings.canvasSize || 128;
         canvas.width = canvasSize;
         canvas.height = canvasSize;
-        const ctx = canvas.getContext("2d", { alpha: true, willReadFrequently: true });
+        const ctx = canvas.getContext("2d", {
+          alpha: true,
+          willReadFrequently: true,
+        });
 
         const smallCanvas = smallCanvasRef.current;
         smallCanvas.width = 32;
         smallCanvas.height = 32;
-        const smallCtx = smallCanvas.getContext("2d", { alpha: true, willReadFrequently: true });
+        const smallCtx = smallCanvas.getContext("2d", {
+          alpha: true,
+          willReadFrequently: true,
+        });
 
         // テキストまたは画像のアニメーションがある場合はリアルタイムで描画
-        const hasTextAnimation = iconSettings.animation && iconSettings.animation !== "none";
-        const hasImageAnimation = iconSettings.imageData && iconSettings.imageAnimation && iconSettings.imageAnimation !== "none";
-        
+        const hasTextAnimation =
+          iconSettings.animation && iconSettings.animation !== "none";
+        const hasImageAnimation =
+          iconSettings.imageData &&
+          iconSettings.imageAnimation &&
+          iconSettings.imageAnimation !== "none";
+
         if (hasTextAnimation || hasImageAnimation) {
           frameRef.current = 0;
           smallFrameRef.current = 0;
@@ -276,14 +285,12 @@ function App() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-8">
           {/* エディタ部分 */}
           <section className="lg:col-span-2" aria-label="絵文字設定エディタ">
-            <div className="bg-white rounded-xl shadow-lg p-4 lg:p-6">
-              <h2 className="sr-only">絵文字の設定とカスタマイズ</h2>
-              <IconEditor
-                settings={iconSettings}
-                onChange={handleSettingsChange}
-                isMobile={isMobile}
-              />
-            </div>
+            <h2 className="sr-only">絵文字の設定とカスタマイズ</h2>
+            <IconEditor
+              settings={iconSettings}
+              onChange={handleSettingsChange}
+              isMobile={isMobile}
+            />
           </section>
 
           {/* デスクトップ用プレビュー */}

@@ -43,14 +43,6 @@ function ColorPicker({ color, onChange, onClose }) {
         onChangeComplete={handleChange}
         disableAlpha
       />
-      <div className="p-2 border-t">
-        <button
-          onClick={onClose}
-          className="w-full px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded transition-colors"
-        >
-          閉じる
-        </button>
-      </div>
     </div>
   )
 }
