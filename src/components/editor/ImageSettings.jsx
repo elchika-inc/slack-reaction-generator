@@ -104,11 +104,12 @@ function ImageSettings({ settings, onChange }) {
               {/* 位置調整 */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                  <label htmlFor="imageX-slider" className="block text-xs font-medium text-gray-600 mb-1">
                     横位置
                   </label>
                   <div className="space-y-1">
                     <input
+                      id="imageX-slider"
                       type="range"
                       min="0"
                       max="100"
@@ -116,6 +117,7 @@ function ImageSettings({ settings, onChange }) {
                       value={settings.imageX || 50}
                       onChange={(e) => onChange({ imageX: parseInt(e.target.value) })}
                       className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                      aria-label="画像の横位置調整"
                       style={{
                         background: `linear-gradient(to right, #9333ea 0%, #9333ea ${settings.imageX || 50}%, #e5e7eb ${settings.imageX || 50}%, #e5e7eb 100%)`
                       }}
@@ -129,11 +131,12 @@ function ImageSettings({ settings, onChange }) {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                  <label htmlFor="imageY-slider" className="block text-xs font-medium text-gray-600 mb-1">
                     縦位置
                   </label>
                   <div className="space-y-1">
                     <input
+                      id="imageY-slider"
                       type="range"
                       min="0"
                       max="100"
@@ -141,6 +144,7 @@ function ImageSettings({ settings, onChange }) {
                       value={settings.imageY || 50}
                       onChange={(e) => onChange({ imageY: parseInt(e.target.value) })}
                       className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                      aria-label="画像の縦位置調整"
                       style={{
                         background: `linear-gradient(to right, #9333ea 0%, #9333ea ${settings.imageY || 50}%, #e5e7eb ${settings.imageY || 50}%, #e5e7eb 100%)`
                       }}
@@ -157,11 +161,12 @@ function ImageSettings({ settings, onChange }) {
               {/* サイズと透過度 */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                  <label htmlFor="imageSize-slider" className="block text-xs font-medium text-gray-600 mb-1">
                     サイズ
                   </label>
                   <div className="space-y-1">
                     <input
+                      id="imageSize-slider"
                       type="range"
                       min="10"
                       max="150"
@@ -169,6 +174,7 @@ function ImageSettings({ settings, onChange }) {
                       value={settings.imageSize || 50}
                       onChange={(e) => onChange({ imageSize: parseInt(e.target.value) })}
                       className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                      aria-label="画像サイズ調整"
                       style={{
                         background: `linear-gradient(to right, #9333ea 0%, #9333ea ${((settings.imageSize || 50) - 10) / 140 * 100}%, #e5e7eb ${((settings.imageSize || 50) - 10) / 140 * 100}%, #e5e7eb 100%)`
                       }}
@@ -182,11 +188,12 @@ function ImageSettings({ settings, onChange }) {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                  <label htmlFor="imageOpacity-slider" className="block text-xs font-medium text-gray-600 mb-1">
                     透過度
                   </label>
                   <div className="space-y-1">
                     <input
+                      id="imageOpacity-slider"
                       type="range"
                       min="0"
                       max="100"
@@ -194,6 +201,7 @@ function ImageSettings({ settings, onChange }) {
                       value={settings.imageOpacity || 100}
                       onChange={(e) => onChange({ imageOpacity: parseInt(e.target.value) })}
                       className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                      aria-label="画像透過度調整"
                       style={{
                         background: `linear-gradient(to right, #9333ea 0%, #9333ea ${settings.imageOpacity || 100}%, #e5e7eb ${settings.imageOpacity || 100}%, #e5e7eb 100%)`
                       }}
@@ -238,11 +246,12 @@ function ImageSettings({ settings, onChange }) {
                 {/* 画像アニメーション幅 */}
                 {settings.imageAnimation !== 'none' && (settings.imageAnimation === 'bounce' || settings.imageAnimation === 'pulse' || settings.imageAnimation === 'slide') && (
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                    <label htmlFor="imageAnimationAmplitude-slider" className="block text-xs font-medium text-gray-600 mb-1">
                       画像アニメーション幅
                     </label>
                     <div className="space-y-1">
                       <input
+                        id="imageAnimationAmplitude-slider"
                         type="range"
                         min="10"
                         max="100"
@@ -250,6 +259,7 @@ function ImageSettings({ settings, onChange }) {
                         value={settings.imageAnimationAmplitude || 50}
                         onChange={(e) => onChange({ imageAnimationAmplitude: parseInt(e.target.value) })}
                         className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                        aria-label="画像アニメーション幅調整"
                         style={{
                           background: `linear-gradient(to right, #9333ea 0%, #9333ea ${((settings.imageAnimationAmplitude || 50) - 10) / 90 * 100}%, #e5e7eb ${((settings.imageAnimationAmplitude || 50) - 10) / 90 * 100}%, #e5e7eb 100%)`
                         }}

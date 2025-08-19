@@ -108,12 +108,14 @@ function AnimationSettings({ settings, onChange, isMobile }) {
           <div className={`${!isMobile && ((settings.animation === 'bounce' || settings.animation === 'pulse' || settings.animation === 'slide') || (settings.animation === 'glow' || settings.animation === 'blink')) ? 'grid grid-cols-2 gap-4' : ''}`}>
             {/* アニメーション速度 */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">
+              <label htmlFor="animationSpeed-slider" className="block text-sm font-medium text-gray-700 mb-3">
                 アニメーション速度
               </label>
               <div className="space-y-2">
                 <input
+                  id="animationSpeed-slider"
                   type="range"
+                  aria-label="アニメーション速度調整"
                   min="30"
                   max="100"
                   step="1"
@@ -137,12 +139,14 @@ function AnimationSettings({ settings, onChange, isMobile }) {
             {/* アニメーション幅制御 */}
             {(settings.animation === 'bounce' || settings.animation === 'pulse' || settings.animation === 'slide') && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
+                <label htmlFor="animationAmplitude-slider" className="block text-sm font-medium text-gray-700 mb-3">
                   アニメーション幅
                 </label>
                 <div className="space-y-2">
                   <input
+                    id="animationAmplitude-slider"
                     type="range"
+                    aria-label="アニメーション幅調整"
                     min="10"
                     max="100"
                     step="5"

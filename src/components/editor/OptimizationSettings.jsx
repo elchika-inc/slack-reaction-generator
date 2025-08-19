@@ -99,12 +99,14 @@ function OptimizationSettings({ settings, onChange }) {
       {/* PNG圧縮設定 */}
       {settings.animation === 'none' && (
         <div>
-          <label className="block text-xs font-medium text-gray-600 mb-2">
+          <label htmlFor="pngQuality-slider" className="block text-xs font-medium text-gray-600 mb-2">
             PNG圧縮率
           </label>
           <div className="space-y-2">
             <input
+              id="pngQuality-slider"
               type="range"
+              aria-label="PNG圧縮率調整"
               min="0"
               max="100"
               step="5"
@@ -128,12 +130,14 @@ function OptimizationSettings({ settings, onChange }) {
       {settings.animation !== 'none' && (
         <>
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-2">
+            <label htmlFor="gifQuality-slider" className="block text-xs font-medium text-gray-600 mb-2">
               GIF品質
             </label>
             <div className="space-y-2">
               <input
+                id="gifQuality-slider"
                 type="range"
+                aria-label="GIF品質調整"
                 min="1"
                 max="30"
                 step="1"
@@ -155,12 +159,14 @@ function OptimizationSettings({ settings, onChange }) {
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-2">
+            <label htmlFor="gifFrames-slider" className="block text-xs font-medium text-gray-600 mb-2">
               GIFフレーム数
             </label>
             <div className="space-y-2">
               <input
+                id="gifFrames-slider"
                 type="range"
+                aria-label="GIFフレーム数調整"
                 min="5"
                 max="30"
                 step="5"
