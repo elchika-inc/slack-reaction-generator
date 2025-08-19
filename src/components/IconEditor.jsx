@@ -67,7 +67,7 @@ function IconEditor({ settings, onChange, isMobile }) {
   return (
     <div className="space-y-2">
       {sections.map((section) => (
-        <div key={section.id} className="border border-gray-200 rounded-lg" style={{ overflow: openSections[section.id] ? 'visible' : 'hidden' }}>
+        <div key={section.id} className="border border-gray-200 rounded-lg shadow-md" style={{ overflow: openSections[section.id] ? 'visible' : 'hidden' }}>
           {/* アコーディオンヘッダー */}
           <button
             onClick={() => toggleSection(section.id)}
