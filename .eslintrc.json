@@ -2,7 +2,8 @@
   "root": true,
   "env": {
     "browser": true,
-    "es2020": true
+    "es2020": true,
+    "node": true
   },
   "extends": [
     "eslint:recommended"
@@ -16,8 +17,22 @@
     }
   },
   "rules": {
-    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^(Header|IconEditor|PreviewPanel|App|Picker|ColorPicker)$" }],
+    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^(Header|IconEditor|PreviewPanel|App|Picker|ColorPicker|BasicSettings|AnimationSettings|ImageSettings|OptimizationSettings|Suspense)$" }],
     "no-undef": "error",
     "no-console": "warn"
-  }
+  },
+  "overrides": [
+    {
+      "files": ["src/test/**/*.js", "**/*.test.js"],
+      "globals": {
+        "global": "readonly",
+        "vi": "readonly",
+        "describe": "readonly",
+        "it": "readonly",
+        "expect": "readonly",
+        "beforeEach": "readonly",
+        "afterEach": "readonly"
+      }
+    }
+  ]
 }

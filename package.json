@@ -12,7 +12,12 @@
     "deploy": "npm run build && npx wrangler pages deploy dist",
     "clean": "rm -rf dist/ node_modules/.vite/ .wrangler/",
     "lighthouse": "node dev/scripts/lighthouse-monitor.js",
-    "lighthouse:ci": "node dev/scripts/lighthouse-monitor.js --ci"
+    "lighthouse:ci": "node dev/scripts/lighthouse-monitor.js --ci",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest --watch",
+    "test:ui": "vitest --ui"
   },
   "dependencies": {
     "@preact/compat": "^18.3.1",

@@ -1,5 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
-import { Suspense, lazy } from 'react'
+import { useState, useRef, useEffect, Suspense, lazy } from 'react'
 import { CANVAS_CONFIG } from '../../constants/canvasConstants'
 
 const ColorPicker = lazy(() => import('../ColorPicker'))

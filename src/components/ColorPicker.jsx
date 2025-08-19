@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 // react-colorを動的インポート
 let SketchPicker = null
 
-function ColorPicker({ color, onChange, onClose }) {
+function ColorPicker({ color, onChange, onClose: _onClose }) {
   const [isLoaded, setIsLoaded] = useState(false)
   const PickerComponent = useRef(null)
 

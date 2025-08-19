@@ -1,5 +1,4 @@
-import { useState } from 'react'
-import { Suspense, lazy } from 'react'
+import { useState, Suspense, lazy } from 'react'
 
 const ColorPicker = lazy(() => import('../ColorPicker'))
 
