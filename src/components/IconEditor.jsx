@@ -1,6 +1,9 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, Suspense, lazy } from 'react'
 import { CANVAS_CONFIG } from '../constants/canvasConstants'
 import { preloadImage } from '../utils/imageCache'
+
+// カラーピッカーの遅延読み込み
+const ColorPicker = lazy(() => import('./ColorPicker'))
 
 
 function IconEditor({ settings, onChange, isMobile }) {
@@ -131,7 +134,7 @@ function IconEditor({ settings, onChange, isMobile }) {
               key={font.value}
               onClick={() => onChange({ fontFamily: font.value })}
               className={`
-                ${isMobile ? 'p-2' : 'p-3'} rounded-lg border text-center transition-all active:scale-95 focus:outline-none focus:ring-2 focus:ring-purple-500
+                ${isMobile ? 'p-2' : 'p-3'} rounded-lg border text-center transition-scale transition-gpu active:scale-95 focus:outline-none focus:ring-2 focus:ring-purple-500
                 ${
                   settings.fontFamily === font.value
                     ? 'border-purple-500 bg-purple-50 ring-2 ring-purple-200'
@@ -431,7 +434,7 @@ function IconEditor({ settings, onChange, isMobile }) {
               key={anim.value}
               onClick={() => onChange({ animation: anim.value })}
               className={`
-                ${isMobile ? 'py-2 px-1' : 'p-3'} rounded-lg border ${isMobile ? 'text-center' : 'text-left'} transition-all active:scale-95
+                ${isMobile ? 'py-2 px-1' : 'p-3'} rounded-lg border ${isMobile ? 'text-center' : 'text-left'} transition-scale transition-gpu active:scale-95
                 ${
                   settings.animation === anim.value
                     ? 'border-purple-500 bg-purple-50 ring-2 ring-purple-200'
@@ -623,7 +626,7 @@ function IconEditor({ settings, onChange, isMobile }) {
                   <div className="flex gap-2">
                     <button
                       onClick={() => onChange({ imagePosition: 'back' })}
-                      className={`flex-1 px-3 py-2 text-sm font-medium rounded-lg border transition-all active:scale-95 flex items-center justify-center gap-2 ${
+                      className={`flex-1 px-3 py-2 text-sm font-medium rounded-lg border transition-scale transition-gpu active:scale-95 flex items-center justify-center gap-2 ${
                         settings.imagePosition === 'back'
                           ? 'border-purple-500 bg-purple-50 ring-2 ring-purple-200 text-purple-700'
                           : 'border-gray-300 hover:bg-gray-50 active:bg-gray-100 text-gray-700'
@@ -637,7 +640,7 @@ function IconEditor({ settings, onChange, isMobile }) {
                     </button>
                     <button
                       onClick={() => onChange({ imagePosition: 'front' })}
-                      className={`flex-1 px-3 py-2 text-sm font-medium rounded-lg border transition-all active:scale-95 flex items-center justify-center gap-2 ${
+                      className={`flex-1 px-3 py-2 text-sm font-medium rounded-lg border transition-scale transition-gpu active:scale-95 flex items-center justify-center gap-2 ${
                         settings.imagePosition === 'front'
                           ? 'border-purple-500 bg-purple-50 ring-2 ring-purple-200 text-purple-700'
                           : 'border-gray-300 hover:bg-gray-50 active:bg-gray-100 text-gray-700'
@@ -784,7 +787,7 @@ function IconEditor({ settings, onChange, isMobile }) {
                         <button
                           key={anim.value}
                           onClick={() => onChange({ imageAnimation: anim.value })}
-                          className={`py-2 px-1 rounded-lg border text-xs transition-all active:scale-95 ${
+                          className={`py-2 px-1 rounded-lg border text-xs transition-scale transition-gpu active:scale-95 ${
                             settings.imageAnimation === anim.value
                               ? 'border-purple-500 bg-purple-50 ring-2 ring-purple-200 text-purple-700'
                               : 'border-gray-300 hover:bg-gray-50 active:bg-gray-100 text-gray-700'

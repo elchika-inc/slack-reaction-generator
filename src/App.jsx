@@ -135,12 +135,12 @@ function App() {
         const canvas = canvasRef.current;
         canvas.width = 128;
         canvas.height = 128;
-        const ctx = canvas.getContext("2d", { alpha: true });
+        const ctx = canvas.getContext("2d", { alpha: true, willReadFrequently: true });
 
         const smallCanvas = smallCanvasRef.current;
         smallCanvas.width = 32;
         smallCanvas.height = 32;
-        const smallCtx = smallCanvas.getContext("2d", { alpha: true });
+        const smallCtx = smallCanvas.getContext("2d", { alpha: true, willReadFrequently: true });
 
         // テキストまたは画像のアニメーションがある場合はリアルタイムで描画
         const hasTextAnimation = iconSettings.animation && iconSettings.animation !== "none";

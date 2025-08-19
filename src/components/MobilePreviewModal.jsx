@@ -23,7 +23,7 @@ function MobilePreviewModal({ isOpen, onClose, settings }) {
       const canvas = canvasRef.current
       canvas.width = 128
       canvas.height = 128
-      const ctx = canvas.getContext('2d')
+      const ctx = canvas.getContext('2d', { willReadFrequently: true })
       
       // アニメーションがある場合はリアルタイムで描画
       if (settings.animation !== 'none') {
@@ -246,7 +246,7 @@ function MobilePreviewModal({ isOpen, onClose, settings }) {
 
           {/* Slackへの追加方法 */}
           <div className="bg-blue-50 rounded-xl p-4">
-            <h4 className="text-sm font-semibold text-blue-900 mb-3">💡 Slackへの追加方法</h4>
+            <h3 className="text-sm font-semibold text-blue-900 mb-3">💡 Slackへの追加方法</h3>
             <ol className="text-xs text-blue-800 space-y-2">
               <li className="flex">
                 <span className="font-semibold mr-2">1.</span>

@@ -1,7 +1,8 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import { VitePWA } from 'vite-plugin-pwa'
+// import { VitePWA } from 'vite-plugin-pwa'
 import { viteSingleFile } from 'vite-plugin-singlefile'
+import purgecss from 'vite-plugin-purgecss'
 
 export default defineConfig({
   resolve: {
@@ -13,87 +14,60 @@ export default defineConfig({
   },
   plugins: [
     react(),
-    viteSingleFile(),
-    VitePWA({
-      registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
-      manifest: {
-        name: 'Slack Reaction Generator',
-        short_name: 'Slack絵文字',
-        description: 'Slackのカスタム絵文字を簡単作成',
-        theme_color: '#7c3aed',
-        background_color: '#ffffff',
-        display: 'standalone',
-        icons: [
-          {
-            src: '/icon-192.png',
-            sizes: '192x192',
-            type: 'image/png'
-          },
-          {
-            src: '/icon-512.png',
-            sizes: '512x512',
-            type: 'image/png'
-          }
-        ]
-      },
-      workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,jpg,jpeg,webp,woff,woff2}'],
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'google-fonts-cache',
-              expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365 // 1年
-              },
-              cacheableResponse: {
-                statuses: [0, 200]
-              }
-            }
-          },
-          {
-            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'gstatic-fonts-cache',
-              expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365 // 1年
-              },
-              cacheableResponse: {
-                statuses: [0, 200]
-              }
-            }
-          }
-        ]
-      }
+    purgecss({
+      content: ['./index.html', './src/**/*.{js,jsx,ts,tsx}'],
+      safelist: [
+        // アニメーション関連のクラスを保護
+        /^animate-/,
+        /^transition/,
+        'transition-gpu',
+        'transition-scale',
+        'transition-opacity',
+        // 動的に生成されるクラスを保護
+        /^bg-/, /^text-/, /^border-/, /^hover:/, /^focus:/, /^active:/,
+        // レスポンシブクラスを保護
+        /^lg:/, /^md:/, /^sm:/, /^xl:/,
+        // Flexboxとグリッド
+        /^flex/, /^grid/, /^gap-/, /^space-/,
+        // Tailwindの重要なユーティリティ
+        'sr-only', 'container', 'mx-auto', 'hidden', 'block', 'inline-block',
+        'will-change-transform', 'transform', 'scale-95'
+      ]
     })
   ],
   build: {
     outDir: 'dist',
     sourcemap: false,
-    minify: 'esbuild',
+    minify: 'terser',
+    target: 'es2015',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true
+      },
+      format: {
+        comments: false
+      }
+    },
     rollupOptions: {
       output: {
-        manualChunks: undefined,
         assetFileNames: (assetInfo) => {
           const info = assetInfo.name.split('.')
           const ext = info[info.length - 1]
-          if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(ext)) {
+          if (/png|jpe?g|svg|gif|tiff|bmp|ico|avif|webp/i.test(ext)) {
             return `assets/images/[name]-[hash][extname]`
           }
+          if (/woff2?|ttf|otf/i.test(ext)) {
+            return `assets/fonts/[name]-[hash][extname]`
+          }
           return `assets/[name]-[hash][extname]`
-        },
-        inlineDynamicImports: true
+        }
       }
     },
-    reportCompressedSize: false,
-    chunkSizeWarningLimit: 1000,
-    cssCodeSplit: false,
-    assetsInlineLimit: 50000000 // 50MBまでインライン化（事実上すべて）
+    reportCompressedSize: true,
+    chunkSizeWarningLimit: 200,
+    cssCodeSplit: true,
+    assetsInlineLimit: 4096 // 4KBまでインライン化
   },
   server: {
     port: 5173,

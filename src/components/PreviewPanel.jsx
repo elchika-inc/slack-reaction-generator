@@ -62,12 +62,12 @@ function PreviewPanel({ settings, isMobile }) {
         const canvas = canvasRef.current;
         canvas.width = 128;
         canvas.height = 128;
-        const ctx = canvas.getContext("2d", { alpha: true }); // アルファチャンネルを明示的に有効化
+        const ctx = canvas.getContext("2d", { alpha: true, willReadFrequently: true }); // アルファチャンネルを明示的に有効化
 
         const smallCanvas = smallCanvasRef.current;
         smallCanvas.width = 32;
         smallCanvas.height = 32;
-        const smallCtx = smallCanvas.getContext("2d", { alpha: true }); // アルファチャンネルを明示的に有効化
+        const smallCtx = smallCanvas.getContext("2d", { alpha: true, willReadFrequently: true }); // アルファチャンネルを明示的に有効化
 
         // アニメーションがある場合はリアルタイムで描画
         const hasTextAnimation = settings.animation && settings.animation !== "none";
@@ -355,7 +355,7 @@ function PreviewPanel({ settings, isMobile }) {
       {/* Slackへの追加方法 - デスクトップのみ表示 */}
       {!isMobile && (
         <div className="mt-6 pt-6 border-t border-gray-200">
-          <h4 className="text-sm font-medium mb-2">💡 Slackへの追加方法</h4>
+          <h3 className="text-sm font-medium mb-2">💡 Slackへの追加方法</h3>
           <ol className="text-xs text-gray-600 space-y-1">
             <li>1. Slackを開き、ワークスペース名をクリック</li>
             <li>2. 「ワークスペースをカスタマイズ」を選択</li>

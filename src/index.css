@@ -40,6 +40,23 @@
 }
 
 @layer components {
+  /* GPU accelerated animations */
+  .transition-gpu {
+    will-change: transform, opacity;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+  }
+  
+  /* Optimized transitions - only transform and opacity */
+  .transition-scale {
+    transition: transform 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .transition-opacity {
+    transition: opacity 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
   .icon-canvas {
     @apply w-32 h-32;
     image-rendering: pixelated;

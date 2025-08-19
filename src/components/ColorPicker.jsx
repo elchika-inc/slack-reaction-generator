@@ -1,37 +1,58 @@
-// 軽量でSEO影響のないシンプルカラーピッカー
-export default function ColorPicker({ color, onChange, onClose }) {
-  const colors = [
-    '#FF6B6B', '#4ECDC4', '#45B7D1', '#FD79A8', '#A29BFE',
-    '#6C5CE7', '#00B894', '#FDCB6E', '#E17055', '#74B9FF',
-    '#000000', '#FFFFFF', '#FF0000', '#00FF00', '#0000FF',
-    '#FFFF00', '#FF00FF', '#00FFFF', '#808080', '#800000'
-  ]
+import { useEffect, useRef, useState } from 'react'
+
+// react-colorを動的インポート
+let SketchPicker = null
+
+function ColorPicker({ color, onChange, onClose }) {
+  const [isLoaded, setIsLoaded] = useState(false)
+  const PickerComponent = useRef(null)
+
+  useEffect(() => {
+    // react-colorのSketchPickerを動的にインポート
+    if (!SketchPicker) {
+      import('react-color').then((module) => {
+        SketchPicker = module.SketchPicker
+        PickerComponent.current = SketchPicker
+        setIsLoaded(true)
+      })
+    } else {
+      PickerComponent.current = SketchPicker
+      setIsLoaded(true)
+    }
+  }, [])
+
+  const handleChange = (newColor) => {
+    onChange(newColor.hex)
+  }
+
+  // ピッカーがまだロードされていない場合はローディング表示
+  if (!isLoaded || !PickerComponent.current) {
+    return (
+      <div className="bg-white rounded-lg shadow-xl p-4 animate-pulse">
+        <div className="w-48 h-48 bg-gray-200 rounded"></div>
+      </div>
+    )
+  }
+
+  const Picker = PickerComponent.current
 
   return (
-    <div className="bg-white p-3 rounded-lg shadow-lg border border-gray-200 w-60">
-      <div className="grid grid-cols-5 gap-2 mb-3">
-        {colors.map((c) => (
-          <button
-            key={c}
-            onClick={() => {
-              onChange(c)
-              onClose()
-            }}
-            className={`w-8 h-8 rounded border-2 ${
-              color === c ? 'border-purple-500' : 'border-gray-300'
-            } hover:scale-105`}
-            style={{ backgroundColor: c }}
-            title={c}
-          />
-        ))}
-      </div>
-      
-      <input
-        type="color"
-        value={color}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full h-8 rounded border border-gray-300"
+    <div className="bg-white rounded-lg shadow-xl">
+      <Picker
+        color={color}
+        onChangeComplete={handleChange}
+        disableAlpha
       />
+      <div className="p-2 border-t">
+        <button
+          onClick={onClose}
+          className="w-full px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded transition-colors"
+        >
+          閉じる
+        </button>
+      </div>
     </div>
   )
 }
+
+export default ColorPicker
