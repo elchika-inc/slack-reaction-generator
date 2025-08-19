@@ -67,11 +67,13 @@ function IconEditor({ settings, onChange, isMobile }) {
   return (
     <div className="space-y-2">
       {sections.map((section) => (
-        <div key={section.id} className="border border-gray-200 rounded-lg shadow-md" style={{ overflow: openSections[section.id] ? 'visible' : 'hidden' }}>
+        <div key={section.id} className="border border-gray-200 rounded-lg shadow-md overflow-hidden">
           {/* アコーディオンヘッダー */}
           <button
             onClick={() => toggleSection(section.id)}
-            className="w-full px-4 py-3 bg-white hover:bg-gray-50 transition-colors flex items-center justify-between"
+            className={`w-full px-4 py-3 bg-white hover:bg-gray-50 transition-colors flex items-center justify-between ${
+              openSections[section.id] ? '' : 'rounded-lg'
+            }`}
             aria-expanded={openSections[section.id]}
             aria-controls={`section-${section.id}`}
           >
@@ -109,7 +111,7 @@ function IconEditor({ settings, onChange, isMobile }) {
               zIndex: openSections[section.id] ? 10 : 0 
             }}
           >
-            <div className="px-4 py-4 bg-gray-50 border-t border-gray-200 relative">
+            <div className="px-4 py-4 bg-gray-50 border-t border-gray-200 relative rounded-b-lg">
               {section.component}
             </div>
           </div>

@@ -9,48 +9,63 @@ function ImageSettings({ settings, onChange }) {
         </label>
         <div className="space-y-3">
           {/* 画像アップロード */}
-          <div className="relative">
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => {
-                const file = e.target.files[0]
-                if (file) {
-                  const reader = new FileReader()
-                  reader.onload = async (event) => {
-                    const dataUrl = event.target.result
-                    // 画像を事前読み込み
-                    await preloadImage(dataUrl)
-                    onChange({ imageData: dataUrl })
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files[0]
+                  if (file) {
+                    const reader = new FileReader()
+                    reader.onload = async (event) => {
+                      const dataUrl = event.target.result
+                      // 画像を事前読み込み
+                      await preloadImage(dataUrl)
+                      onChange({ imageData: dataUrl })
+                    }
+                    reader.readAsDataURL(file)
                   }
-                  reader.readAsDataURL(file)
-                }
-              }}
-              className="hidden"
-              id="image-upload"
-            />
-            <label
-              htmlFor="image-upload"
-              className="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-purple-400 cursor-pointer transition-colors flex items-center justify-center"
-            >
-              {settings.imageData ? (
-                <div className="flex items-center gap-2">
-                  <img 
-                    src={settings.imageData} 
-                    alt="Uploaded" 
-                    className="w-8 h-8 object-contain"
-                  />
-                  <span className="text-sm text-gray-600">画像を変更</span>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                  </svg>
-                  <span className="text-sm text-gray-600">画像を選択</span>
-                </div>
-              )}
-            </label>
+                }}
+                className="hidden"
+                id="image-upload"
+              />
+              <label
+                htmlFor="image-upload"
+                className="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-purple-400 cursor-pointer transition-colors flex items-center justify-center"
+              >
+                {settings.imageData ? (
+                  <div className="flex items-center gap-2">
+                    <img 
+                      src={settings.imageData} 
+                      alt="Uploaded" 
+                      className="w-8 h-8 object-contain"
+                    />
+                    <span className="text-sm text-gray-600">画像を変更</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    <span className="text-sm text-gray-600">画像を選択</span>
+                  </div>
+                )}
+              </label>
+            </div>
+            
+            {/* 削除ボタン */}
+            {settings.imageData && (
+              <button
+                onClick={() => onChange({ imageData: null })}
+                className="px-4 py-3 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-sm font-medium border border-red-200"
+                title="画像を削除"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            )}
           </div>
 
           {/* 画像がアップロードされた場合のコントロール */}
@@ -93,13 +108,6 @@ function ImageSettings({ settings, onChange }) {
                 </p>
               </div>
 
-              {/* 削除ボタン */}
-              <button
-                onClick={() => onChange({ imageData: null })}
-                className="w-full px-3 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-sm"
-              >
-                画像を削除
-              </button>
 
               {/* 位置調整 */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
