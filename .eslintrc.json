@@ -16,7 +16,7 @@
     }
   },
   "rules": {
-    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^(Header|IconEditor|PreviewPanel|App)$" }],
+    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^(Header|IconEditor|PreviewPanel|App|Picker|ColorPicker)$" }],
     "no-undef": "error",
     "no-console": "warn"
   }

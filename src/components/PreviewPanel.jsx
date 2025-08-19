@@ -1,5 +1,13 @@
 import { useState, useEffect, useRef } from "react";
-import { saveAs } from "file-saver";
+// file-saverを遅延読み込み
+let saveAs = null;
+const loadFileSaver = async () => {
+  if (!saveAs) {
+    const module = await import('file-saver');
+    saveAs = module.saveAs;
+  }
+  return saveAs;
+};
 // gifencライブラリを使用（透明背景サポート向上）
 // 従来のgif.jsを使いたい場合は以下をコメントアウト解除
 import {
@@ -60,8 +68,9 @@ function PreviewPanel({ settings, isMobile }) {
     loadFonts().then(() => {
       if (canvasRef.current && smallCanvasRef.current) {
         const canvas = canvasRef.current;
-        canvas.width = 128;
-        canvas.height = 128;
+        const canvasSize = settings.canvasSize || 128;
+        canvas.width = canvasSize;
+        canvas.height = canvasSize;
         const ctx = canvas.getContext("2d", { alpha: true, willReadFrequently: true }); // アルファチャンネルを明示的に有効化
 
         const smallCanvas = smallCanvasRef.current;
@@ -76,7 +85,7 @@ function PreviewPanel({ settings, isMobile }) {
         if (hasTextAnimation || hasImageAnimation) {
           frameRef.current = 0;
           smallFrameRef.current = 0;
-          const frameCount = 30; // GIFと同じフレーム数
+          const frameCount = settings.gifFrames || 30; // GIFと同じフレーム数
           // animationSpeedは既にミリ秒単位
           const requestedDelay = settings.animationSpeed || 33;
 
@@ -93,7 +102,7 @@ function PreviewPanel({ settings, isMobile }) {
               frameRef.current = (frameRef.current + 1) % frameCount;
               // 背景色を描画
               ctx.fillStyle = settings.backgroundColor || "#FFFFFF";
-              ctx.fillRect(0, 0, 128, 128);
+              ctx.fillRect(0, 0, canvasSize, canvasSize);
               // アニメーションフレームを描画
               drawAnimationFrame(ctx, settings, frameRef.current, frameCount);
               lastTime = currentTime;
@@ -112,10 +121,11 @@ function PreviewPanel({ settings, isMobile }) {
               smallCtx.clearRect(0, 0, 32, 32);
               // 32x32にスケールダウンして描画
               smallCtx.save();
-              smallCtx.scale(0.25, 0.25); // 32/128 = 0.25
-              // 背景色を描画（128x128サイズで）
+              const scale = 32 / canvasSize;
+              smallCtx.scale(scale, scale);
+              // 背景色を描画（元のキャンバスサイズで）
               smallCtx.fillStyle = settings.backgroundColor || "#FFFFFF";
-              smallCtx.fillRect(0, 0, 128, 128);
+              smallCtx.fillRect(0, 0, canvasSize, canvasSize);
               drawAnimationFrame(
                 smallCtx,
                 settings,
@@ -137,13 +147,14 @@ function PreviewPanel({ settings, isMobile }) {
         } else {
           // アニメーションなしの場合は静止画を生成
           // canvasをクリアしてから描画
-          ctx.clearRect(0, 0, 128, 128);
+          ctx.clearRect(0, 0, canvasSize, canvasSize);
           smallCtx.clearRect(0, 0, 32, 32);
 
           generateIconData(settings, canvas);
-          // 32x32も生成（128x128をスケールダウン）
+          // 32x32も生成（元サイズをスケールダウン）
           smallCtx.save();
-          smallCtx.scale(0.25, 0.25); // 32/128 = 0.25
+          const scale = 32 / canvasSize;
+          smallCtx.scale(scale, scale);
           drawTextIcon(smallCtx, settings);
           smallCtx.restore();
         }
@@ -179,17 +190,20 @@ function PreviewPanel({ settings, isMobile }) {
 
         const response = await fetch(url);
         const blob = await response.blob();
-        saveAs(blob, fileName);
+        const fileSaver = await loadFileSaver();
+        fileSaver(blob, fileName);
       } else {
         // 静止画の場合、新しいキャンバスで再生成（透明背景対応）
         const tempCanvas = document.createElement("canvas");
-        tempCanvas.width = 128;
-        tempCanvas.height = 128;
+        const canvasSize = settings.canvasSize || 128;
+        tempCanvas.width = canvasSize;
+        tempCanvas.height = canvasSize;
 
         const url = await generateIconData(settings, tempCanvas);
         const response = await fetch(url);
         const blob = await response.blob();
-        saveAs(blob, fileName);
+        const fileSaver = await loadFileSaver();
+        fileSaver(blob, fileName);
       }
     } catch (error) {
       // Download error
@@ -253,12 +267,12 @@ function PreviewPanel({ settings, isMobile }) {
                 theme === "dark" ? "text-gray-400" : "text-gray-600"
               }`}
             >
-              実サイズ (128×128)
+              実サイズ ({settings.canvasSize || 128}×{settings.canvasSize || 128})
             </p>
             <canvas
               ref={canvasRef}
-              width={128}
-              height={128}
+              width={settings.canvasSize || 128}
+              height={settings.canvasSize || 128}
               className="icon-canvas mx-auto"
             />
           </div>

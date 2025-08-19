@@ -34,6 +34,9 @@ const ANIMATION_CONSTANTS = {
 }
 
 export const generateIconData = async (settings, canvas) => {
+  // キャンバスサイズを取得（デフォルト128）
+  const canvasSize = settings.canvasSize || CANVAS_CONFIG.SIZE;
+  
   // テキストまたは画像のアニメーションがある場合は専用の処理
   const hasTextAnimation = settings.animation && settings.animation !== 'none';
   const hasImageAnimation = settings.imageData && settings.imageAnimation && settings.imageAnimation !== 'none';
@@ -41,8 +44,8 @@ export const generateIconData = async (settings, canvas) => {
   if (hasTextAnimation || hasImageAnimation) {
     // GIF生成用の新しいキャンバスを作成
     const gifCanvas = document.createElement('canvas')
-    gifCanvas.width = CANVAS_CONFIG.SIZE
-    gifCanvas.height = CANVAS_CONFIG.SIZE
+    gifCanvas.width = canvasSize
+    gifCanvas.height = canvasSize
     return await generateAnimatedGIF(gifCanvas, settings)
   }
   
@@ -51,12 +54,12 @@ export const generateIconData = async (settings, canvas) => {
     canvas = document.createElement('canvas')
   }
   
-  canvas.width = CANVAS_CONFIG.SIZE
-  canvas.height = CANVAS_CONFIG.SIZE
+  canvas.width = canvasSize
+  canvas.height = canvasSize
   const ctx = canvas.getContext('2d', { alpha: true, willReadFrequently: true })  // アルファチャンネルを明示的に有効化、頻繁な読み込みを最適化
   
   // Clear canvas with transparent background
-  ctx.clearRect(0, 0, CANVAS_CONFIG.SIZE, CANVAS_CONFIG.SIZE)
+  ctx.clearRect(0, 0, canvasSize, canvasSize)
   
   // 透明背景の場合、globalCompositeOperationを設定
   if (settings.backgroundType === 'transparent') {
@@ -66,10 +69,15 @@ export const generateIconData = async (settings, canvas) => {
   // テキストベースのアイコン
   drawTextIcon(ctx, settings)
   
+  // PNG品質設定を適用（toDataURLはPNGでは品質パラメータを受け付けないため、デフォルトで出力）
+  // 実際のファイルサイズ最適化は出力サイズで制御
   return canvas.toDataURL('image/png')
 }
 
 export const drawTextIcon = (ctx, settings) => {
+  // キャンバスサイズを取得
+  const canvasSize = settings.canvasSize || CANVAS_CONFIG.SIZE;
+  
   // 背景を設定
   // アニメーションがある場合は常に背景色を塗る（GIFは透明非対応）
   // アニメーションがない場合は、backgroundTypeに応じて背景を設定
@@ -78,27 +86,27 @@ export const drawTextIcon = (ctx, settings) => {
   
   if (hasTextAnimation || hasImageAnimation || settings.backgroundType === 'color') {
     ctx.fillStyle = settings.backgroundColor || CANVAS_CONFIG.DEFAULT_BACKGROUND_COLOR
-    // 固定サイズで背景を描画
-    ctx.fillRect(0, 0, CANVAS_CONFIG.SIZE, CANVAS_CONFIG.SIZE)
+    // 動的サイズで背景を描画
+    ctx.fillRect(0, 0, canvasSize, canvasSize)
   }
   // backgroundType === 'transparent' の場合は何も塗らない（透明背景）
   
   // 画像が後ろの場合は先に描画
   if (settings.imageData && settings.imagePosition === 'back') {
-    drawImageLayer(ctx, settings, 0)  // 静止画の場合はprogress=0
+    drawImageLayer(ctx, settings, 0, canvasSize)  // 静止画の場合はprogress=0
   }
   
   // テキストを描画（改行対応）
-  renderText(ctx, settings)
+  renderText(ctx, settings, canvasSize)
   
   // 画像が前の場合は後に描画
   if (settings.imageData && settings.imagePosition === 'front') {
-    drawImageLayer(ctx, settings, 0)  // 静止画の場合はprogress=0
+    drawImageLayer(ctx, settings, 0, canvasSize)  // 静止画の場合はprogress=0
   }
 }
 
 // 画像レイヤーを描画
-const drawImageLayer = (ctx, settings, progress = 0) => {
+const drawImageLayer = (ctx, settings, progress = 0, canvasSize = CANVAS_CONFIG.SIZE) => {
   if (!settings.imageData) return
   
   // キャッシュから画像を取得
@@ -113,7 +121,7 @@ const drawImageLayer = (ctx, settings, progress = 0) => {
     let baseAlpha = (settings.imageOpacity || ANIMATION_CONSTANTS.OPACITY_MAX) / ANIMATION_CONSTANTS.OPACITY_MAX
     
     // 画像のサイズ計算（%ベース）
-    const maxSize = CANVAS_CONFIG.SIZE * (settings.imageSize || ANIMATION_CONSTANTS.CENTER_POSITION) / ANIMATION_CONSTANTS.SIZE_MAX
+    const maxSize = canvasSize * (settings.imageSize || ANIMATION_CONSTANTS.CENTER_POSITION) / ANIMATION_CONSTANTS.SIZE_MAX
     
     // アスペクト比を保持してサイズ計算
     const scale = Math.min(maxSize / img.width, maxSize / img.height)
@@ -121,8 +129,8 @@ const drawImageLayer = (ctx, settings, progress = 0) => {
     const height = img.height * scale
     
     // 位置計算（0-100%を0-128pxに変換）
-    const centerX = CANVAS_CONFIG.SIZE * (settings.imageX || ANIMATION_CONSTANTS.CENTER_POSITION) / ANIMATION_CONSTANTS.POSITION_MAX
-    const centerY = CANVAS_CONFIG.SIZE * (settings.imageY || ANIMATION_CONSTANTS.CENTER_POSITION) / ANIMATION_CONSTANTS.POSITION_MAX
+    const centerX = canvasSize * (settings.imageX || ANIMATION_CONSTANTS.CENTER_POSITION) / ANIMATION_CONSTANTS.POSITION_MAX
+    const centerY = canvasSize * (settings.imageY || ANIMATION_CONSTANTS.CENTER_POSITION) / ANIMATION_CONSTANTS.POSITION_MAX
     
     // 画像アニメーションを適用（画像の中心を基準に）
     if (settings.imageAnimation && settings.imageAnimation !== 'none') {
@@ -203,20 +211,21 @@ const drawImageLayer = (ctx, settings, progress = 0) => {
 const generateAnimatedGIF = async (canvas, settings) => {
   // GIFライブラリを先に読み込む
   const GIFConstructor = await loadGIF();
+  const canvasSize = settings.canvasSize || CANVAS_CONFIG.SIZE;
   
   return new Promise((resolve) => {
     // 一時キャンバスを作成（各フレーム描画用）
     const frameCanvas = document.createElement('canvas')
-    frameCanvas.width = 128
-    frameCanvas.height = 128
+    frameCanvas.width = canvasSize
+    frameCanvas.height = canvasSize
     const frameCtx = frameCanvas.getContext('2d', { willReadFrequently: true })
     
     // GIFアニメーションでは透明色を使用しない（背景色を持つため）
     const gif = new GIFConstructor({
       workers: 2,
-      quality: 10,
-      width: 128,
-      height: 128,
+      quality: settings.gifQuality || 10,
+      width: canvasSize,
+      height: canvasSize,
       workerScript: '/gif.worker.js',
       // transparent オプションを削除（透明色を使用しない）
       repeat: 0,  // ループ再生
@@ -224,8 +233,8 @@ const generateAnimatedGIF = async (canvas, settings) => {
       dither: false  // ディザリングを無効化してより一貫した再生速度を実現
     })
     
-    // フレーム数を30に固定
-    const frameCount = 30
+    // フレーム数を設定で調整可能に
+    const frameCount = settings.gifFrames || 30
     // animationSpeedは既にミリ秒単位で保存されている
     const requestedDelay = settings.animationSpeed || 33
     
@@ -244,7 +253,7 @@ const generateAnimatedGIF = async (canvas, settings) => {
     for (let i = 0; i < frameCount; i++) {
       // フレームキャンバスを背景色で塗りつぶす
       frameCtx.fillStyle = settings.backgroundColor || '#FFFFFF'
-      frameCtx.fillRect(0, 0, 128, 128)
+      frameCtx.fillRect(0, 0, canvasSize, canvasSize)
       
       // 背景の上に各フレームを描画
       drawAnimationFrame(frameCtx, settings, i, frameCount)
@@ -267,10 +276,11 @@ const generateAnimatedGIF = async (canvas, settings) => {
 
 export const drawAnimationFrame = (ctx, settings, frame, totalFrames) => {
   const progress = frame / totalFrames
+  const canvasSize = settings.canvasSize || CANVAS_CONFIG.SIZE;
   
   // 画像が後ろの場合は先に描画（独立した処理）
   if (settings.imageData && settings.imagePosition === 'back') {
-    drawImageLayer(ctx, settings, progress)
+    drawImageLayer(ctx, settings, progress, canvasSize)
   }
   
   // テキストアニメーションを独立して適用
@@ -352,7 +362,7 @@ export const drawAnimationFrame = (ctx, settings, frame, totalFrames) => {
       textColorType: 'solid',  // グラデーションを無効化
       fontColor: `hsl(${hue}, ${ANIMATION_CONSTANTS.HSL_SATURATION}%, ${ANIMATION_CONSTANTS.HSL_LIGHTNESS}%)` 
     }
-    renderText(ctx, modifiedSettings, { skipBackground: true })
+    renderText(ctx, modifiedSettings, canvasSize)
   } else if (settings.animation === 'blink') {
     // 点滅効果：グラデーションとセカンドカラーで切り替え
     const useSecondary = Math.sin(progress * ANIMATION_CONSTANTS.FULL_ROTATION * ANIMATION_CONSTANTS.BLINK_FREQUENCY) > 0
@@ -363,21 +373,21 @@ export const drawAnimationFrame = (ctx, settings, frame, totalFrames) => {
         textColorType: 'solid',  // グラデーションを無効化
         fontColor: settings.secondaryColor || '#FFD700'
       }
-      renderText(ctx, modifiedSettings, { skipBackground: true })
+      renderText(ctx, modifiedSettings, canvasSize)
     } else {
       // 通常の設定（グラデーションが設定されていればグラデーションを使用）
-      renderText(ctx, settings, { skipBackground: true })
+      renderText(ctx, settings, canvasSize)
     }
   } else {
     // 通常の設定でテキストを描画
-    renderText(ctx, settings, { skipBackground: true })
+    renderText(ctx, settings, canvasSize)
   }
   
   ctx.restore()
   
   // 画像が前の場合は後に描画（独立した処理）
   if (settings.imageData && settings.imagePosition === 'front') {
-    drawImageLayer(ctx, settings, progress)
+    drawImageLayer(ctx, settings, progress, canvasSize)
   }
 }
 

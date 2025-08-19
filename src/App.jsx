@@ -67,6 +67,11 @@ function App() {
     imagePosition: 'back', // 画像の前後位置（'front' or 'back'）
     imageAnimation: 'none', // 画像のアニメーション
     imageAnimationAmplitude: 50, // 画像アニメーションの幅（0-100%）
+    // サイズ最適化設定
+    canvasSize: 128, // 出力キャンバスサイズ（64 or 128）
+    pngQuality: 85, // PNG品質（0-100）
+    gifQuality: 20, // GIF品質（1-30、数値が小さいほど高品質）
+    gifFrames: 30, // GIFフレーム数（5-30）
   });
   const [previewData, setPreviewData] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
@@ -133,8 +138,9 @@ function App() {
     loadFonts().then(() => {
       if (canvasRef.current && smallCanvasRef.current) {
         const canvas = canvasRef.current;
-        canvas.width = 128;
-        canvas.height = 128;
+        const canvasSize = iconSettings.canvasSize || 128;
+        canvas.width = canvasSize;
+        canvas.height = canvasSize;
         const ctx = canvas.getContext("2d", { alpha: true, willReadFrequently: true });
 
         const smallCanvas = smallCanvasRef.current;
@@ -162,7 +168,7 @@ function App() {
             if (deltaTime >= delay) {
               frameRef.current = (frameRef.current + 1) % frameCount;
               ctx.fillStyle = iconSettings.backgroundColor || "#FFFFFF";
-              ctx.fillRect(0, 0, 128, 128);
+              ctx.fillRect(0, 0, canvasSize, canvasSize);
               drawAnimationFrame(
                 ctx,
                 iconSettings,
@@ -185,10 +191,11 @@ function App() {
               smallCtx.clearRect(0, 0, 32, 32);
               // 32x32にスケールダウンして描画
               smallCtx.save();
-              smallCtx.scale(0.25, 0.25); // 32/128 = 0.25
-              // 背景色を描画（128x128サイズで）
+              const scale = 32 / canvasSize;
+              smallCtx.scale(scale, scale);
+              // 背景色を描画（元のキャンバスサイズで）
               smallCtx.fillStyle = iconSettings.backgroundColor || "#FFFFFF";
-              smallCtx.fillRect(0, 0, 128, 128);
+              smallCtx.fillRect(0, 0, canvasSize, canvasSize);
               drawAnimationFrame(
                 smallCtx,
                 iconSettings,
@@ -206,12 +213,13 @@ function App() {
           animateSmall(0);
         } else {
           // アニメーションなしの場合は静止画を生成
-          ctx.clearRect(0, 0, 128, 128);
+          ctx.clearRect(0, 0, canvasSize, canvasSize);
           smallCtx.clearRect(0, 0, 32, 32);
           drawTextIcon(ctx, iconSettings);
-          // 32x32も生成（128x128をスケールダウン）
+          // 32x32も生成（元サイズをスケールダウン）
           smallCtx.save();
-          smallCtx.scale(0.25, 0.25); // 32/128 = 0.25
+          const scale = 32 / canvasSize;
+          smallCtx.scale(scale, scale);
           drawTextIcon(smallCtx, iconSettings);
           smallCtx.restore();
         }
@@ -312,8 +320,8 @@ function App() {
                 </p>
                 <canvas
                   ref={canvasRef}
-                  width={128}
-                  height={128}
+                  width={iconSettings.canvasSize || 128}
+                  height={iconSettings.canvasSize || 128}
                   className="icon-canvas mx-auto"
                   style={{ width: "80px", height: "80px" }}
                 />
