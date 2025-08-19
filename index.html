@@ -189,18 +189,6 @@
     </div>
     <script type="module" src="/src/main.jsx"></script>
     
-    <!-- Service Worker を完全に無効化 -->
-    <script>
-      // Service Workerの登録解除
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then(function(registrations) {
-          for(let registration of registrations) {
-            registration.unregister();
-          }
-        });
-      }
-    </script>
-    
     <!-- Intersection Observer for lazy loading -->
     <script>
       if ('IntersectionObserver' in window) {
