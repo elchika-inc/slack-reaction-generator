@@ -3,7 +3,7 @@ import { renderHook, waitFor, act } from '@testing-library/preact';
 import { useCanvasPreview } from '../../hooks/useCanvasPreview';
 import { renderingEngine } from '../../utils/renderingEngine';
 import { handleError } from '../../utils/errorHandler';
-import { createSettingsBuilder } from '../../test/builders';
+import { createSettingsBuilder } from '../support/builders';
 
 // モック設定
 vi.mock('../../utils/renderingEngine', () => ({

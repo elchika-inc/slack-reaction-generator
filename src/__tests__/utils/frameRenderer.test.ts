@@ -6,7 +6,7 @@ import {
   createSettingsBuilder, 
   createAnimationBuilder,
   TestPresets 
-} from '../../test/builders';
+} from '../support/builders';
 import { 
   getTextColor, 
   renderAnimationFrame, 
@@ -17,7 +17,7 @@ import {
   createCanvasContextMock,
   createCanvasMock,
   canvasAssertions 
-} from '../../test/mocks/canvasMock';
+} from '../support/mocks/canvasMock';
 
 // textRenderer と animationHelpers のモック
 vi.mock('../../utils/textRenderer', () => ({

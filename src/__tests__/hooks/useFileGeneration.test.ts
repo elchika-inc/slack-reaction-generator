@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/preact';
 import { useFileGeneration } from '../../hooks/useFileGeneration';
 import { generateIconData } from '../../utils/canvasUtils';
-import { createSettingsBuilder } from '../../test/builders';
+import { createSettingsBuilder } from '../support/builders';
 
 // モック設定
 vi.mock('../../utils/canvasUtils', () => ({

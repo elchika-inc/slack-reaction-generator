@@ -11,7 +11,7 @@ import {
 import { 
   createFileBuilder,
   createEventBuilder 
-} from '../../test/builders';
+} from '../support/builders';
 
 // Test Doubles: グローバルオブジェクトのモック
 const mockConsole = {

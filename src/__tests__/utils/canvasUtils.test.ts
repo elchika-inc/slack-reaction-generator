@@ -9,7 +9,7 @@ import {
   createCanvasMock, 
   createCanvasContextMock,
   canvasAssertions 
-} from '../../test/mocks/canvasMock';
+} from '../support/mocks/canvasMock';
 import { CANVAS_CONFIG } from '../../constants/canvasConstants';
 
 // テストの設定オブジェクト
