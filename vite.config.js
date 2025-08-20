@@ -9,7 +9,12 @@ export default defineConfig({
     alias: {
       'react': 'preact/compat',
       'react-dom': 'preact/compat',
-      'react/jsx-runtime': 'preact/jsx-runtime'
+      'react/jsx-runtime': 'preact/jsx-runtime',
+      '@': '/src',
+      '@/components': '/src/components',
+      '@/hooks': '/src/hooks',
+      '@/utils': '/src/utils',
+      '@/types': '/src/types'
     }
   },
   plugins: [

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { saveAs } from 'file-saver'
 // gifencライブラリを使用（透明背景サポート向上）
-import { generateIconData, drawAnimationFrame } from '../utils/canvasUtilsGifenc'
+import { generateIconData, drawAnimationFrame } from '../utils/canvasUtils'
 // 従来のgif.jsを使いたい場合は以下をコメントアウト解除
 
 function MobilePreviewModal({ isOpen, onClose, settings }) {

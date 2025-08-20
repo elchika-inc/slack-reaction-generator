@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { JSX } from "preact/jsx-runtime";
 import Header from "./components/Header";
 import IconEditor from "./components/IconEditor";
 import PreviewPanel from "./components/PreviewPanel";
@@ -7,7 +8,7 @@ import { useFileGeneration } from "./hooks/useFileGeneration";
 import { useCanvasPreview } from "./hooks/useCanvasPreview";
 import { useAppState } from "./hooks/useAppState";
 
-function App() {
+function App(): JSX.Element {
   const { iconSettings, handleSettingsChange } = useIconSettings();
   const { previewData, handleGeneratePreview } = useFileGeneration();
   const { isMobile, theme, setTheme, configureNetworkFeatures } = useAppState();
@@ -17,7 +18,7 @@ function App() {
     configureNetworkFeatures(handleSettingsChange);
   }, [configureNetworkFeatures, handleSettingsChange]);
 
-  const onGeneratePreview = () => {
+  const onGeneratePreview = (): void => {
     handleGeneratePreview(iconSettings, isMobile);
   };
 

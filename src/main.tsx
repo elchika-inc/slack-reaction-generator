@@ -1,9 +1,9 @@
 import { render } from 'preact'
-import App from './App.jsx'
+import App from './App'
 import './index.css'
 
 // Google Fontsの最適化された読み込み
-const loadGoogleFonts = () => {
+const loadGoogleFonts = (): void => {
   // HTMLで既にNoto Sans JPは読み込まれているのでチェック
   const hasNotoSans = document.querySelector('link[href*="Noto+Sans+JP"]')
   

@@ -1,7 +1,7 @@
 // Test Data Builder Pattern 実装
 // 4つのテスト手法（AAA、Test Double、Test Builder、SOLID）を統合した設計
 
-import { createDefaultSettings } from '../../types/settings';
+import { createDefaultSettings, flattenSettings } from '../../types/settings';
 
 /**
  * Settings Builder - アイコン設定の複雑なバリエーション生成
@@ -153,7 +153,6 @@ export class SettingsBuilder {
 
   build() {
     // フラット化された設定を返す（下位互換性のため）
-    const { flattenSettings } = require('../../types/settings');
     return flattenSettings(this.settings);
   }
 }

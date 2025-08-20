@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { FlatSettings } from "../types";
 // file-saverを遅延読み込み
 let saveAs = null;
 const loadFileSaver = async () => {
@@ -16,7 +17,14 @@ import {
   drawTextIcon,
 } from "../utils/canvasUtils";
 
-function PreviewPanel({ settings, isMobile }) {
+interface PreviewPanelProps {
+  settings: FlatSettings;
+  isMobile: boolean;
+  previewData?: string | null;
+  onRegenerate?: () => void;
+}
+
+function PreviewPanel({ settings, isMobile, previewData, onRegenerate }: PreviewPanelProps) {
   const [theme, setTheme] = useState("light");
   const canvasRef = useRef(null);
   const smallCanvasRef = useRef(null);
