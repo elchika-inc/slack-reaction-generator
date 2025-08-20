@@ -1,14 +1,15 @@
 import { useState, useRef, useEffect } from 'react'
 import { OptimizationSettingsProps } from '../../types/settings'
+import { useSliderDebounce, useDebounce } from '../../hooks/useDebounce'
 
 function OptimizationSettings({ settings, onChange }: OptimizationSettingsProps) {
-  // GIF品質のローカル状態とデバウンス処理
+  const debouncedOnChange = useSliderDebounce(onChange);
+  
+  // GIF品質のローカル状態
   const [localGifQuality, setLocalGifQuality] = useState(settings.gifQuality || 20)
-  const gifQualityTimeoutRef = useRef(null)
 
-  // GIFフレーム数のローカル状態とデバウンス処理
+  // GIFフレーム数のローカル状態
   const [localGifFrames, setLocalGifFrames] = useState(settings.gifFrames || 30)
-  const gifFramesTimeoutRef = useRef(null)
 
   // settingsのgifQualityが外部から変更された場合の同期
   useEffect(() => {
@@ -20,41 +21,24 @@ function OptimizationSettings({ settings, onChange }: OptimizationSettingsProps)
     setLocalGifFrames(settings.gifFrames || 30)
   }, [settings.gifFrames])
 
+  const debouncedGifQualityChange = useDebounce((value) => {
+    onChange({ gifQuality: value })
+  }, 300)
+  
   const handleGifQualityChange = (value) => {
     setLocalGifQuality(value)
-    
-    if (gifQualityTimeoutRef.current) {
-      clearTimeout(gifQualityTimeoutRef.current)
-    }
-    
-    gifQualityTimeoutRef.current = setTimeout(() => {
-      onChange({ gifQuality: value })
-    }, 300)
+    debouncedGifQualityChange(value)
   }
 
+  const debouncedGifFramesChange = useDebounce((value) => {
+    onChange({ gifFrames: value })
+  }, 300)
+  
   const handleGifFramesChange = (value) => {
     setLocalGifFrames(value)
-    
-    if (gifFramesTimeoutRef.current) {
-      clearTimeout(gifFramesTimeoutRef.current)
-    }
-    
-    gifFramesTimeoutRef.current = setTimeout(() => {
-      onChange({ gifFrames: value })
-    }, 300)
+    debouncedGifFramesChange(value)
   }
 
-  // クリーンアップ
-  useEffect(() => {
-    return () => {
-      if (gifQualityTimeoutRef.current) {
-        clearTimeout(gifQualityTimeoutRef.current)
-      }
-      if (gifFramesTimeoutRef.current) {
-        clearTimeout(gifFramesTimeoutRef.current)
-      }
-    }
-  }, [])
 
   return (
     <div className="space-y-4">
@@ -112,7 +96,7 @@ function OptimizationSettings({ settings, onChange }: OptimizationSettingsProps)
               max="100"
               step="5"
               value={settings.pngQuality || 85}
-              onChange={(e) => onChange({ pngQuality: parseInt(e.target.value) })}
+              onChange={(e) => debouncedOnChange({ pngQuality: parseInt(e.target.value) })}
               className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
               style={{
                 background: `linear-gradient(to right, #9333ea 0%, #9333ea ${settings.pngQuality || 85}%, #e5e7eb ${settings.pngQuality || 85}%, #e5e7eb 100%)`

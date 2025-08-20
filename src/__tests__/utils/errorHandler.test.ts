@@ -4,9 +4,12 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { 
   ErrorTypes,
+  ErrorSeverity,
   handleError,
   safeAsync,
-  safeSync 
+  safeSync,
+  retryAsync,
+  errorManager
 } from '../../utils/errorHandler';
 import { 
   createFileBuilder,
@@ -54,6 +57,12 @@ describe('errorHandler - 統合テスト', () => {
       expect(ErrorTypes.SHARE_API).toBe('SHARE_API');
       expect(ErrorTypes.CANVAS_RENDER).toBe('CANVAS_RENDER');
       expect(ErrorTypes.NETWORK).toBe('NETWORK');
+      expect(ErrorTypes.VALIDATION).toBe('VALIDATION');
+      expect(ErrorTypes.PERMISSION).toBe('PERMISSION');
+      expect(ErrorTypes.WORKER).toBe('WORKER');
+      expect(ErrorTypes.GIF_GENERATION).toBe('GIF_GENERATION');
+      expect(ErrorTypes.STATE_UPDATE).toBe('STATE_UPDATE');
+      expect(ErrorTypes.INITIALIZATION).toBe('INITIALIZATION');
     });
 
     it('エラータイプが重複していない', () => {
@@ -74,7 +83,7 @@ describe('errorHandler - 統合テスト', () => {
       const originalError = new Error('Original error message');
       
       // AAA Pattern: Act
-      const result = handleError(ErrorTypes.CANVAS_RENDER, originalError);
+      const result = handleError(ErrorTypes.CANVAS_RENDER, originalError, null, ErrorSeverity.HIGH);
       
       // AAA Pattern: Assert
       expect(result).toBeInstanceOf(Error);
@@ -83,6 +92,7 @@ describe('errorHandler - 統合テスト', () => {
       expect(result.message).toBe('Canvas描画でエラーが発生しました');
       expect(result.originalError).toBe(originalError);
       expect(result.timestamp).toBeDefined();
+      expect(result.severity).toBe(ErrorSeverity.HIGH);
     });
 
     it('カスタムメッセージが正しく設定される', () => {
@@ -113,40 +123,44 @@ describe('errorHandler - 統合テスト', () => {
       // AAA Pattern: Arrange
       mockWindow.location.hostname = 'localhost';
       const originalError = new Error('Test error');
+      vi.spyOn(console, 'group').mockImplementation(() => {});
+      vi.spyOn(console, 'log').mockImplementation(() => {});
+      vi.spyOn(console, 'trace').mockImplementation(() => {});
+      vi.spyOn(console, 'groupEnd').mockImplementation(() => {});
       
       // AAA Pattern: Act
-      handleError(ErrorTypes.FONT_LOADING, originalError);
+      handleError(ErrorTypes.FONT_LOADING, originalError, null, ErrorSeverity.HIGH);
       
       // AAA Pattern: Assert
-      expect(mockConsole.warn).toHaveBeenCalledWith(
-        expect.stringMatching(/^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\] FONT_LOADING: フォント読み込みに失敗しました$/),
-        originalError
-      );
+      expect(console.group).toHaveBeenCalled();
+      expect(console.log).toHaveBeenCalled();
     });
 
     it('production環境でコンソールログが出力されない', () => {
       // AAA Pattern: Arrange
       mockWindow.location.hostname = 'example.com';
       const originalError = new Error('Test error');
+      vi.spyOn(console, 'group').mockImplementation(() => {});
       
       // AAA Pattern: Act
       handleError(ErrorTypes.NETWORK, originalError);
       
       // AAA Pattern: Assert
-      expect(mockConsole.warn).not.toHaveBeenCalled();
+      expect(console.group).not.toHaveBeenCalled();
     });
 
     it('windowオブジェクトが存在しない環境で動作する', () => {
       // AAA Pattern: Arrange
       global.window = undefined;
       const originalError = new Error('Server side error');
+      vi.spyOn(console, 'group').mockImplementation(() => {});
       
       // AAA Pattern: Act & Assert
       expect(() => {
         handleError(ErrorTypes.NETWORK, originalError);
       }).not.toThrow();
       
-      expect(mockConsole.warn).not.toHaveBeenCalled();
+      expect(console.group).not.toHaveBeenCalled();
     });
   });
 
@@ -247,6 +261,87 @@ describe('errorHandler - 統合テスト', () => {
       // AAA Pattern: Assert
       expect(result).toBe(42);
       expect(syncFn).toHaveBeenCalledOnce();
+    });
+  });
+
+  describe('retryAsync関数', () => {
+    it('成功するまでリトライする', async () => {
+      // AAA Pattern: Arrange
+      const asyncFn = vi.fn()
+        .mockRejectedValueOnce(new Error('First attempt'))
+        .mockRejectedValueOnce(new Error('Second attempt'))
+        .mockResolvedValue('success');
+
+      // AAA Pattern: Act
+      const result = await retryAsync(
+        asyncFn,
+        ErrorTypes.NETWORK,
+        { maxRetries: 3, delay: 10 }
+      );
+
+      // AAA Pattern: Assert
+      expect(result).toBe('success');
+      expect(asyncFn).toHaveBeenCalledTimes(3);
+    });
+
+    it('最大リトライ回数後にエラーを返す', async () => {
+      // AAA Pattern: Arrange
+      const lastError = new Error('Final error');
+      const asyncFn = vi.fn().mockRejectedValue(lastError);
+
+      // AAA Pattern: Act
+      const result = await retryAsync(
+        asyncFn,
+        ErrorTypes.NETWORK,
+        { maxRetries: 2, delay: 10 }
+      );
+
+      // AAA Pattern: Assert
+      expect(result.type).toBe(ErrorTypes.NETWORK);
+      expect(result.message).toBe('Failed after 2 attempts');
+      expect(result.originalError).toBe(lastError);
+      expect(asyncFn).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe('ErrorManager', () => {
+    it('エラーハンドラーを登録して通知を受け取る', () => {
+      // AAA Pattern: Arrange
+      const handler = vi.fn();
+      const unregister = errorManager.register(ErrorTypes.CANVAS_RENDER, handler);
+
+      // AAA Pattern: Act
+      const error = handleError(ErrorTypes.CANVAS_RENDER);
+      
+      // AAA Pattern: Assert
+      expect(handler).toHaveBeenCalledWith(error);
+      
+      unregister();
+    });
+
+    it('グローバルハンドラーが全てのエラーを受け取る', () => {
+      // AAA Pattern: Arrange
+      const globalHandler = vi.fn();
+      errorManager.register('*', globalHandler);
+
+      // AAA Pattern: Act
+      handleError(ErrorTypes.CANVAS_RENDER);
+      handleError(ErrorTypes.NETWORK);
+
+      // AAA Pattern: Assert
+      expect(globalHandler).toHaveBeenCalledTimes(2);
+    });
+
+    it('エラー履歴を保持する', () => {
+      // AAA Pattern: Arrange & Act
+      handleError(ErrorTypes.CANVAS_RENDER);
+      handleError(ErrorTypes.NETWORK);
+
+      // AAA Pattern: Assert
+      const history = errorManager.getHistory();
+      expect(history).toHaveLength(2);
+      expect(history[0].type).toBe(ErrorTypes.CANVAS_RENDER);
+      expect(history[1].type).toBe(ErrorTypes.NETWORK);
     });
   });
 
@@ -389,7 +484,7 @@ describe('errorHandler - 統合テスト', () => {
       const error = new Error('Test');
 
       // AAA Pattern: Act
-      const result = handleError(ErrorTypes.NETWORK, error);
+      const result = handleError(ErrorTypes.NETWORK, error, null, ErrorSeverity.MEDIUM);
 
       // AAA Pattern: Assert
       // エラー処理以外の機能（ログ、UI更新等）は含まれていない
@@ -397,6 +492,7 @@ describe('errorHandler - 統合テスト', () => {
       expect(typeof result.type).toBe('string');
       expect(typeof result.timestamp).toBe('string');
       expect(result.originalError).toBe(error);
+      expect(result.severity).toBe(ErrorSeverity.MEDIUM);
 
       // ファイル操作、ネットワーク処理等の責任は持たない
       expect(result).not.toHaveProperty('saveToFile');
@@ -443,7 +539,7 @@ describe('errorHandler - 統合テスト', () => {
 
       // AAA Pattern: Assert
       // 必要なプロパティのみが含まれる
-      const expectedProperties = ['name', 'message', 'type', 'originalError', 'timestamp', 'stack'];
+      const expectedProperties = ['name', 'message', 'type', 'originalError', 'timestamp', 'stack', 'severity', 'context'];
       const actualProperties = Object.getOwnPropertyNames(result);
 
       expectedProperties.forEach(prop => {

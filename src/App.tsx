@@ -4,6 +4,7 @@ import { FunctionalComponent } from "preact";
 import Header from "./components/Header";
 import IconEditor from "./components/IconEditor";
 import PreviewPanel from "./components/PreviewPanel";
+import ErrorNotification from "./components/ErrorNotification";
 import { IconSettingsProvider, useIconSettingsContext } from "./contexts/IconSettingsContext";
 import { CanvasProvider, useCanvasContext } from "./contexts/CanvasContext";
 import { AppStateProvider, useAppStateContext } from "./contexts/AppStateContext";
@@ -23,6 +24,7 @@ const AppContent: FunctionalComponent = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
+      <ErrorNotification />
       <Header />
 
       <main

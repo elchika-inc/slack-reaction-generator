@@ -1,7 +1,9 @@
 import { preloadImage } from '../../utils/imageCache'
 import { ImageSettingsProps } from '../../types/settings'
+import { useSliderDebounce } from '../../hooks/useDebounce'
 
 function ImageSettings({ settings, onChange }: ImageSettingsProps) {
+  const debouncedOnChange = useSliderDebounce(onChange);
   return (
     <div className="space-y-4">
       <div>
@@ -124,7 +126,7 @@ function ImageSettings({ settings, onChange }: ImageSettingsProps) {
                       max="100"
                       step="1"
                       value={settings.imageX || 50}
-                      onChange={(e) => onChange({ imageX: parseInt(e.target.value) })}
+                      onChange={(e) => debouncedOnChange({ imageX: parseInt(e.target.value) })}
                       className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                       aria-label="画像の横位置調整"
                       style={{
@@ -151,7 +153,7 @@ function ImageSettings({ settings, onChange }: ImageSettingsProps) {
                       max="100"
                       step="1"
                       value={settings.imageY || 50}
-                      onChange={(e) => onChange({ imageY: parseInt(e.target.value) })}
+                      onChange={(e) => debouncedOnChange({ imageY: parseInt(e.target.value) })}
                       className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                       aria-label="画像の縦位置調整"
                       style={{
@@ -181,7 +183,7 @@ function ImageSettings({ settings, onChange }: ImageSettingsProps) {
                       max="150"
                       step="5"
                       value={settings.imageSize || 50}
-                      onChange={(e) => onChange({ imageSize: parseInt(e.target.value) })}
+                      onChange={(e) => debouncedOnChange({ imageSize: parseInt(e.target.value) })}
                       className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                       aria-label="画像サイズ調整"
                       style={{
@@ -208,7 +210,7 @@ function ImageSettings({ settings, onChange }: ImageSettingsProps) {
                       max="100"
                       step="5"
                       value={settings.imageOpacity || 100}
-                      onChange={(e) => onChange({ imageOpacity: parseInt(e.target.value) })}
+                      onChange={(e) => debouncedOnChange({ imageOpacity: parseInt(e.target.value) })}
                       className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                       aria-label="画像透過度調整"
                       style={{
@@ -266,7 +268,7 @@ function ImageSettings({ settings, onChange }: ImageSettingsProps) {
                         max="100"
                         step="5"
                         value={settings.imageAnimationAmplitude || 50}
-                        onChange={(e) => onChange({ imageAnimationAmplitude: parseInt(e.target.value) })}
+                        onChange={(e) => debouncedOnChange({ imageAnimationAmplitude: parseInt(e.target.value) })}
                         className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                         aria-label="画像アニメーション幅調整"
                         style={{

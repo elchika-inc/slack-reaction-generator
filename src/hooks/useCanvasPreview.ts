@@ -28,17 +28,21 @@ export const useCanvasPreview = (iconSettings, isMobile) => {
           
           smallCanvasRef.current.width = 32;
           smallCanvasRef.current.height = 32;
+          
+          // willReadFrequently 属性を設定してパフォーマンスを向上
+          const mainCtx = canvasRef.current.getContext('2d', { willReadFrequently: true });
+          const smallCtx = smallCanvasRef.current.getContext('2d', { willReadFrequently: true });
 
           // CanvasManagerにキャンバスを登録
           if (!canvasManager.getCanvas('main')) {
             const mainCanvas = canvasManager.createCanvas('main', canvasSize, canvasSize);
             // 既存のDOM要素と置き換え
-            canvasRef.current.getContext('2d').drawImage(mainCanvas.canvas, 0, 0);
+            mainCtx.drawImage(mainCanvas.canvas, 0, 0);
           }
 
           if (!canvasManager.getCanvas('small')) {
             const smallCanvas = canvasManager.createCanvas('small', 32, 32);
-            smallCanvasRef.current.getContext('2d').drawImage(smallCanvas.canvas, 0, 0);
+            smallCtx.drawImage(smallCanvas.canvas, 0, 0);
           }
 
           // 最適なパイプラインを選択
@@ -55,7 +59,13 @@ export const useCanvasPreview = (iconSettings, isMobile) => {
           }
 
           // 小さなキャンバスをメインキャンバスからスケールコピー
+          let animationFrameId = null;
           const updateSmallCanvas = () => {
+            // nullチェックを追加
+            if (!canvasRef.current || !smallCanvasRef.current) {
+              return;
+            }
+            
             const scale = 32 / canvasSize;
             canvasManager.renderScaled('main', 'small', scale);
             
@@ -64,19 +74,26 @@ export const useCanvasPreview = (iconSettings, isMobile) => {
             const smallCanvasInstance = canvasManager.getCanvas('small');
             
             if (mainCanvasInstance && smallCanvasInstance) {
-              canvasRef.current.getContext('2d').clearRect(0, 0, canvasSize, canvasSize);
-              canvasRef.current.getContext('2d').drawImage(mainCanvasInstance.canvas, 0, 0);
+              mainCtx.clearRect(0, 0, canvasSize, canvasSize);
+              mainCtx.drawImage(mainCanvasInstance.canvas, 0, 0);
               
-              smallCanvasRef.current.getContext('2d').clearRect(0, 0, 32, 32);
-              smallCanvasRef.current.getContext('2d').drawImage(smallCanvasInstance.canvas, 0, 0);
+              smallCtx.clearRect(0, 0, 32, 32);
+              smallCtx.drawImage(smallCanvasInstance.canvas, 0, 0);
             }
             
             if (hasAnimations) {
-              requestAnimationFrame(updateSmallCanvas);
+              animationFrameId = requestAnimationFrame(updateSmallCanvas);
             }
           };
 
           updateSmallCanvas();
+          
+          // クリーンアップ関数内でanimationFrameIdを参照できるようにする
+          return () => {
+            if (animationFrameId) {
+              cancelAnimationFrame(animationFrameId);
+            }
+          };
         }
       } catch (error) {
         handleError(ErrorTypes.CANVAS_OPERATION, error);

@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, Suspense, lazy } from 'react'
 import { CANVAS_CONFIG } from '../../constants/canvasConstants'
 import { AnimationSettingsProps } from '../../types/settings'
+import { useDebounce } from '../../hooks/useDebounce'
 
 const ColorPickerPortal = lazy(() => import('../ColorPickerPortal'))
 
@@ -8,13 +9,11 @@ function AnimationSettings({ settings, onChange, isMobile }: AnimationSettingsPr
   const [showSecondaryColorPicker, setShowSecondaryColorPicker] = useState(false)
   const secondaryColorButtonRef = useRef(null)
   
-  // アニメーション幅のローカル状態とデバウンス処理
+  // アニメーション幅のローカル状態
   const [localAnimationAmplitude, setLocalAnimationAmplitude] = useState(settings.animationAmplitude || 50)
-  const amplitudeTimeoutRef = useRef(null)
 
-  // アニメーション速度のローカル状態とデバウンス処理
+  // アニメーション速度のローカル状態
   const [localAnimationSpeed, setLocalAnimationSpeed] = useState(settings.animationSpeed || 33)
-  const speedTimeoutRef = useRef(null)
 
   // settingsのanimationAmplitudeが外部から変更された場合の同期
   useEffect(() => {
@@ -26,28 +25,22 @@ function AnimationSettings({ settings, onChange, isMobile }: AnimationSettingsPr
     setLocalAnimationSpeed(settings.animationSpeed || 33)
   }, [settings.animationSpeed])
 
+  const debouncedAmplitudeChange = useDebounce((value) => {
+    onChange({ animationAmplitude: value })
+  }, 300)
+  
   const handleAmplitudeChange = (value) => {
     setLocalAnimationAmplitude(value)
-    
-    if (amplitudeTimeoutRef.current) {
-      clearTimeout(amplitudeTimeoutRef.current)
-    }
-    
-    amplitudeTimeoutRef.current = setTimeout(() => {
-      onChange({ animationAmplitude: value })
-    }, 300)
+    debouncedAmplitudeChange(value)
   }
 
+  const debouncedSpeedChange = useDebounce((value) => {
+    onChange({ animationSpeed: value })
+  }, 300)
+  
   const handleSpeedChange = (value) => {
     setLocalAnimationSpeed(value)
-    
-    if (speedTimeoutRef.current) {
-      clearTimeout(speedTimeoutRef.current)
-    }
-    
-    speedTimeoutRef.current = setTimeout(() => {
-      onChange({ animationSpeed: value })
-    }, 300)
+    debouncedSpeedChange(value)
   }
 
   // クリーンアップ

@@ -1,5 +1,7 @@
 import { render } from 'preact'
 import App from './App'
+import ErrorBoundary from './components/ErrorBoundary'
+import ErrorFallback from './components/ErrorFallback'
 import './index.css'
 
 // Google Fontsの最適化された読み込み
@@ -27,4 +29,9 @@ const loadGoogleFonts = (): void => {
 // フォントを非同期で読み込み
 loadGoogleFonts()
 
-render(<App />, document.getElementById('root'))
+render(
+  <ErrorBoundary fallback={ErrorFallback}>
+    <App />
+  </ErrorBoundary>,
+  document.getElementById('root')
+)
