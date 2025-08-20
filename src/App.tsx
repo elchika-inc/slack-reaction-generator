@@ -1,18 +1,17 @@
 import { useEffect } from "react";
 import { JSX } from "preact/jsx-runtime";
+import { FunctionalComponent } from "preact";
 import Header from "./components/Header";
 import IconEditor from "./components/IconEditor";
 import PreviewPanel from "./components/PreviewPanel";
-import { useIconSettings } from "./hooks/useIconSettings";
-import { useFileGeneration } from "./hooks/useFileGeneration";
-import { useCanvasPreview } from "./hooks/useCanvasPreview";
-import { useAppState } from "./hooks/useAppState";
+import { IconSettingsProvider, useIconSettingsContext } from "./contexts/IconSettingsContext";
+import { CanvasProvider, useCanvasContext } from "./contexts/CanvasContext";
+import { AppStateProvider, useAppStateContext } from "./contexts/AppStateContext";
 
-function App(): JSX.Element {
-  const { iconSettings, handleSettingsChange } = useIconSettings();
-  const { previewData, handleGeneratePreview } = useFileGeneration();
-  const { isMobile, theme, setTheme, configureNetworkFeatures } = useAppState();
-  const { canvasRef, smallCanvasRef } = useCanvasPreview(iconSettings, isMobile);
+const AppContent: FunctionalComponent = () => {
+  const { iconSettings, handleSettingsChange } = useIconSettingsContext();
+  const { previewData, handleGeneratePreview, canvasRef, smallCanvasRef } = useCanvasContext();
+  const { isMobile, theme, setTheme, configureNetworkFeatures } = useAppStateContext();
 
   useEffect(() => {
     configureNetworkFeatures(handleSettingsChange);
@@ -37,18 +36,13 @@ function App(): JSX.Element {
           {/* エディタ部分 */}
           <section className="lg:col-span-2" aria-label="絵文字設定エディタ">
             <h2 className="sr-only">絵文字の設定とカスタマイズ</h2>
-            <IconEditor
-              settings={iconSettings}
-              onChange={handleSettingsChange}
-              isMobile={isMobile}
-            />
+            <IconEditor />
           </section>
 
           {/* デスクトップ用プレビュー */}
           {!isMobile && (
             <section className="lg:col-span-1" aria-label="絵文字プレビュー">
               <PreviewPanel
-                settings={iconSettings}
                 previewData={previewData}
                 onRegenerate={onGeneratePreview}
               />
@@ -164,6 +158,27 @@ function App(): JSX.Element {
         </div>
       )}
     </div>
+  );
+}
+
+const App: FunctionalComponent = () => {
+  return (
+    <AppStateProvider>
+      <IconSettingsProvider>
+        <AppWithProviders />
+      </IconSettingsProvider>
+    </AppStateProvider>
+  );
+}
+
+const AppWithProviders: FunctionalComponent = () => {
+  const { iconSettings } = useIconSettingsContext();
+  const { isMobile } = useAppStateContext();
+
+  return (
+    <CanvasProvider iconSettings={iconSettings} isMobile={isMobile}>
+      <AppContent />
+    </CanvasProvider>
   );
 }
 

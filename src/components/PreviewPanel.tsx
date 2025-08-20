@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from "react";
-import { FlatSettings } from "../types";
 // file-saverを遅延読み込み
 let saveAs = null;
 const loadFileSaver = async () => {
@@ -16,15 +15,18 @@ import {
   drawAnimationFrame,
   drawTextIcon,
 } from "../utils/canvasUtils";
+import { useIconSettingsContext } from '../contexts/IconSettingsContext';
+import { useCanvasContext } from '../contexts/CanvasContext';
+import { useAppStateContext } from '../contexts/AppStateContext';
 
 interface PreviewPanelProps {
-  settings: FlatSettings;
-  isMobile: boolean;
   previewData?: string | null;
   onRegenerate?: () => void;
 }
 
-function PreviewPanel({ settings, isMobile, previewData, onRegenerate }: PreviewPanelProps) {
+function PreviewPanel({ previewData, onRegenerate }: PreviewPanelProps) {
+  const { iconSettings } = useIconSettingsContext();
+  const { isMobile } = useAppStateContext();
   const [theme, setTheme] = useState("light");
   const canvasRef = useRef(null);
   const smallCanvasRef = useRef(null);
@@ -46,9 +48,9 @@ function PreviewPanel({ settings, isMobile, previewData, onRegenerate }: Preview
 
     // フォントロード待機処理
     const loadFonts = async () => {
-      if (settings.fontFamily && settings.fontFamily !== "sans-serif") {
+      if (iconSettings.fontFamily && iconSettings.fontFamily !== "sans-serif") {
         // フォントファミリーはそのまま使用
-        const fontFamily = settings.fontFamily;
+        const fontFamily = iconSettings.fontFamily;
 
         // 装飾的フォントの判定
         const isDecorativeFont =
@@ -76,7 +78,7 @@ function PreviewPanel({ settings, isMobile, previewData, onRegenerate }: Preview
     loadFonts().then(() => {
       if (canvasRef.current && smallCanvasRef.current) {
         const canvas = canvasRef.current;
-        const canvasSize = settings.canvasSize || 128;
+        const canvasSize = iconSettings.canvasSize || 128;
         canvas.width = canvasSize;
         canvas.height = canvasSize;
         const ctx = canvas.getContext("2d", { alpha: true, willReadFrequently: true }); // アルファチャンネルを明示的に有効化
@@ -87,15 +89,15 @@ function PreviewPanel({ settings, isMobile, previewData, onRegenerate }: Preview
         const smallCtx = smallCanvas.getContext("2d", { alpha: true, willReadFrequently: true }); // アルファチャンネルを明示的に有効化
 
         // アニメーションがある場合はリアルタイムで描画
-        const hasTextAnimation = settings.animation && settings.animation !== "none";
-        const hasImageAnimation = settings.imageData && settings.imageAnimation && settings.imageAnimation !== "none";
+        const hasTextAnimation = iconSettings.animation && iconSettings.animation !== "none";
+        const hasImageAnimation = iconSettings.imageData && iconSettings.imageAnimation && iconSettings.imageAnimation !== "none";
         
         if (hasTextAnimation || hasImageAnimation) {
           frameRef.current = 0;
           smallFrameRef.current = 0;
-          const frameCount = settings.gifFrames || 30; // GIFと同じフレーム数
+          const frameCount = iconSettings.gifFrames || 30; // GIFと同じフレーム数
           // animationSpeedは既にミリ秒単位
-          const requestedDelay = settings.animationSpeed || 33;
+          const requestedDelay = iconSettings.animationSpeed || 33;
 
           // GIFと同じ制限を適用（30ms未満は30msに）
           const delay = requestedDelay < 30 ? 30 : requestedDelay;
@@ -109,10 +111,10 @@ function PreviewPanel({ settings, isMobile, previewData, onRegenerate }: Preview
             if (deltaTime >= delay) {
               frameRef.current = (frameRef.current + 1) % frameCount;
               // 背景色を描画
-              ctx.fillStyle = settings.backgroundColor || "#FFFFFF";
+              ctx.fillStyle = iconSettings.backgroundColor || "#FFFFFF";
               ctx.fillRect(0, 0, canvasSize, canvasSize);
               // アニメーションフレームを描画
-              drawAnimationFrame(ctx, settings, frameRef.current, frameCount);
+              drawAnimationFrame(ctx, iconSettings, frameRef.current, frameCount);
               lastTime = currentTime;
             }
 
@@ -132,11 +134,11 @@ function PreviewPanel({ settings, isMobile, previewData, onRegenerate }: Preview
               const scale = 32 / canvasSize;
               smallCtx.scale(scale, scale);
               // 背景色を描画（元のキャンバスサイズで）
-              smallCtx.fillStyle = settings.backgroundColor || "#FFFFFF";
+              smallCtx.fillStyle = iconSettings.backgroundColor || "#FFFFFF";
               smallCtx.fillRect(0, 0, canvasSize, canvasSize);
               drawAnimationFrame(
                 smallCtx,
-                settings,
+                iconSettings,
                 smallFrameRef.current,
                 frameCount
               );
@@ -151,19 +153,19 @@ function PreviewPanel({ settings, isMobile, previewData, onRegenerate }: Preview
           animateSmall(0);
 
           // ダウンロード用のデータURLも生成しておく
-          generateIconData(settings, null);
+          generateIconData(iconSettings, null);
         } else {
           // アニメーションなしの場合は静止画を生成
           // canvasをクリアしてから描画
           ctx.clearRect(0, 0, canvasSize, canvasSize);
           smallCtx.clearRect(0, 0, 32, 32);
 
-          generateIconData(settings, canvas);
+          generateIconData(iconSettings, canvas);
           // 32x32も生成（元サイズをスケールダウン）
           smallCtx.save();
           const scale = 32 / canvasSize;
           smallCtx.scale(scale, scale);
-          drawTextIcon(smallCtx, settings);
+          drawTextIcon(smallCtx, iconSettings);
           smallCtx.restore();
         }
       }
@@ -179,22 +181,22 @@ function PreviewPanel({ settings, isMobile, previewData, onRegenerate }: Preview
         smallAnimationRef.current = null;
       }
     };
-  }, [settings]);
+  }, [iconSettings]);
 
   const handleDownload = async () => {
     const fileName = `slack-reaction-${Date.now()}.${
-      settings.animation !== "none" ? "gif" : "png"
+      iconSettings.animation !== "none" ? "gif" : "png"
     }`;
 
     try {
       // アニメーションの場合はGIFを生成
-      if (settings.animation !== "none") {
+      if (iconSettings.animation !== "none") {
         const tempCanvas = document.createElement("canvas");
         tempCanvas.width = 128;
         tempCanvas.height = 128;
 
         // GIF生成処理（新しいキャンバスで）
-        const url = await generateIconData(settings, tempCanvas);
+        const url = await generateIconData(iconSettings, tempCanvas);
 
         const response = await fetch(url);
         const blob = await response.blob();
@@ -203,11 +205,11 @@ function PreviewPanel({ settings, isMobile, previewData, onRegenerate }: Preview
       } else {
         // 静止画の場合、新しいキャンバスで再生成（透明背景対応）
         const tempCanvas = document.createElement("canvas");
-        const canvasSize = settings.canvasSize || 128;
+        const canvasSize = iconSettings.canvasSize || 128;
         tempCanvas.width = canvasSize;
         tempCanvas.height = canvasSize;
 
-        const url = await generateIconData(settings, tempCanvas);
+        const url = await generateIconData(iconSettings, tempCanvas);
         const response = await fetch(url);
         const blob = await response.blob();
         const fileSaver = await loadFileSaver();
@@ -275,12 +277,12 @@ function PreviewPanel({ settings, isMobile, previewData, onRegenerate }: Preview
                 theme === "dark" ? "text-gray-400" : "text-gray-600"
               }`}
             >
-              実サイズ ({settings.canvasSize || 128}×{settings.canvasSize || 128})
+              実サイズ ({iconSettings.canvasSize || 128}×{iconSettings.canvasSize || 128})
             </p>
             <canvas
               ref={canvasRef}
-              width={settings.canvasSize || 128}
-              height={settings.canvasSize || 128}
+              width={iconSettings.canvasSize || 128}
+              height={iconSettings.canvasSize || 128}
               className="icon-canvas mx-auto"
             />
           </div>
@@ -313,7 +315,7 @@ function PreviewPanel({ settings, isMobile, previewData, onRegenerate }: Preview
           <div className="flex justify-between">
             <span className="text-gray-600">フォーマット:</span>
             <span className="font-medium">
-              {settings.animation !== "none" ? "GIF" : "PNG"}
+              {iconSettings.animation !== "none" ? "GIF" : "PNG"}
             </span>
           </div>
           <div className="flex justify-between">
