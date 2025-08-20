@@ -174,7 +174,7 @@ export const drawAnimationFrame = (ctx, settings, frame, totalFrames) => {
   }
   
   ctx.save();
-  applyTextAnimation(ctx, settings.animation, progress, settings.animationAmplitude, settings.secondaryColor);
+  applyTextAnimation(ctx, settings.animation, progress, settings.animationAmplitude, settings.secondaryColor, canvasSize);
   
   // テキスト設定を決定
   let textSettings = settings;

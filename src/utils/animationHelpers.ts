@@ -66,12 +66,13 @@ export const calculateAnimationValue = (type, progress, amplitude = ANIMATION_CO
 };
 
 // テキストアニメーション適用関数
-export const applyTextAnimation = (ctx, animationType, progress, amplitude, secondaryColor) => {
+export const applyTextAnimation = (ctx, animationType, progress, amplitude, secondaryColor, canvasSize = 128) => {
   if (!animationType || animationType === 'none') return;
+
+  const center = canvasSize / 2;
 
   switch (animationType) {
     case 'rotate': {
-      const center = 64;
       ctx.translate(center, center);
       ctx.rotate(calculateAnimationValue('rotate', progress));
       ctx.translate(-center, -center);
@@ -86,7 +87,6 @@ export const applyTextAnimation = (ctx, animationType, progress, amplitude, seco
     
     case 'pulse': {
       const scale = calculateAnimationValue('pulse', progress, amplitude);
-      const center = 64;
       ctx.translate(center, center);
       ctx.scale(scale, scale);
       ctx.translate(-center, -center);

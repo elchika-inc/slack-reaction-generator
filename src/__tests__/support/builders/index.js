@@ -11,21 +11,33 @@
  */
 
 // Canvas State Builder
-export {
+import {
   CanvasStateBuilder,
   createCanvasStateBuilder,
   CanvasStatePresets
 } from './canvasStateBuilder.js';
 
-// Animation State Builder
 export {
+  CanvasStateBuilder,
+  createCanvasStateBuilder,
+  CanvasStatePresets
+};
+
+// Animation State Builder
+import {
   AnimationStateBuilder,
   createAnimationStateBuilder,
   AnimationStatePresets
 } from './animationStateBuilder.js';
 
-// Test Scenario Builder
 export {
+  AnimationStateBuilder,
+  createAnimationStateBuilder,
+  AnimationStatePresets
+};
+
+// Test Scenario Builder
+import {
   ScenarioBuilder,
   ScenarioExecutor,
   createScenarioBuilder,
@@ -33,10 +45,18 @@ export {
   ScenarioPresets
 } from './scenarioBuilder.js';
 
-// Mock Response Builder
 export {
+  ScenarioBuilder,
+  ScenarioExecutor,
+  createScenarioBuilder,
+  createScenarioExecutor,
+  ScenarioPresets
+};
+
+// Mock Response Builder
+import {
   HttpResponseBuilder,
-  FileResponseBuilder,
+  FileResponseBuilder as FileResponseBuilderImport,
   ApiResponseBuilder,
   MockEnvironmentBuilder,
   createHttpResponseBuilder,
@@ -46,8 +66,20 @@ export {
   MockResponsePresets
 } from './mockResponseBuilder.js';
 
-// Error State Builder
 export {
+  HttpResponseBuilder,
+  FileResponseBuilderImport as FileResponseBuilder,
+  ApiResponseBuilder,
+  MockEnvironmentBuilder,
+  createHttpResponseBuilder,
+  createFileResponseBuilder,
+  createApiResponseBuilder,
+  createMockEnvironmentBuilder,
+  MockResponsePresets
+};
+
+// Error State Builder
+import {
   ApplicationErrorBuilder,
   ErrorCollectionBuilder,
   createApplicationErrorBuilder,
@@ -55,8 +87,16 @@ export {
   ErrorStatePresets
 } from './errorStateBuilder.js';
 
-// 既存のBuilders（後方互換性のため）
 export {
+  ApplicationErrorBuilder,
+  ErrorCollectionBuilder,
+  createApplicationErrorBuilder,
+  createErrorCollectionBuilder,
+  ErrorStatePresets
+};
+
+// 既存のBuilders（後方互換性のため）
+import {
   SettingsBuilder,
   CanvasBuilder,
   FileBuilder,
@@ -69,6 +109,20 @@ export {
   createEventBuilder,
   TestPresets
 } from '../builders.js';
+
+export {
+  SettingsBuilder,
+  CanvasBuilder,
+  FileBuilder,
+  AnimationBuilder,
+  EventBuilder,
+  createSettingsBuilder,
+  createCanvasBuilder,
+  createFileBuilder,
+  createAnimationBuilder,
+  createEventBuilder,
+  TestPresets
+};
 
 /**
  * 統合されたBuilder Factory
@@ -224,11 +278,13 @@ export class TestBuilderUtils {
    * デバッグ用のBuilder状態出力
    */
   static debug(builderResult, label = 'Builder Result') {
+    /* eslint-disable no-console */
     console.group(`🔧 ${label}`);
     console.log('Builder Result:', builderResult);
     console.log('Keys:', Object.keys(builderResult));
     console.log('Size:', JSON.stringify(builderResult).length, 'bytes');
     console.groupEnd();
+    /* eslint-enable no-console */
     return builderResult;
   }
 }

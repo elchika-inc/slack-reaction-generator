@@ -1,6 +1,7 @@
 import { preloadImage } from '../../utils/imageCache'
+import { ImageSettingsProps } from '../../types/settings'
 
-function ImageSettings({ settings, onChange }) {
+function ImageSettings({ settings, onChange }: ImageSettingsProps) {
   return (
     <div className="space-y-4">
       <div>

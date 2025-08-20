@@ -1,8 +1,9 @@
 import { useState, useRef, Suspense, lazy } from 'react'
+import { BasicSettingsProps } from '../../types/settings'
 
 const ColorPickerPortal = lazy(() => import('../ColorPickerPortal'))
 
-function BasicSettings({ settings, onChange, isMobile }) {
+function BasicSettings({ settings, onChange, isMobile }: BasicSettingsProps) {
   const [showFontColorPicker, setShowFontColorPicker] = useState(false)
   const [showGradient1Picker, setShowGradient1Picker] = useState(false)
   const [showGradient2Picker, setShowGradient2Picker] = useState(false)

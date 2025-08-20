@@ -50,7 +50,7 @@ export const renderAnimationFrame = (ctx, settings, frame, totalFrames, canvasSi
   
   // テキストアニメーション適用
   ctx.save();
-  applyTextAnimation(ctx, settings.animation, progress, settings.animationAmplitude, settings.secondaryColor);
+  applyTextAnimation(ctx, settings.animation, progress, settings.animationAmplitude, settings.secondaryColor, canvasSize);
   
   // テキスト色決定・描画
   const textSettings = getTextColor(settings, progress);

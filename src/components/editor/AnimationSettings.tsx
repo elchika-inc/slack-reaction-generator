@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect, Suspense, lazy } from 'react'
 import { CANVAS_CONFIG } from '../../constants/canvasConstants'
+import { AnimationSettingsProps } from '../../types/settings'
 
 const ColorPickerPortal = lazy(() => import('../ColorPickerPortal'))
 
-function AnimationSettings({ settings, onChange, isMobile }) {
+function AnimationSettings({ settings, onChange, isMobile }: AnimationSettingsProps) {
   const [showSecondaryColorPicker, setShowSecondaryColorPicker] = useState(false)
   const secondaryColorButtonRef = useRef(null)
   

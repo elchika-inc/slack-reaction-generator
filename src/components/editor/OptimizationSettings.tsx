@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
+import { OptimizationSettingsProps } from '../../types/settings'
 
-function OptimizationSettings({ settings, onChange }) {
+function OptimizationSettings({ settings, onChange }: OptimizationSettingsProps) {
   // GIF品質のローカル状態とデバウンス処理
   const [localGifQuality, setLocalGifQuality] = useState(settings.gifQuality || 20)
   const gifQualityTimeoutRef = useRef(null)
