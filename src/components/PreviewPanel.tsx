@@ -238,24 +238,31 @@ function PreviewPanel({ previewData, onRegenerate }: PreviewPanelProps) {
     >
       {/* テーマ切り替え */}
       <div className="flex justify-center mb-4">
-        <div className="inline-flex rounded-lg border border-gray-200">
+        <fieldset className="inline-flex rounded-lg border border-gray-200">
+          <legend className="sr-only">プレビューテーマ選択</legend>
           <button
             onClick={() => setTheme("light")}
-            className={`px-3 py-1 text-sm ${
+            className={`px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-1 ${
               theme === "light" ? "bg-gray-100" : ""
             }`}
+            role="radio"
+            aria-checked={theme === "light"}
+            aria-label="ライトテーマを選択"
           >
             ライト
           </button>
           <button
             onClick={() => setTheme("dark")}
-            className={`px-3 py-1 text-sm ${
+            className={`px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-1 ${
               theme === "dark" ? "bg-gray-100" : ""
             }`}
+            role="radio"
+            aria-checked={theme === "dark"}
+            aria-label="ダークテーマを選択"
           >
             ダーク
           </button>
-        </div>
+        </fieldset>
       </div>
 
       {/* プレビューエリア */}
@@ -276,6 +283,7 @@ function PreviewPanel({ previewData, onRegenerate }: PreviewPanelProps) {
               className={`text-xs mb-2 ${
                 theme === "dark" ? "text-gray-400" : "text-gray-600"
               }`}
+              id="main-preview-label"
             >
               実サイズ ({iconSettings.canvasSize || 128}×{iconSettings.canvasSize || 128})
             </p>
@@ -284,6 +292,9 @@ function PreviewPanel({ previewData, onRegenerate }: PreviewPanelProps) {
               width={iconSettings.canvasSize || 128}
               height={iconSettings.canvasSize || 128}
               className="icon-canvas mx-auto"
+              role="img"
+              aria-labelledby="main-preview-label"
+              aria-description="作成された絵文字のメインプレビュー表示"
             />
           </div>
 
@@ -293,6 +304,7 @@ function PreviewPanel({ previewData, onRegenerate }: PreviewPanelProps) {
               className={`text-xs mb-2 ${
                 theme === "dark" ? "text-gray-400" : "text-gray-600"
               }`}
+              id="slack-preview-label"
             >
               Slack表示 (32×32)
             </p>
@@ -303,6 +315,9 @@ function PreviewPanel({ previewData, onRegenerate }: PreviewPanelProps) {
                 height={32}
                 className="icon-canvas-small"
                 style={{ imageRendering: "pixelated" }}
+                role="img"
+                aria-labelledby="slack-preview-label"
+                aria-description="Slackアプリでの実際の表示サイズのプレビュー"
               />
             </div>
           </div>
@@ -334,13 +349,15 @@ function PreviewPanel({ previewData, onRegenerate }: PreviewPanelProps) {
         <div className="space-y-3">
           <button
             onClick={handleDownload}
-            className="w-full btn-primary flex items-center justify-center"
+            className="w-full btn-primary flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+            aria-label="作成した絵文字をダウンロード"
           >
             <svg
               className="w-5 h-5 mr-2"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <path
                 strokeLinecap="round"
@@ -355,13 +372,15 @@ function PreviewPanel({ previewData, onRegenerate }: PreviewPanelProps) {
           {navigator.share && (
             <button
               onClick={handleShare}
-              className="w-full btn-secondary flex items-center justify-center"
+              className="w-full btn-secondary flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+              aria-label="絵文字作成ページをシェア"
             >
               <svg
                 className="w-5 h-5 mr-2"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
+                aria-hidden="true"
               >
                 <path
                   strokeLinecap="round"

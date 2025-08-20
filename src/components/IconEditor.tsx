@@ -1,3 +1,4 @@
+import { useRef, useEffect } from 'react'
 import { useIconSettingsContext } from '../contexts/IconSettingsContext'
 import { useAppStateContext } from '../contexts/AppStateContext'
 import { useAccordion } from '../hooks/useAccordion'
@@ -9,6 +10,7 @@ import { Section } from '../types/editor'
 function IconEditor() {
   const { iconSettings, handleSettingsChange } = useIconSettingsContext();
   const { isMobile } = useAppStateContext();
+  const editorRef = useRef<HTMLDivElement>(null);
   
   const { openSections, toggleSection } = useAccordion({
     basic: true,
@@ -19,8 +21,40 @@ function IconEditor() {
 
   const sections: Section[] = createEditorSections(iconSettings, handleSettingsChange, isMobile);
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!editorRef.current) return;
+
+      // 上下矢印でセクション間を移動
+      if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+        const focusableElements = Array.from(
+          editorRef.current.querySelectorAll('button, input, textarea, select')
+        ) as HTMLElement[];
+        
+        const currentIndex = focusableElements.findIndex(el => el === document.activeElement);
+        
+        if (currentIndex !== -1) {
+          event.preventDefault();
+          const nextIndex = event.key === 'ArrowDown' 
+            ? Math.min(currentIndex + 1, focusableElements.length - 1)
+            : Math.max(currentIndex - 1, 0);
+          
+          focusableElements[nextIndex]?.focus();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   return (
-    <div className="space-y-2">
+    <div 
+      ref={editorRef}
+      className="space-y-2"
+      role="region"
+      aria-label="絵文字設定エディタ"
+    >
       {sections.map((section) => (
         <div key={section.id} className="border border-gray-200 rounded-lg shadow-md">
           <AccordionHeader 

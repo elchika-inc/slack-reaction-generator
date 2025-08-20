@@ -69,6 +69,7 @@ const AppContent: FunctionalComponent = () => {
                   className={`text-xs mb-1 ${
                     theme === "dark" ? "text-gray-400" : "text-gray-600"
                   }`}
+                  id="mobile-main-preview-label"
                 >
                   実サイズ
                 </p>
@@ -78,6 +79,9 @@ const AppContent: FunctionalComponent = () => {
                   height={iconSettings.canvasSize || 128}
                   className="icon-canvas mx-auto"
                   style={{ width: "80px", height: "80px" }}
+                  role="img"
+                  aria-labelledby="mobile-main-preview-label"
+                  aria-description="作成された絵文字のメインプレビュー表示"
                 />
               </div>
 
@@ -87,6 +91,7 @@ const AppContent: FunctionalComponent = () => {
                   className={`text-xs mb-1 ${
                     theme === "dark" ? "text-gray-400" : "text-gray-600"
                   }`}
+                  id="mobile-slack-preview-label"
                 >
                   Slack表示
                 </p>
@@ -100,6 +105,9 @@ const AppContent: FunctionalComponent = () => {
                     height={32}
                     className="icon-canvas-small"
                     style={{ imageRendering: "pixelated" }}
+                    role="img"
+                    aria-labelledby="mobile-slack-preview-label"
+                    aria-description="Slackアプリでの実際の表示サイズのプレビュー"
                   />
                 </div>
               </div>
@@ -110,27 +118,37 @@ const AppContent: FunctionalComponent = () => {
                   className={`text-xs mb-1 ${
                     theme === "dark" ? "text-gray-400" : "text-gray-600"
                   }`}
+                  id="mobile-theme-label"
                 >
                   背景
                 </p>
-                <div className="inline-flex rounded-lg border border-gray-200">
+                <fieldset className="inline-flex rounded-lg border border-gray-200">
+                  <legend className="sr-only">モバイル用テーマ選択</legend>
                   <button
                     onClick={() => setTheme("light")}
-                    className={`px-2 py-1 text-xs ${
+                    className={`px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-purple-500 ${
                       theme === "light" ? "bg-gray-100" : ""
                     }`}
+                    role="radio"
+                    aria-checked={theme === "light"}
+                    aria-labelledby="mobile-theme-label"
+                    aria-label="ライトテーマを選択"
                   >
                     ライト
                   </button>
                   <button
                     onClick={() => setTheme("dark")}
-                    className={`px-2 py-1 text-xs ${
+                    className={`px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-purple-500 ${
                       theme === "dark" ? "bg-gray-100" : ""
                     }`}
+                    role="radio"
+                    aria-checked={theme === "dark"}
+                    aria-labelledby="mobile-theme-label"
+                    aria-label="ダークテーマを選択"
                   >
                     ダーク
                   </button>
-                </div>
+                </fieldset>
               </div>
             </div>
           </div>
@@ -139,13 +157,15 @@ const AppContent: FunctionalComponent = () => {
           <div className="bg-white border-t border-gray-100 p-3">
             <button
               onClick={onGeneratePreview}
-              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 rounded-xl font-semibold text-lg shadow-lg active:scale-95 transition-transform flex items-center justify-center"
+              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 rounded-xl font-semibold text-lg shadow-lg active:scale-95 transition-transform flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-purple-300 focus:ring-offset-2"
+              aria-label="作成した絵文字をダウンロード"
             >
               <svg
                 className="w-5 h-5 mr-2"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
+                aria-hidden="true"
               >
                 <path
                   strokeLinecap="round"

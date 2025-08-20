@@ -63,11 +63,11 @@ function BasicSettings({ settings, onChange, isMobile }: BasicSettingsProps) {
               key={font.value}
               onClick={() => onChange({ fontFamily: font.value })}
               className={`
-                ${isMobile ? 'p-2' : 'p-3'} rounded-lg border text-center transition-scale transition-gpu active:scale-95 focus:outline-none focus:ring-2 focus:ring-purple-500
+                ${isMobile ? 'p-2' : 'p-3'} rounded-lg border text-center transition-all active:scale-95 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-1
                 ${
                   settings.fontFamily === font.value
                     ? 'border-purple-500 bg-purple-50 ring-2 ring-purple-200'
-                    : 'border-gray-300 hover:bg-gray-50 active:bg-gray-100'
+                    : 'border-gray-300 hover:bg-gray-50 focus:bg-gray-50 active:bg-gray-100'
                 }
               `}
               role="radio"
@@ -97,32 +97,37 @@ function BasicSettings({ settings, onChange, isMobile }: BasicSettingsProps) {
             </label>
           
           {/* 単色/グラデーション切り替え */}
-          <div className={`flex ${isMobile ? 'gap-1' : 'gap-2'} mb-2`}>
+          <fieldset className={`flex ${isMobile ? 'gap-1' : 'gap-2'} mb-2`} role="radiogroup" aria-label="文字色タイプ選択">
+            <legend className="sr-only">単色またはグラデーション</legend>
             <button
               onClick={() => onChange({ textColorType: 'solid' })}
               className={`
-                flex-1 px-3 py-2 rounded-lg border transition-colors text-sm
+                flex-1 px-3 py-2 rounded-lg border transition-colors text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-1
                 ${settings.textColorType === 'solid'
                   ? 'border-purple-500 bg-purple-50 text-purple-700'
-                  : 'border-gray-300 hover:bg-gray-50'
+                  : 'border-gray-300 hover:bg-gray-50 focus:bg-gray-50'
                 }
               `}
+              role="radio"
+              aria-checked={settings.textColorType === 'solid'}
             >
               単色
             </button>
             <button
               onClick={() => onChange({ textColorType: 'gradient' })}
               className={`
-                flex-1 px-3 py-2 rounded-lg border transition-colors text-sm
+                flex-1 px-3 py-2 rounded-lg border transition-colors text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-1
                 ${settings.textColorType === 'gradient'
                   ? 'border-purple-500 bg-purple-50 text-purple-700'
-                  : 'border-gray-300 hover:bg-gray-50'
+                  : 'border-gray-300 hover:bg-gray-50 focus:bg-gray-50'
                 }
               `}
+              role="radio"
+              aria-checked={settings.textColorType === 'gradient'}
             >
               グラデーション
             </button>
-          </div>
+          </fieldset>
           
           {/* 単色選択 */}
           {settings.textColorType === 'solid' && (
@@ -131,11 +136,15 @@ function BasicSettings({ settings, onChange, isMobile }: BasicSettingsProps) {
                 ref={fontColorButtonRef}
                 onClick={() => setShowFontColorPicker(!showFontColorPicker)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg flex items-center justify-center active:bg-gray-50 text-sm"
+                aria-expanded={showFontColorPicker}
+                aria-haspopup="dialog"
+                aria-label={`文字色を選択: ${settings.fontColor}`}
               >
                 <span className="flex items-center">
                   <span
                     className="w-4 h-4 rounded mr-2 border border-gray-300"
                     style={{ backgroundColor: settings.fontColor }}
+                    aria-hidden="true"
                   />
                   {settings.fontColor}
                 </span>
@@ -157,7 +166,8 @@ function BasicSettings({ settings, onChange, isMobile }: BasicSettingsProps) {
           {settings.textColorType === 'gradient' && (
             <div className="space-y-2 mt-2">
               {/* グラデーション方向 */}
-              <div className="flex gap-2">
+              <fieldset className="flex gap-2" role="radiogroup" aria-label="グラデーション方向選択">
+                <legend className="sr-only">グラデーション方向</legend>
                 <button
                   onClick={() => onChange({ gradientDirection: 'vertical' })}
                   className={`
@@ -167,6 +177,9 @@ function BasicSettings({ settings, onChange, isMobile }: BasicSettingsProps) {
                       : 'border-gray-300 hover:bg-gray-50'
                     }
                   `}
+                  role="radio"
+                  aria-checked={settings.gradientDirection === 'vertical'}
+                  aria-label="縦方向のグラデーション"
                 >
                   ↕ 上下
                 </button>
@@ -179,10 +192,13 @@ function BasicSettings({ settings, onChange, isMobile }: BasicSettingsProps) {
                       : 'border-gray-300 hover:bg-gray-50'
                     }
                   `}
+                  role="radio"
+                  aria-checked={settings.gradientDirection === 'horizontal'}
+                  aria-label="横方向のグラデーション"
                 >
                   ↔ 左右
                 </button>
-              </div>
+              </fieldset>
               
               {/* グラデーション色1 */}
               <div className="relative">
@@ -249,7 +265,8 @@ function BasicSettings({ settings, onChange, isMobile }: BasicSettingsProps) {
             
             {/* アニメーションがない場合のみ透明/色選択を表示 */}
             {settings.animation === 'none' && (
-              <div className={isMobile ? "flex gap-2" : "flex flex-col space-y-2"}>
+              <fieldset className={isMobile ? "flex gap-2" : "flex flex-col space-y-2"} role="radiogroup" aria-label="背景タイプ選択">
+                <legend className="sr-only">透明背景または色背景</legend>
                 <button
                   onClick={() => onChange({ backgroundType: 'transparent' })}
                   className={`
@@ -260,6 +277,8 @@ function BasicSettings({ settings, onChange, isMobile }: BasicSettingsProps) {
                         : 'border-gray-300 hover:bg-gray-50'
                     }
                   `}
+                  role="radio"
+                  aria-checked={settings.backgroundType === 'transparent'}
                 >
                   透明
                 </button>
@@ -278,10 +297,16 @@ function BasicSettings({ settings, onChange, isMobile }: BasicSettingsProps) {
                           : 'border-gray-300 hover:bg-gray-50'
                       }
                     `}
+                    role="radio"
+                    aria-checked={settings.backgroundType === 'color'}
+                    aria-expanded={showBgColorPicker && settings.backgroundType === 'color'}
+                    aria-haspopup="dialog"
+                    aria-label={`背景色を選択: ${settings.backgroundColor || '#FFFFFF'}`}
                   >
                     <span
                       className="w-4 h-4 rounded mr-2 border border-gray-400"
                       style={{ backgroundColor: settings.backgroundColor || '#FFFFFF' }}
+                      aria-hidden="true"
                     />
                     <span className={settings.backgroundType === 'color' ? 'text-purple-700' : ''}>
                       {settings.backgroundColor || '#FFFFFF'}
@@ -298,7 +323,7 @@ function BasicSettings({ settings, onChange, isMobile }: BasicSettingsProps) {
                     </Suspense>
                   )}
                 </div>
-              </div>
+              </fieldset>
             )}
           
             {/* アニメーション時のみ背景色選択 */}

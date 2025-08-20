@@ -1,10 +1,24 @@
 import { AccordionHeaderProps } from '../../types/editor';
+import { useKeyboardNavigation } from '../../hooks/useKeyboardNavigation';
 
 function AccordionHeader({ section, isOpen, onToggle }: AccordionHeaderProps) {
+  useKeyboardNavigation({
+    onEnter: onToggle,
+    onSpace: onToggle,
+  });
+
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      onToggle();
+    }
+  };
+
   return (
     <button
       onClick={onToggle}
-      className={`w-full px-4 py-3 bg-white hover:bg-gray-50 transition-colors flex items-center justify-between ${
+      onKeyDown={handleKeyDown}
+      className={`w-full px-4 py-3 bg-white hover:bg-gray-50 focus:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-1 transition-colors flex items-center justify-between ${
         isOpen ? '' : 'rounded-lg'
       }`}
       aria-expanded={isOpen}
@@ -25,6 +39,7 @@ function AccordionHeader({ section, isOpen, onToggle }: AccordionHeaderProps) {
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
+        aria-hidden="true"
       >
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
       </svg>
