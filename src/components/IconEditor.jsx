@@ -67,7 +67,7 @@ function IconEditor({ settings, onChange, isMobile }) {
   return (
     <div className="space-y-2">
       {sections.map((section) => (
-        <div key={section.id} className="border border-gray-200 rounded-lg shadow-md overflow-hidden">
+        <div key={section.id} className="border border-gray-200 rounded-lg shadow-md">
           {/* アコーディオンヘッダー */}
           <button
             onClick={() => toggleSection(section.id)}
@@ -103,10 +103,9 @@ function IconEditor({ settings, onChange, isMobile }) {
             className={`transition-all duration-300 ${
               openSections[section.id] 
                 ? 'max-h-[2000px] opacity-100' 
-                : 'max-h-0 opacity-0'
+                : 'max-h-0 opacity-0 overflow-hidden'
             }`}
             style={{ 
-              overflow: openSections[section.id] ? 'visible' : 'hidden',
               position: 'relative', 
               zIndex: openSections[section.id] ? 10 : 0 
             }}

@@ -3,34 +3,37 @@
 import '@testing-library/jest-dom';
 import { vi } from 'vitest';
 
-// Canvas API のモック
-global.HTMLCanvasElement.prototype.getContext = vi.fn(() => ({
-  clearRect: vi.fn(),
-  fillRect: vi.fn(),
-  drawImage: vi.fn(),
-  save: vi.fn(),
-  restore: vi.fn(),
-  translate: vi.fn(),
-  rotate: vi.fn(),
-  scale: vi.fn(),
-  beginPath: vi.fn(),
-  arc: vi.fn(),
-  fill: vi.fn(),
-  stroke: vi.fn(),
-  fillStyle: '',
-  strokeStyle: '',
-  lineWidth: 1,
-  font: '',
-  textAlign: 'start',
-  globalAlpha: 1,
-  shadowColor: '',
-  shadowBlur: 0,
-  shadowOffsetX: 0,
-  shadowOffsetY: 0,
-  measureText: vi.fn(() => ({ width: 100 }))
-}));
+// Preact のテスト用グローバルコンテキスト設定
+// Preact hooks が正しく動作するよう、適切なグローバルコンテキストを設定
+global.__REACT_DEVTOOLS_GLOBAL_HOOK__ = {
+  renderers: new Map(),
+  supportsFiber: true,
+  inject: () => {},
+  onCommitFiberRoot: () => {},
+  onCommitFiberUnmount: () => {},
+};
 
-global.HTMLCanvasElement.prototype.toDataURL = vi.fn(() => 'data:image/png;base64,test');
+// Preact/React DOM関連のモック
+Object.defineProperty(window, 'navigator', {
+  value: {
+    userAgent: 'test'
+  }
+});
+
+// Node environment用のDOMセットアップ
+if (typeof window !== 'undefined') {
+  window.location = window.location || {};
+}
+
+// Canvas API のモック - 包括的なTest Double実装を使用
+import { setupCanvasEnvironment } from './mocks/canvasMock.js';
+
+// Canvas環境のセットアップ
+const canvasEnvironment = setupCanvasEnvironment();
+
+// 既存のコードとの互換性を保つため、基本的なモックも残す
+global.HTMLCanvasElement.prototype.getContext = canvasEnvironment.canvas.getContext;
+global.HTMLCanvasElement.prototype.toDataURL = canvasEnvironment.canvas.toDataURL;
 
 // IntersectionObserver のモック
 global.IntersectionObserver = vi.fn(() => ({
@@ -39,9 +42,9 @@ global.IntersectionObserver = vi.fn(() => ({
   unobserve: vi.fn(),
 }));
 
-// requestAnimationFrame のモック
-global.requestAnimationFrame = vi.fn((cb) => setTimeout(cb, 16));
-global.cancelAnimationFrame = vi.fn();
+// requestAnimationFrame のモック - canvasMockのものを使用
+global.requestAnimationFrame = canvasEnvironment.animation.requestAnimationFrame;
+global.cancelAnimationFrame = canvasEnvironment.animation.cancelAnimationFrame;
 
 // Font loading API のモック
 Object.defineProperty(document, 'fonts', {
@@ -51,15 +54,9 @@ Object.defineProperty(document, 'fonts', {
   }
 });
 
-// ファイル関連API のモック
-global.FileReader = vi.fn(() => ({
-  readAsDataURL: vi.fn(),
-  result: 'data:image/png;base64,test',
-  onload: null,
-  onerror: null
-}));
-
-global.Blob = vi.fn();
+// ファイル関連API のモック - canvasMockのものを使用
+global.FileReader = canvasEnvironment.fileBlob.FileReader;
+global.Blob = canvasEnvironment.fileBlob.Blob;
 global.URL.createObjectURL = vi.fn(() => 'blob:test');
 
 // Window関連のモック
@@ -78,17 +75,20 @@ Object.defineProperty(window, 'matchMedia', {
 });
 
 // ネットワーク関連のモック
-global.navigator = {
-  ...global.navigator,
-  connection: {
-    effectiveType: '4g',
-    downlink: 10
+Object.defineProperty(global, 'navigator', {
+  value: {
+    ...global.navigator,
+    connection: {
+      effectiveType: '4g',
+      downlink: 10
+    },
+    share: vi.fn(() => Promise.resolve()),
+    clipboard: {
+      writeText: vi.fn(() => Promise.resolve())
+    }
   },
-  share: vi.fn(() => Promise.resolve()),
-  clipboard: {
-    writeText: vi.fn(() => Promise.resolve())
-  }
-};
+  writable: true
+});
 
 // LocalStorage のモック
 const localStorageMock = {
@@ -98,3 +98,29 @@ const localStorageMock = {
   clear: vi.fn(),
 };
 global.localStorage = localStorageMock;
+
+// Dynamic Import のモック設定
+vi.mock('file-saver', () => ({
+  default: {
+    saveAs: vi.fn((blob, filename) => {
+      console.log(`Saving file: ${filename}`);
+    })
+  },
+  saveAs: vi.fn((blob, filename) => {
+    console.log(`Saving file: ${filename}`);
+  })
+}));
+
+// gif.js のモック
+vi.mock('gif.js', () => ({
+  default: vi.fn().mockImplementation(() => ({
+    addFrame: vi.fn(),
+    on: vi.fn(),
+    render: vi.fn()
+  }))
+}));
+
+// react-color のモック
+vi.mock('react-color', () => ({
+  SketchPicker: vi.fn(() => null)
+}));

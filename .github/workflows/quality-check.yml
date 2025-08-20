@@ -1,0 +1,92 @@
+name: 品質チェック・テスト実行
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  quality-check:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+    - name: リポジトリのチェックアウト
+      uses: actions/checkout@v4
+
+    - name: Node.js ${{ matrix.node-version }} のセットアップ
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    - name: 依存関係のインストール
+      run: npm ci
+
+    - name: Lintチェック
+      run: npm run lint
+
+    - name: テスト実行
+      run: npm run test:run
+
+    - name: ビルドテスト
+      run: npm run build
+
+    - name: テスト結果の保存
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: test-results-node-${{ matrix.node-version }}
+        path: |
+          coverage/
+          test-results.xml
+        retention-days: 30
+
+  # カバレッジチェック（オプション）
+  coverage-check:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: 依存関係のインストール
+      run: npm ci
+    
+    # カバレッジパッケージを追加する場合
+    # - name: カバレッジ取得
+    #   run: npm run test:coverage
+    
+    # - name: カバレッジレポート生成
+    #   uses: codecov/codecov-action@v3
+    #   with:
+    #     files: ./coverage/lcov.info
+
+  # Lighthouseパフォーマンステスト（オプション）
+  lighthouse:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: 依存関係のインストール
+      run: npm ci
+    
+    - name: アプリケーションビルド
+      run: npm run build
+    
+    - name: Lighthouseテスト実行
+      run: npm run lighthouse:ci
+      if: ${{ hashFiles('dev/scripts/lighthouse-monitor.js') != '' }}

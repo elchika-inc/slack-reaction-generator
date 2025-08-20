@@ -194,8 +194,8 @@ function AnimationSettings({ settings, onChange, isMobile }) {
                   </button>
                   {showSecondaryColorPicker && (
                     <>
-                      <div className="fixed inset-0 z-30" onClick={() => setShowSecondaryColorPicker(false)} />
-                      <div className="absolute z-40 mt-2 right-0">
+                      <div className="fixed inset-0 z-[9998]" onClick={() => setShowSecondaryColorPicker(false)} />
+                      <div className="absolute z-[9999] mt-2 left-0">
                         <Suspense fallback={<div className="p-3 bg-gray-100 rounded" />}>
                           <ColorPicker
                             color={settings.secondaryColor || '#FFD700'}

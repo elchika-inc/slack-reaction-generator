@@ -134,8 +134,8 @@ function BasicSettings({ settings, onChange, isMobile }) {
               </button>
               {showFontColorPicker && (
                 <>
-                  <div className="fixed inset-0 z-30" onClick={() => setShowFontColorPicker(false)} />
-                  <div className="absolute z-40 mt-2 right-0">
+                  <div className="fixed inset-0 z-[9998]" onClick={() => setShowFontColorPicker(false)} />
+                  <div className="absolute z-[9999] mt-2 left-0">
                     <Suspense fallback={<div className="p-3 bg-gray-100 rounded" />}>
                       <ColorPicker
                         color={settings.fontColor}
@@ -196,8 +196,8 @@ function BasicSettings({ settings, onChange, isMobile }) {
                 </button>
                 {showGradient1Picker && (
                   <>
-                    <div className="fixed inset-0 z-30" onClick={() => setShowGradient1Picker(false)} />
-                    <div className="absolute z-40 mt-2 right-0">
+                    <div className="fixed inset-0 z-[9998]" onClick={() => setShowGradient1Picker(false)} />
+                    <div className="absolute z-[9999] mt-2 left-0">
                       <Suspense fallback={<div className="p-3 bg-gray-100 rounded" />}>
                         <ColorPicker
                           color={settings.gradientColor1}
@@ -226,8 +226,8 @@ function BasicSettings({ settings, onChange, isMobile }) {
                 </button>
                 {showGradient2Picker && (
                   <>
-                    <div className="fixed inset-0 z-30" onClick={() => setShowGradient2Picker(false)} />
-                    <div className="absolute z-40 mt-2 right-0">
+                    <div className="fixed inset-0 z-[9998]" onClick={() => setShowGradient2Picker(false)} />
+                    <div className="absolute z-[9999] mt-2 left-0">
                       <Suspense fallback={<div className="p-3 bg-gray-100 rounded" />}>
                         <ColorPicker
                           color={settings.gradientColor2}
@@ -290,8 +290,8 @@ function BasicSettings({ settings, onChange, isMobile }) {
                   </button>
                   {showBgColorPicker && settings.backgroundType === 'color' && (
                     <>
-                      <div className="fixed inset-0 z-30" onClick={() => setShowBgColorPicker(false)} />
-                      <div className="absolute z-40 mt-2 right-0">
+                      <div className="fixed inset-0 z-[9998]" onClick={() => setShowBgColorPicker(false)} />
+                      <div className="absolute z-[9999] mt-2 left-0">
                         <Suspense fallback={<div className="p-3 bg-gray-100 rounded" />}>
                           <ColorPicker
                             color={settings.backgroundColor || '#FFFFFF'}
@@ -324,8 +324,8 @@ function BasicSettings({ settings, onChange, isMobile }) {
                   </button>
                   {showBgColorPicker && (
                     <>
-                      <div className="fixed inset-0 z-30" onClick={() => setShowBgColorPicker(false)} />
-                      <div className="absolute z-40 mt-2 right-0">
+                      <div className="fixed inset-0 z-[9998]" onClick={() => setShowBgColorPicker(false)} />
+                      <div className="absolute z-[9999] mt-2 left-0">
                         <Suspense fallback={<div className="p-3 bg-gray-100 rounded" />}>
                           <ColorPicker
                             color={settings.backgroundColor || '#FFFFFF'}

@@ -4,15 +4,35 @@ import { resolve } from 'path'
 
 export default defineConfig({
   plugins: [react()],
+  resolve: {
+    alias: {
+      'react': 'preact/compat',
+      'react-dom': 'preact/compat',
+      'react-dom/test-utils': 'preact/test-utils',
+      'react-dom/client': 'preact/compat/client',
+      'react/jsx-runtime': 'preact/jsx-runtime',
+      '@testing-library/react': '@testing-library/preact',
+      '@': resolve(__dirname, './src'),
+      '@/components': resolve(__dirname, './src/components'),
+      '@/hooks': resolve(__dirname, './src/hooks'),
+      '@/utils': resolve(__dirname, './src/utils'),
+      '@/types': resolve(__dirname, './src/types')
+    }
+  },
   test: {
     globals: true,
-    environment: 'jsdom',
+    environment: 'happy-dom',
     setupFiles: ['./src/test/setup.js'],
+    include: [
+      'src/__tests__/**/*.test.ts',
+      'src/__tests__/**/*.test.tsx'
+    ],
     coverage: {
       reporter: ['text', 'json', 'html'],
       exclude: [
         'node_modules/',
         'src/test/',
+        'src/__tests__/',
         '**/*.d.ts',
         'dev/',
         'dist/',
@@ -35,14 +55,5 @@ export default defineConfig({
       '**/.{idea,git,cache,output,temp}/**',
       '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*'
     ]
-  },
-  resolve: {
-    alias: {
-      '@': resolve(__dirname, './src'),
-      '@/components': resolve(__dirname, './src/components'),
-      '@/hooks': resolve(__dirname, './src/hooks'),
-      '@/utils': resolve(__dirname, './src/utils'),
-      '@/types': resolve(__dirname, './src/types')
-    }
   }
 })
