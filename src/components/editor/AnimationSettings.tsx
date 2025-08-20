@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect, Suspense, lazy } from 'react'
 import { CANVAS_CONFIG } from '../../constants/canvasConstants'
 
-const ColorPicker = lazy(() => import('../ColorPicker'))
+const ColorPickerPortal = lazy(() => import('../ColorPickerPortal'))
 
 function AnimationSettings({ settings, onChange, isMobile }) {
   const [showSecondaryColorPicker, setShowSecondaryColorPicker] = useState(false)
+  const secondaryColorButtonRef = useRef(null)
   
   // アニメーション幅のローカル状態とデバウンス処理
   const [localAnimationAmplitude, setLocalAnimationAmplitude] = useState(settings.animationAmplitude || 50)
@@ -181,6 +182,7 @@ function AnimationSettings({ settings, onChange, isMobile }) {
                 </label>
                 <div className="relative">
                   <button
+                    ref={secondaryColorButtonRef}
                     onClick={() => setShowSecondaryColorPicker(!showSecondaryColorPicker)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg flex items-center justify-center active:bg-gray-50 text-sm"
                   >
@@ -193,18 +195,14 @@ function AnimationSettings({ settings, onChange, isMobile }) {
                     </span>
                   </button>
                   {showSecondaryColorPicker && (
-                    <>
-                      <div className="fixed inset-0 z-40" onClick={() => setShowSecondaryColorPicker(false)} />
-                      <div className="absolute z-50 mt-2 left-0">
-                        <Suspense fallback={<div className="p-3 bg-gray-100 rounded" />}>
-                          <ColorPicker
-                            color={settings.secondaryColor || '#FFD700'}
-                            onChange={(color) => onChange({ secondaryColor: color })}
-                            onClose={() => setShowSecondaryColorPicker(false)}
-                          />
-                        </Suspense>
-                      </div>
-                    </>
+                    <Suspense fallback={<div className="p-3 bg-gray-100 rounded" />}>
+                      <ColorPickerPortal
+                        color={settings.secondaryColor || '#FFD700'}
+                        onChange={(color) => onChange({ secondaryColor: color })}
+                        onClose={() => setShowSecondaryColorPicker(false)}
+                        anchorEl={secondaryColorButtonRef.current}
+                      />
+                    </Suspense>
                   )}
                 </div>
                 <p className="mt-1 text-xs text-gray-500">

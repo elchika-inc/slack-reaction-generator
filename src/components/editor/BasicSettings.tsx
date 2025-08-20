@@ -1,12 +1,18 @@
-import { useState, Suspense, lazy } from 'react'
+import { useState, useRef, Suspense, lazy } from 'react'
 
-const ColorPicker = lazy(() => import('../ColorPicker'))
+const ColorPickerPortal = lazy(() => import('../ColorPickerPortal'))
 
 function BasicSettings({ settings, onChange, isMobile }) {
   const [showFontColorPicker, setShowFontColorPicker] = useState(false)
   const [showGradient1Picker, setShowGradient1Picker] = useState(false)
   const [showGradient2Picker, setShowGradient2Picker] = useState(false)
   const [showBgColorPicker, setShowBgColorPicker] = useState(false)
+  
+  const [pickerPosition, setPickerPosition] = useState({ top: 0, left: 0 })
+  const fontColorButtonRef = useRef(null)
+  const gradient1ButtonRef = useRef(null)
+  const gradient2ButtonRef = useRef(null)
+  const bgColorButtonRef = useRef(null)
 
   const fonts = [
     // 日本語フォント
@@ -121,6 +127,7 @@ function BasicSettings({ settings, onChange, isMobile }) {
           {settings.textColorType === 'solid' && (
             <div className="relative">
               <button
+                ref={fontColorButtonRef}
                 onClick={() => setShowFontColorPicker(!showFontColorPicker)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg flex items-center justify-center active:bg-gray-50 text-sm"
               >
@@ -133,18 +140,14 @@ function BasicSettings({ settings, onChange, isMobile }) {
                 </span>
               </button>
               {showFontColorPicker && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={() => setShowFontColorPicker(false)} />
-                  <div className="absolute z-50 mt-2 left-0">
-                    <Suspense fallback={<div className="p-3 bg-gray-100 rounded" />}>
-                      <ColorPicker
-                        color={settings.fontColor}
-                        onChange={(color) => onChange({ fontColor: color })}
-                        onClose={() => setShowFontColorPicker(false)}
-                      />
-                    </Suspense>
-                  </div>
-                </>
+                <Suspense fallback={<div className="p-3 bg-gray-100 rounded" />}>
+                  <ColorPickerPortal
+                    color={settings.fontColor}
+                    onChange={(color) => onChange({ fontColor: color })}
+                    onClose={() => setShowFontColorPicker(false)}
+                    anchorEl={fontColorButtonRef.current}
+                  />
+                </Suspense>
               )}
             </div>
           )}
@@ -183,6 +186,7 @@ function BasicSettings({ settings, onChange, isMobile }) {
               {/* グラデーション色1 */}
               <div className="relative">
                 <button
+                  ref={gradient1ButtonRef}
                   onClick={() => setShowGradient1Picker(!showGradient1Picker)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg flex items-center justify-center active:bg-gray-50 text-sm"
                 >
@@ -195,24 +199,21 @@ function BasicSettings({ settings, onChange, isMobile }) {
                   </span>
                 </button>
                 {showGradient1Picker && (
-                  <>
-                    <div className="fixed inset-0 z-40" onClick={() => setShowGradient1Picker(false)} />
-                    <div className="absolute z-50 mt-2 left-0">
-                      <Suspense fallback={<div className="p-3 bg-gray-100 rounded" />}>
-                        <ColorPicker
-                          color={settings.gradientColor1}
-                          onChange={(color) => onChange({ gradientColor1: color })}
-                          onClose={() => setShowGradient1Picker(false)}
-                        />
-                      </Suspense>
-                    </div>
-                  </>
+                  <Suspense fallback={<div className="p-3 bg-gray-100 rounded" />}>
+                    <ColorPickerPortal
+                      color={settings.gradientColor1}
+                      onChange={(color) => onChange({ gradientColor1: color })}
+                      onClose={() => setShowGradient1Picker(false)}
+                      anchorEl={gradient1ButtonRef.current}
+                    />
+                  </Suspense>
                 )}
               </div>
               
               {/* グラデーション色2 */}
               <div className="relative">
                 <button
+                  ref={gradient2ButtonRef}
                   onClick={() => setShowGradient2Picker(!showGradient2Picker)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg flex items-center justify-center active:bg-gray-50 text-sm"
                 >
@@ -225,18 +226,14 @@ function BasicSettings({ settings, onChange, isMobile }) {
                   </span>
                 </button>
                 {showGradient2Picker && (
-                  <>
-                    <div className="fixed inset-0 z-40" onClick={() => setShowGradient2Picker(false)} />
-                    <div className="absolute z-50 mt-2 left-0">
-                      <Suspense fallback={<div className="p-3 bg-gray-100 rounded" />}>
-                        <ColorPicker
-                          color={settings.gradientColor2}
-                          onChange={(color) => onChange({ gradientColor2: color })}
-                          onClose={() => setShowGradient2Picker(false)}
-                        />
-                      </Suspense>
-                    </div>
-                  </>
+                  <Suspense fallback={<div className="p-3 bg-gray-100 rounded" />}>
+                    <ColorPickerPortal
+                      color={settings.gradientColor2}
+                      onChange={(color) => onChange({ gradientColor2: color })}
+                      onClose={() => setShowGradient2Picker(false)}
+                      anchorEl={gradient2ButtonRef.current}
+                    />
+                  </Suspense>
                 )}
               </div>
             </div>
@@ -267,6 +264,7 @@ function BasicSettings({ settings, onChange, isMobile }) {
                 </button>
                 <div className={`relative ${isMobile ? 'flex-1' : ''}`}>
                   <button
+                    ref={bgColorButtonRef}
                     onClick={() => {
                       onChange({ backgroundType: 'color' })
                       setShowBgColorPicker(true)
@@ -289,18 +287,14 @@ function BasicSettings({ settings, onChange, isMobile }) {
                     </span>
                   </button>
                   {showBgColorPicker && settings.backgroundType === 'color' && (
-                    <>
-                      <div className="fixed inset-0 z-40" onClick={() => setShowBgColorPicker(false)} />
-                      <div className="absolute z-50 mt-2 left-0">
-                        <Suspense fallback={<div className="p-3 bg-gray-100 rounded" />}>
-                          <ColorPicker
-                            color={settings.backgroundColor || '#FFFFFF'}
-                            onChange={(color) => onChange({ backgroundColor: color })}
-                            onClose={() => setShowBgColorPicker(false)}
-                          />
-                        </Suspense>
-                      </div>
-                    </>
+                    <Suspense fallback={<div className="p-3 bg-gray-100 rounded" />}>
+                      <ColorPickerPortal
+                        color={settings.backgroundColor || '#FFFFFF'}
+                        onChange={(color) => onChange({ backgroundColor: color })}
+                        onClose={() => setShowBgColorPicker(false)}
+                        anchorEl={bgColorButtonRef.current}
+                      />
+                    </Suspense>
                   )}
                 </div>
               </div>
@@ -311,6 +305,7 @@ function BasicSettings({ settings, onChange, isMobile }) {
               <div>
                 <div className="relative">
                   <button
+                    ref={bgColorButtonRef}
                     onClick={() => setShowBgColorPicker(!showBgColorPicker)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg flex items-center justify-center active:bg-gray-50 text-sm"
                   >
@@ -323,18 +318,14 @@ function BasicSettings({ settings, onChange, isMobile }) {
                     </span>
                   </button>
                   {showBgColorPicker && (
-                    <>
-                      <div className="fixed inset-0 z-40" onClick={() => setShowBgColorPicker(false)} />
-                      <div className="absolute z-50 mt-2 left-0">
-                        <Suspense fallback={<div className="p-3 bg-gray-100 rounded" />}>
-                          <ColorPicker
-                            color={settings.backgroundColor || '#FFFFFF'}
-                            onChange={(color) => onChange({ backgroundColor: color })}
-                            onClose={() => setShowBgColorPicker(false)}
-                          />
-                        </Suspense>
-                      </div>
-                    </>
+                    <Suspense fallback={<div className="p-3 bg-gray-100 rounded" />}>
+                      <ColorPickerPortal
+                        color={settings.backgroundColor || '#FFFFFF'}
+                        onChange={(color) => onChange({ backgroundColor: color })}
+                        onClose={() => setShowBgColorPicker(false)}
+                        anchorEl={bgColorButtonRef.current}
+                      />
+                    </Suspense>
                   )}
                 </div>
                 <p className="mt-1 text-xs text-gray-500">
