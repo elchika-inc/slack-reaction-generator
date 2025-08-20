@@ -1,12 +1,3 @@
-// GIFライブラリを遅延読み込み
-let GIF = null;
-const loadGIF = async () => {
-  if (!GIF) {
-    const module = await import('gif.js');
-    GIF = module.default;
-  }
-  return GIF;
-};
 import { CANVAS_CONFIG } from '../constants/canvasConstants';
 import { renderText } from './textRenderer';
 import { getOrLoadImage } from './imageCache';
@@ -15,6 +6,18 @@ import {
   applyTextAnimation,
   applyImageAnimation 
 } from './animationHelpers';
+import { gifWorkerManager, GifGenerationResult, GifGenerationProgress } from './GifWorkerManager';
+import { handleError, ErrorTypes } from './errorHandler';
+
+// GIF生成のフォールバック用（Worker使用不可の場合）
+let GIF = null;
+const loadGIF = async () => {
+  if (!GIF) {
+    const module = await import('gif.js');
+    GIF = module.default;
+  }
+  return GIF;
+};
 
 export const generateIconData = async (settings, canvas) => {
   // キャンバスサイズを取得（デフォルト128）
@@ -25,11 +28,8 @@ export const generateIconData = async (settings, canvas) => {
   const hasImageAnimation = settings.imageData && settings.imageAnimation && settings.imageAnimation !== 'none';
   
   if (hasTextAnimation || hasImageAnimation) {
-    // GIF生成用の新しいキャンバスを作成
-    const gifCanvas = document.createElement('canvas')
-    gifCanvas.width = canvasSize
-    gifCanvas.height = canvasSize
-    return await generateAnimatedGIF(gifCanvas, settings)
+    // Web Workerを使用したGIF生成
+    return await generateAnimatedGIFWithWorker(settings);
   }
   
   // 静止画の場合
@@ -39,7 +39,12 @@ export const generateIconData = async (settings, canvas) => {
   
   canvas.width = canvasSize
   canvas.height = canvasSize
-  const ctx = canvas.getContext('2d', { alpha: true, willReadFrequently: true })  // アルファチャンネルを明示的に有効化、頻繁な読み込みを最適化
+  const ctx = canvas.getContext('2d', { 
+    alpha: true, 
+    willReadFrequently: true,
+    imageSmoothingEnabled: true,
+    imageSmoothingQuality: 'high'
+  })  // アルファチャンネルを明示的に有効化、頻繁な読み込みを最適化
   
   // Clear canvas with transparent background
   ctx.clearRect(0, 0, canvasSize, canvasSize)
@@ -122,47 +127,130 @@ const drawImageLayer = (ctx, settings, progress = 0, canvasSize = CANVAS_CONFIG.
 
 
 
-const generateAnimatedGIF = async (canvas, settings) => {
-  const GIFConstructor = await loadGIF();
-  const canvasSize = settings.canvasSize || CANVAS_CONFIG.SIZE;
-  
-  return new Promise((resolve) => {
-    const frameCanvas = document.createElement('canvas');
-    frameCanvas.width = canvasSize;
-    frameCanvas.height = canvasSize;
-    const frameCtx = frameCanvas.getContext('2d', { willReadFrequently: true });
+/**
+ * Web Workerを使用したGIF生成
+ */
+const generateAnimatedGIFWithWorker = async (settings): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const onProgress = (_progress: GifGenerationProgress) => {
+      // 進捗処理（必要に応じてUI更新）
+    };
     
-    const gif = new GIFConstructor({
-      workers: 2,
-      quality: settings.gifQuality || 10,
-      width: canvasSize,
-      height: canvasSize,
-      workerScript: '/gif.worker.js',
-      repeat: 0,
-      dither: false
-    });
+    const onComplete = (result: GifGenerationResult) => {
+      resolve(result.dataUrl);
+    };
     
-    const frameCount = settings.gifFrames || 30;
-    const requestedDelay = settings.animationSpeed || 33;
+    const onError = (error: Error) => {
+      // Workerでエラーが発生した場合、フォールバック処理
+      generateAnimatedGIFFallback(settings)
+        .then(result => {
+          resolve(result);
+        })
+        .catch(fallbackError => {
+          reject(fallbackError);
+        });
+    };
     
-    for (let i = 0; i < frameCount; i++) {
-      frameCtx.fillStyle = settings.backgroundColor || '#FFFFFF';
-      frameCtx.fillRect(0, 0, canvasSize, canvasSize);
-      drawAnimationFrame(frameCtx, settings, i, frameCount);
-      gif.addFrame(frameCanvas, { 
-        copy: true, 
-        delay: Math.max(30, Math.round(requestedDelay / 10) * 10) 
-      });
+    // Web Workerを使用してGIF生成を開始
+    try {
+      gifWorkerManager.generateGIF(settings, onProgress, onComplete, onError);
+    } catch (error) {
+      // Worker初期化エラーの場合もフォールバック
+      generateAnimatedGIFFallback(settings).then(resolve).catch(reject);
     }
-    
-    gif.on('finished', (blob) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result);
-      reader.readAsDataURL(blob);
-    });
-    
-    gif.render();
   });
+};
+
+/**
+ * フォールバック用GIF生成（メインスレッド）
+ */
+const generateAnimatedGIFFallback = async (settings): Promise<string> => {
+  try {
+    const GIFConstructor = await loadGIF();
+    const canvasSize = settings.canvasSize || CANVAS_CONFIG.SIZE;
+    
+    return new Promise((resolve) => {
+      const frameCanvas = document.createElement('canvas');
+      frameCanvas.width = canvasSize;
+      frameCanvas.height = canvasSize;
+      const frameCtx = frameCanvas.getContext('2d', { 
+        willReadFrequently: true,
+        alpha: false, // GIF用はアルファを無効化
+        imageSmoothingEnabled: false, // GIFはピクセルパーフェクト
+        imageSmoothingQuality: 'low'
+      });
+      
+      const gif = new GIFConstructor({
+        workers: 2,
+        quality: settings.gifQuality || 10,
+        width: canvasSize,
+        height: canvasSize,
+        workerScript: '/gif.worker.js',
+        repeat: 0,
+        dither: false
+      });
+      
+      const frameCount = settings.gifFrames || 30;
+      const requestedDelay = settings.animationSpeed || 33;
+      let validFramesAdded = 0;
+      
+      for (let i = 0; i < frameCount; i++) {
+        // 背景を必ず先に塗りつぶす（GIFのアルファ非対応対策）
+        frameCtx.fillStyle = settings.backgroundColor || '#FFFFFF';
+        frameCtx.fillRect(0, 0, canvasSize, canvasSize);
+        
+        // フレーム描画
+        drawAnimationFrame(frameCtx, settings, i, frameCount);
+        
+        // フレームが有効であることを確認
+        try {
+          const imageData = frameCtx.getImageData(0, 0, canvasSize, canvasSize);
+          if (imageData && imageData.data && imageData.data.length > 0) {
+            // gif.jsのdelayはミリ秒単位（プレビューと同じ）
+            // プレビューとGIFで同じ速度にする
+            const normalizedDelay = Math.max(20, requestedDelay); // 20ms未満はGIFビューアによりデフォルト速度になるため
+            
+            gif.addFrame(imageData, { 
+              copy: true, 
+              delay: normalizedDelay,
+              dispose: -1
+            });
+            
+            validFramesAdded++;
+          }
+        } catch (error) {
+          // フレーム処理エラー時はスキップ
+        }
+      }
+      
+      if (validFramesAdded === 0) {
+        throw new Error('No valid frames were generated for GIF');
+      }
+      
+      gif.on('finished', (blob) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const result = reader.result as string;
+          resolve(result);
+        };
+        reader.onerror = (error) => {
+          handleError(ErrorTypes.GIF_GENERATION, error);
+          reject(error);
+        };
+        reader.readAsDataURL(blob);
+      });
+      
+      gif.on('error', (error) => {
+        handleError(ErrorTypes.GIF_GENERATION, error);
+        reject(error);
+      });
+      
+      gif.render();
+    });
+  } catch (error) {
+    handleError(ErrorTypes.GIF_GENERATION, error);
+    throw error;
+  }
 };
 
 export const drawAnimationFrame = (ctx, settings, frame, totalFrames) => {

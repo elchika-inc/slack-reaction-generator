@@ -25,15 +25,41 @@ if (typeof window !== 'undefined') {
   window.location = window.location || {};
 }
 
-// Canvas API のモック - 包括的なTest Double実装を使用
-import { setupCanvasEnvironment } from './mocks/canvasMock.js';
+// Canvas API の基本的なモック
+const mockCanvas = document.createElement('canvas');
+const mockContext = {
+  fillRect: vi.fn(),
+  clearRect: vi.fn(),
+  getImageData: vi.fn(() => ({
+    data: new Uint8ClampedArray(4),
+    width: 1,
+    height: 1
+  })),
+  putImageData: vi.fn(),
+  createImageData: vi.fn(() => ({
+    data: new Uint8ClampedArray(4),
+    width: 1,
+    height: 1
+  })),
+  drawImage: vi.fn(),
+  fillText: vi.fn(),
+  strokeText: vi.fn(),
+  measureText: vi.fn(() => ({ width: 0 })),
+  save: vi.fn(),
+  restore: vi.fn(),
+  translate: vi.fn(),
+  rotate: vi.fn(),
+  scale: vi.fn(),
+  createLinearGradient: vi.fn(() => ({
+    addColorStop: vi.fn()
+  })),
+  createRadialGradient: vi.fn(() => ({
+    addColorStop: vi.fn()
+  }))
+};
 
-// Canvas環境のセットアップ
-const canvasEnvironment = setupCanvasEnvironment();
-
-// 既存のコードとの互換性を保つため、基本的なモックも残す
-global.HTMLCanvasElement.prototype.getContext = canvasEnvironment.canvas.getContext;
-global.HTMLCanvasElement.prototype.toDataURL = canvasEnvironment.canvas.toDataURL;
+global.HTMLCanvasElement.prototype.getContext = vi.fn(() => mockContext);
+global.HTMLCanvasElement.prototype.toDataURL = vi.fn(() => 'data:image/png;base64,test');
 
 // IntersectionObserver のモック
 global.IntersectionObserver = vi.fn(() => ({
@@ -42,9 +68,14 @@ global.IntersectionObserver = vi.fn(() => ({
   unobserve: vi.fn(),
 }));
 
-// requestAnimationFrame のモック - canvasMockのものを使用
-global.requestAnimationFrame = canvasEnvironment.animation.requestAnimationFrame;
-global.cancelAnimationFrame = canvasEnvironment.animation.cancelAnimationFrame;
+// requestAnimationFrame のモック
+let animationId = 0;
+global.requestAnimationFrame = vi.fn((callback) => {
+  return setTimeout(() => callback(Date.now()), 16);
+});
+global.cancelAnimationFrame = vi.fn((id) => {
+  clearTimeout(id);
+});
 
 // Font loading API のモック
 Object.defineProperty(document, 'fonts', {
@@ -54,9 +85,23 @@ Object.defineProperty(document, 'fonts', {
   }
 });
 
-// ファイル関連API のモック - canvasMockのものを使用
-global.FileReader = canvasEnvironment.fileBlob.FileReader;
-global.Blob = canvasEnvironment.fileBlob.Blob;
+// ファイル関連API のモック
+const FileReaderMock = vi.fn().mockImplementation(() => ({
+  readAsDataURL: vi.fn(function(_blob) {
+    this.result = 'data:image/png;base64,mockImageData';
+    if (this.onload) this.onload();
+  }),
+  readAsText: vi.fn(function(_blob) {
+    this.result = 'mock text content';
+    if (this.onload) this.onload();
+  }),
+  result: null,
+  onload: null,
+  onerror: null
+}));
+
+global.FileReader = FileReaderMock;
+global.Blob = vi.fn();
 global.URL.createObjectURL = vi.fn(() => 'blob:test');
 
 // Window関連のモック
@@ -103,10 +148,12 @@ global.localStorage = localStorageMock;
 vi.mock('file-saver', () => ({
   default: {
     saveAs: vi.fn((blob, filename) => {
+      // eslint-disable-next-line no-console
       console.log(`Saving file: ${filename}`);
     })
   },
   saveAs: vi.fn((blob, filename) => {
+    // eslint-disable-next-line no-console
     console.log(`Saving file: ${filename}`);
   })
 }));

@@ -22,7 +22,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'happy-dom',
-    setupFiles: ['./src/__tests__/support/setup.js'],
+    setupFiles: ['./src/__tests__/support/setup.js', './src/__tests__/setup/performance.setup.js'],
     include: [
       'src/__tests__/**/*.test.ts',
       'src/__tests__/**/*.test.tsx'

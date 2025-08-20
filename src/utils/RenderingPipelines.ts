@@ -172,7 +172,7 @@ export const HighQualityRenderingPipeline: RenderingPipeline = {
  */
 export const DebugRenderingPipeline: RenderingPipeline = {
   prepare: (settings: any) => {
-    console.log('Debug Pipeline - Preparing render:', settings);
+    // デバッグ情報準備
   },
 
   render: (ctx: CanvasRenderingContext2D, settings: any, frame?: number, totalFrames?: number) => {
@@ -211,7 +211,7 @@ export const DebugRenderingPipeline: RenderingPipeline = {
   },
 
   cleanup: () => {
-    console.log('Debug Pipeline - Cleanup completed');
+    // デバッグクリーンアップ
   }
 };
 

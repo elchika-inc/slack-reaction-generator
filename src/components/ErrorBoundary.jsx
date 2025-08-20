@@ -1,5 +1,5 @@
 import { Component } from 'react';
-import { ErrorTypes, ErrorSeverity, handleError, errorManager } from '../utils/errorHandler';
+import { ErrorTypes, ErrorSeverity, handleError } from '../utils/errorHandler';
 
 class ErrorBoundary extends Component {
   constructor(props) {
@@ -12,7 +12,7 @@ class ErrorBoundary extends Component {
     };
   }
 
-  static getDerivedStateFromError(error) {
+  static getDerivedStateFromError(_error) {
     return { hasError: true };
   }
 
@@ -55,6 +55,7 @@ class ErrorBoundary extends Component {
         url: window.location.href
       };
       
+      // eslint-disable-next-line no-console
       console.log('Error Report:', errorReport);
       alert('エラーレポートがコンソールに出力されました');
     }

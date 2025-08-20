@@ -197,10 +197,23 @@ function PreviewPanel({ previewData, onRegenerate }: PreviewPanelProps) {
 
         // GIF生成処理（新しいキャンバスで）
         const url = await generateIconData(iconSettings, tempCanvas);
+        
+        if (!url) {
+          throw new Error('GIF generation failed - no URL returned');
+        }
 
         const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`Fetch failed with status: ${response.status}`);
+        }
+        
         const blob = await response.blob();
+        
         const fileSaver = await loadFileSaver();
+        if (!fileSaver) {
+          throw new Error('FileSaver not available');
+        }
+        
         fileSaver(blob, fileName);
       } else {
         // 静止画の場合、新しいキャンバスで再生成（透明背景対応）
@@ -210,13 +223,29 @@ function PreviewPanel({ previewData, onRegenerate }: PreviewPanelProps) {
         tempCanvas.height = canvasSize;
 
         const url = await generateIconData(iconSettings, tempCanvas);
+        
+        if (!url) {
+          throw new Error('PNG generation failed - no URL returned');
+        }
+        
         const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`Fetch failed with status: ${response.status}`);
+        }
+        
         const blob = await response.blob();
+        
         const fileSaver = await loadFileSaver();
+        if (!fileSaver) {
+          throw new Error('FileSaver not available');
+        }
+        
         fileSaver(blob, fileName);
       }
     } catch (error) {
-      // Download error
+      console.error('Download error:', error);
+      // ユーザーにエラーを表示（必要に応じて）
+      alert(`ダウンロードエラー: ${error.message}`);
     }
   };
 
