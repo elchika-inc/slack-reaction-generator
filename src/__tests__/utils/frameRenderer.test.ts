@@ -20,11 +20,11 @@ import {
 } from '../../test/mocks/canvasMock';
 
 // textRenderer と animationHelpers のモック
-vi.mock('../textRenderer', () => ({
+vi.mock('../../utils/textRenderer', () => ({
   renderText: vi.fn()
 }));
 
-vi.mock('../animationHelpers', () => ({
+vi.mock('../../utils/animationHelpers', () => ({
   calculateAnimationValue: vi.fn(),
   applyTextAnimation: vi.fn()
 }));
@@ -40,8 +40,8 @@ describe('frameRenderer - 統合テスト', () => {
     mockContext = createCanvasContextMock();
     
     // モジュールのmock関数を取得
-    const textRenderer = await import('../textRenderer');
-    const animationHelpers = await import('../animationHelpers');
+    const textRenderer = await import('../../utils/textRenderer');
+    const animationHelpers = await import('../../utils/animationHelpers');
     
     mockRenderText = textRenderer.renderText;
     mockCalculateAnimationValue = animationHelpers.calculateAnimationValue;
@@ -319,8 +319,8 @@ describe('frameRenderer - 統合テスト', () => {
       const settings = TestPresets.bounceIcon().build();
       
       // AAA Pattern: Act
-      const animationType = settings.animation.animation;
-      const animationSpeed = settings.animation.animationSpeed;
+      const animationType = settings.animation;
+      const animationSpeed = settings.animationSpeed;
 
       // AAA Pattern: Assert
       // 具体的な実装ではなく抽象化された設定値に依存
@@ -402,9 +402,9 @@ describe('frameRenderer - 統合テスト', () => {
         .build();
 
       // AAA Pattern: Act & Assert
-      expect(settings.animation.animation).toBe(animationConfig.type);
-      expect(settings.animation.animationSpeed).toBe(animationConfig.speed);
-      expect(settings.animation.animationAmplitude).toBe(animationConfig.amplitude);
+      expect(settings.animation).toBe(animationConfig.type);
+      expect(settings.animationSpeed).toBe(animationConfig.speed);
+      expect(settings.animationAmplitude).toBe(animationConfig.amplitude);
     });
 
     it('全てのアニメーションプリセットが正しく動作する', () => {
@@ -416,10 +416,9 @@ describe('frameRenderer - 統合テスト', () => {
         const settings = preset.build();
         expect(settings).toBeDefined();
         expect(settings.animation).toBeDefined();
-        expect(settings.animation.animation).toBeDefined();
         // 最初のプリセット（none）以外はアニメーション設定されている
         if (index > 0) {
-          expect(settings.animation.animation).not.toBe('none');
+          expect(settings.animation).not.toBe('none');
         }
       });
     });
@@ -439,8 +438,8 @@ describe('frameRenderer - 統合テスト', () => {
 
       // AAA Pattern: Assert
       animations.forEach((settings, index) => {
-        expect(settings.optimization.gifQuality).toBe(qualityLevels[index]);
-        expect(settings.animation.animation).toBe('bounce');
+        expect(settings.gifQuality).toBe(qualityLevels[index]);
+        expect(settings.animation).toBe('bounce');
       });
     });
   });

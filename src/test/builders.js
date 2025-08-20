@@ -152,7 +152,9 @@ export class SettingsBuilder {
   }
 
   build() {
-    return { ...this.settings };
+    // フラット化された設定を返す（下位互換性のため）
+    const { flattenSettings } = require('../types/settings');
+    return flattenSettings(this.settings);
   }
 }
 

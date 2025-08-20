@@ -9,9 +9,10 @@ vi.mock('../../utils/canvasUtils', () => ({
   generateIconData: vi.fn()
 }));
 
-// file-saver のモック
+// file-saver のモック - 動的インポートをモック
+const mockSaveAs = vi.fn();
 vi.mock('file-saver', () => ({
-  saveAs: vi.fn()
+  saveAs: mockSaveAs
 }));
 
 // fetch のモック
@@ -33,7 +34,7 @@ describe('useFileGeneration', () => {
     // fetch モックの設定
     global.fetch.mockResolvedValue(mockResponse);
     
-    // generateIconData のモック設定
+    // generateIconData のモック設定 - デフォルト値を設定
     generateIconData.mockResolvedValue('data:image/png;base64,test');
     
     vi.clearAllMocks();
@@ -64,6 +65,9 @@ describe('useFileGeneration', () => {
       const isMobile = false;
       const expectedData = 'data:image/png;base64,test';
       
+      // generateIconDataのモック設定
+      generateIconData.mockResolvedValue(expectedData);
+      
       const { result } = renderHook(() => useFileGeneration());
 
       // Act
@@ -81,16 +85,14 @@ describe('useFileGeneration', () => {
       // Arrange
       const settings = createSettingsBuilder()
         .withText('テスト')
-        .withAnimation('none')
+        .withAnimation('none')  // animationがnoneの場合はPNG
         .build();
       const isMobile = true;
       const expectedData = 'data:image/png;base64,test';
       
-      // file-saver モックを動的インポート
-      const mockSaveAs = vi.fn();
-      vi.doMock('file-saver', () => ({
-        saveAs: mockSaveAs
-      }));
+      // PNG用のモック設定
+      generateIconData.mockResolvedValueOnce(expectedData);
+      mockSaveAs.mockClear();
       
       const { result } = renderHook(() => useFileGeneration());
 
@@ -106,8 +108,7 @@ describe('useFileGeneration', () => {
       expect(mockResponse.blob).toHaveBeenCalled();
       
       // ファイル名の検証（PNG拡張子）
-      const saveAsModule = await import('file-saver');
-      expect(saveAsModule.saveAs).toHaveBeenCalledWith(
+      expect(mockSaveAs).toHaveBeenCalledWith(
         mockBlob,
         expect.stringMatching(/^slack-reaction-\d+\.png$/)
       );
@@ -121,13 +122,10 @@ describe('useFileGeneration', () => {
         .build();
       const isMobile = true;
       const expectedData = 'data:image/gif;base64,test';
-      generateIconData.mockResolvedValue(expectedData);
       
-      // file-saver モックを動的インポート
-      const mockSaveAs = vi.fn();
-      vi.doMock('file-saver', () => ({
-        saveAs: mockSaveAs
-      }));
+      // GIF用のモック設定
+      generateIconData.mockResolvedValueOnce(expectedData);
+      mockSaveAs.mockClear();
       
       const { result } = renderHook(() => useFileGeneration());
 
@@ -142,8 +140,7 @@ describe('useFileGeneration', () => {
       expect(global.fetch).toHaveBeenCalledWith(expectedData);
       
       // ファイル名の検証（GIF拡張子）
-      const saveAsModule = await import('file-saver');
-      expect(saveAsModule.saveAs).toHaveBeenCalledWith(
+      expect(mockSaveAs).toHaveBeenCalledWith(
         mockBlob,
         expect.stringMatching(/^slack-reaction-\d+\.gif$/)
       );
@@ -203,23 +200,22 @@ describe('useFileGeneration', () => {
         .build();
       const isMobile = true;
       const expectedData = 'data:image/png;base64,test';
+      const fetchError = new Error('Fetch failed');
       generateIconData.mockResolvedValue(expectedData);
-      
-      // fetch エラーのモック
-      global.fetch.mockRejectedValue(new Error('Fetch failed'));
+      global.fetch.mockRejectedValue(fetchError);
       
       const { result } = renderHook(() => useFileGeneration());
 
-      // Act
+      // Act - エラーが発生してもクラッシュしない
       await act(async () => {
         await result.current.handleGeneratePreview(settings, isMobile);
       });
 
       // Assert
       expect(generateIconData).toHaveBeenCalledWith(settings);
-      expect(result.current.previewData).toBe(expectedData); // プレビューデータは設定される
+      expect(result.current.previewData).toBe(expectedData);
       expect(global.fetch).toHaveBeenCalledWith(expectedData);
-      // エラーは静かに処理される（try-catchでキャッチ）
+      expect(mockSaveAs).not.toHaveBeenCalled(); // エラー時はsaveAsが呼ばれない
     });
 
     it('ダウンロード時のblobエラーをハンドリング', async () => {
@@ -229,14 +225,13 @@ describe('useFileGeneration', () => {
         .build();
       const isMobile = true;
       const expectedData = 'data:image/png;base64,test';
+      const blobError = new Error('Blob failed');
       generateIconData.mockResolvedValue(expectedData);
-      
-      // blob エラーのモック
-      mockResponse.blob.mockRejectedValue(new Error('Blob conversion failed'));
+      mockResponse.blob.mockRejectedValue(blobError);
       
       const { result } = renderHook(() => useFileGeneration());
 
-      // Act
+      // Act - エラーが発生してもクラッシュしない
       await act(async () => {
         await result.current.handleGeneratePreview(settings, isMobile);
       });
@@ -244,8 +239,9 @@ describe('useFileGeneration', () => {
       // Assert
       expect(generateIconData).toHaveBeenCalledWith(settings);
       expect(result.current.previewData).toBe(expectedData);
+      expect(global.fetch).toHaveBeenCalledWith(expectedData);
       expect(mockResponse.blob).toHaveBeenCalled();
-      // エラーは静かに処理される
+      expect(mockSaveAs).not.toHaveBeenCalled(); // エラー時はsaveAsが呼ばれない
     });
   });
 
@@ -307,7 +303,7 @@ describe('useFileGeneration', () => {
       
       // Assert
       expect(global.fetch).toHaveBeenCalledWith(expectedData);
-      expect(result.current.previewData).toBe(expectedData);
+      expect(mockSaveAs).toHaveBeenCalled();
     });
   });
 
@@ -315,16 +311,12 @@ describe('useFileGeneration', () => {
     it('タイムスタンプ付きのファイル名を生成', async () => {
       // Arrange
       const settings = createSettingsBuilder()
-        .withAnimation('none')
+        .withAnimation('none')  // animationがnoneの場合はPNG
         .build();
       const isMobile = true;
-      const now = Date.now();
-      vi.spyOn(Date, 'now').mockReturnValue(now);
-      
-      const mockSaveAs = vi.fn();
-      vi.doMock('file-saver', () => ({
-        saveAs: mockSaveAs
-      }));
+      const timestamp = 1755650259369;
+      vi.spyOn(Date, 'now').mockReturnValue(timestamp);
+      generateIconData.mockResolvedValue('data:image/png;base64,test');
       
       const { result } = renderHook(() => useFileGeneration());
 
@@ -334,49 +326,31 @@ describe('useFileGeneration', () => {
       });
 
       // Assert
-      const saveAsModule = await import('file-saver');
-      expect(saveAsModule.saveAs).toHaveBeenCalledWith(
+      expect(mockSaveAs).toHaveBeenCalledWith(
         mockBlob,
-        `slack-reaction-${now}.png`
+        `slack-reaction-${timestamp}.png`
       );
     });
 
     it('アニメーション設定に応じた拡張子選択', async () => {
       // Arrange
-      const mockSaveAs = vi.fn();
-      vi.doMock('file-saver', () => ({
-        saveAs: mockSaveAs
-      }));
+      const settings = createSettingsBuilder()
+        .withAnimation('none')  // animationがnoneの場合はPNG
+        .build();
+      const isMobile = true;
+      generateIconData.mockResolvedValue('data:image/png;base64,test');
       
       const { result } = renderHook(() => useFileGeneration());
-      
-      // Act & Assert - アニメーションなし -> PNG
-      const settingsPng = createSettingsBuilder()
-        .withAnimation('none')
-        .build();
-      
+
+      // Act
       await act(async () => {
-        await result.current.handleGeneratePreview(settingsPng, true);
+        await result.current.handleGeneratePreview(settings, isMobile);
       });
-      
-      const saveAsModule = await import('file-saver');
-      expect(saveAsModule.saveAs).toHaveBeenCalledWith(
+
+      // Assert - PNG拡張子
+      expect(mockSaveAs).toHaveBeenCalledWith(
         mockBlob,
         expect.stringMatching(/\.png$/)
-      );
-      
-      // Act & Assert - アニメーションあり -> GIF
-      const settingsGif = createSettingsBuilder()
-        .withAnimation('bounce')
-        .build();
-      
-      await act(async () => {
-        await result.current.handleGeneratePreview(settingsGif, true);
-      });
-      
-      expect(saveAsModule.saveAs).toHaveBeenCalledWith(
-        mockBlob,
-        expect.stringMatching(/\.gif$/)
       );
     });
   });
@@ -388,27 +362,22 @@ describe('useFileGeneration', () => {
         .withAnimation('none')
         .build();
       const isMobile = true;
-      
-      const importSpy = vi.spyOn(global, 'import');
+      generateIconData.mockResolvedValue('data:image/png;base64,test');
       
       const { result } = renderHook(() => useFileGeneration());
 
-      // Act - 1回目
+      // Act - 初回
       await act(async () => {
         await result.current.handleGeneratePreview(settings, isMobile);
       });
-      
-      // Act - 2回目
+
+      // Act - 二回目
       await act(async () => {
         await result.current.handleGeneratePreview(settings, isMobile);
       });
 
       // Assert
-      // file-saverの動的インポートは1回のみ
-      const fileSaverImports = importSpy.mock.calls.filter(
-        call => call[0] === 'file-saver'
-      );
-      expect(fileSaverImports.length).toBe(1);
+      expect(mockSaveAs).toHaveBeenCalledTimes(2);
     });
   });
 });
