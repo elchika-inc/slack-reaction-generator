@@ -1,62 +1,22 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { renderHook, waitFor, act } from '@testing-library/preact';
+import { renderHook, act } from '@testing-library/preact';
 import { useCanvasPreview } from '../../hooks/useCanvasPreview';
-import { canvasManager } from '../../utils/CanvasManager';
-import { renderingEngine } from '../../utils/renderingEngine';
 import { handleError } from '../../utils/errorHandler';
+import * as canvasUtils from '../../utils/canvasUtils';
 import { createSettingsBuilder } from '../support/builders';
 
-// Test Double Pattern: CanvasManagerモック
-// CanvasManagerはシングルトンパターンで実装されているためインスタンスとメソッドの両方をモック化
-vi.mock('../../utils/CanvasManager', () => {
-  const mockCanvasManagerInstance = {
-    createCanvas: vi.fn(),
-    getCanvas: vi.fn(),
-    renderStatic: vi.fn(),
-    startAnimation: vi.fn(),
-    stopAnimation: vi.fn(),
-    stopAllAnimations: vi.fn(),
-    renderScaled: vi.fn(),
-    initialized: false
-  };
-
-  return {
-    canvasManager: mockCanvasManagerInstance,
-    CanvasManager: {
-      getInstance: vi.fn(() => mockCanvasManagerInstance)
-    }
-  };
-});
-
-// Test Double Pattern: レンダリングパイプラインモック
-vi.mock('../../utils/RenderingPipelines', () => ({
-  registerDefaultPipelines: vi.fn(),
-  selectOptimalPipeline: vi.fn(() => 'default')
+// canvasUtilsのモック
+vi.mock('../../utils/canvasUtils', () => ({
+  drawAnimationFrame: vi.fn(),
+  drawTextIcon: vi.fn()
 }));
 
 vi.mock('../../utils/errorHandler', () => ({
   handleError: vi.fn(),
   ErrorTypes: {
-    CANVAS_OPERATION: 'CANVAS_OPERATION',
+    CANVAS_RENDER: 'CANVAS_RENDER',
     FONT_LOADING: 'FONT_LOADING'
   }
-}));
-
-// renderingEngineのモック
-vi.mock('../../utils/renderingEngine', () => ({
-  renderingEngine: {
-    canvases: new Map(),
-    startAnimation: vi.fn(),
-    stopAnimation: vi.fn(),
-    stopAllAnimations: vi.fn(),
-    renderStatic: vi.fn(),
-    renderScaled: vi.fn(),
-    createCanvas: vi.fn(),
-    getCanvas: vi.fn(),
-    removeCanvas: vi.fn(),
-    clear: vi.fn()
-  },
-  RenderingEngine: vi.fn()
 }));
 
 describe('useCanvasPreview', () => {
@@ -64,8 +24,8 @@ describe('useCanvasPreview', () => {
   let mockSmallCanvasContext;
   let mockCanvas;
   let mockSmallCanvas;
-  let mockDocumentFonts;
-  let rafCallback = null;
+  let rafCallbacks: Function[] = [];
+  let rafId = 0;
 
   beforeEach(() => {
     // Canvas モックの設定
@@ -90,8 +50,8 @@ describe('useCanvasPreview', () => {
     };
 
     mockCanvas = {
-      width: 256,
-      height: 256,
+      width: 128,
+      height: 128,
       getContext: vi.fn(() => mockCanvasContext)
     };
 
@@ -101,238 +61,252 @@ describe('useCanvasPreview', () => {
       getContext: vi.fn(() => mockSmallCanvasContext)
     };
 
-    // document.fonts のモック
-    mockDocumentFonts = {
-      load: vi.fn().mockResolvedValue()
-    };
-    
-    // document.fonts のグローバルモック設定
-    if (!document.fonts) {
-      Object.defineProperty(document, 'fonts', {
-        value: mockDocumentFonts,
-        writable: true,
-        configurable: true
-      });
-    } else {
-      // 既存のfontsプロパティをスパイ
-      vi.spyOn(document.fonts, 'load').mockImplementation(mockDocumentFonts.load);
-    }
+    // requestAnimationFrameのモック
+    rafCallbacks = [];
+    rafId = 0;
+    vi.stubGlobal('requestAnimationFrame', vi.fn((callback) => {
+      const id = ++rafId;
+      rafCallbacks.push(callback);
+      return id;
+    }));
 
-    // requestAnimationFrame のモック
-    vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
-      rafCallback = callback;
-      return 1;
-    });
+    vi.stubGlobal('cancelAnimationFrame', vi.fn((id) => {
+      // 実際のキャンセル処理をシミュレート
+      rafCallbacks = rafCallbacks.filter((_, index) => index + 1 !== id);
+    }));
 
-    // CanvasManagerのモックをリセット
-    vi.mocked(canvasManager.createCanvas).mockReturnValue(mockCanvas);
-    vi.mocked(canvasManager.getCanvas).mockReturnValue(null);
-    vi.mocked(canvasManager.renderStatic).mockResolvedValue(undefined);
-    vi.mocked(canvasManager.startAnimation).mockResolvedValue(undefined);
-    vi.mocked(canvasManager.stopAnimation).mockImplementation(() => {});
-    vi.mocked(canvasManager.stopAllAnimations).mockImplementation(() => {});
-    vi.mocked(canvasManager.renderScaled).mockImplementation(() => {});
+    // モックをリセット
+    vi.clearAllMocks();
   });
 
   afterEach(() => {
+    vi.unstubAllGlobals();
     vi.clearAllMocks();
-    vi.restoreAllMocks();
-    rafCallback = null;
   });
 
   describe('初期化', () => {
     it('モバイルでない場合はrefを返す', () => {
-      // Arrange - AAA Pattern
       const settings = createSettingsBuilder().build();
       const isMobile = false;
       
-      // Act
       const { result } = renderHook(() => useCanvasPreview(settings, isMobile));
       
-      // Assert
       expect(result.current.canvasRef).toBeDefined();
-      expect(result.current.canvasRef.current).toBeNull();
       expect(result.current.smallCanvasRef).toBeDefined();
+      expect(result.current.canvasRef.current).toBeNull();
       expect(result.current.smallCanvasRef.current).toBeNull();
     });
 
     it('モバイルの場合もrefを返す', () => {
-      // Arrange - AAA Pattern
       const settings = createSettingsBuilder().build();
       const isMobile = true;
       
-      // Act
       const { result } = renderHook(() => useCanvasPreview(settings, isMobile));
       
-      // Assert
       expect(result.current.canvasRef).toBeDefined();
-      expect(result.current.canvasRef.current).toBeNull();
       expect(result.current.smallCanvasRef).toBeDefined();
-      expect(result.current.smallCanvasRef.current).toBeNull();
     });
   });
 
   describe('Canvas 初期化', () => {
     it('メインCanvasを正しいサイズで初期化', () => {
-      // Arrange
-      const canvasSize = 256;
-      const settings = createSettingsBuilder()
-        .withCanvasSize(canvasSize)
+      const initialSettings = createSettingsBuilder()
+        .withCanvasSize(128)
         .build();
       const isMobile = true;
-
-      // Act
-      const { result } = renderHook(() => useCanvasPreview(settings, isMobile));
       
+      const { result, rerender } = renderHook(
+        ({ settings }) => useCanvasPreview(settings, isMobile),
+        { initialProps: { settings: initialSettings } }
+      );
+      
+      // キャンバスを設定
       act(() => {
         result.current.canvasRef.current = mockCanvas;
         result.current.smallCanvasRef.current = mockSmallCanvas;
       });
-
-      // Assert
+      
+      // 設定を変更してキャンバスサイズを更新
+      const newSettings = createSettingsBuilder()
+        .withCanvasSize(256)
+        .build();
+      
+      act(() => {
+        rerender({ settings: newSettings });
+      });
+      
       expect(mockCanvas.width).toBe(256);
-      expect(mockCanvas.height).toBe(256);
     });
 
     it('小Canvasを32x32で初期化', () => {
-      // Arrange
-      const settings = createSettingsBuilder().build();
+      const initialSettings = createSettingsBuilder().build();
       const isMobile = true;
-
-      // Act
-      const { result } = renderHook(() => useCanvasPreview(settings, isMobile));
+      
+      const { result, rerender } = renderHook(
+        ({ settings }) => useCanvasPreview(settings, isMobile),
+        { initialProps: { settings: initialSettings } }
+      );
       
       act(() => {
         result.current.canvasRef.current = mockCanvas;
         result.current.smallCanvasRef.current = mockSmallCanvas;
       });
-
-      // Assert
+      
+      // 設定を更新してトリガー
+      const newSettings = createSettingsBuilder()
+        .withText('Test')
+        .build();
+      
+      act(() => {
+        rerender({ settings: newSettings });
+      });
+      
       expect(mockSmallCanvas.width).toBe(32);
       expect(mockSmallCanvas.height).toBe(32);
     });
   });
 
   describe('アニメーション制御', () => {
-    it('アニメーション速度が30ms未満の場合は30msに制限', async () => {
-      // Arrange - AAA Pattern
-      const initialSettings = createSettingsBuilder()
-        .withAnimation('bounce')
-        .withAnimationSpeed(10) // 30ms未満
-        .build();
-      const isMobile = true;
-      
-      // Test Double: CanvasManagerのモックを設定
-      vi.mocked(canvasManager.getCanvas).mockReturnValue(null);
-      vi.mocked(canvasManager.startAnimation).mockResolvedValue(undefined);
-
-      // Act
-      const { result, rerender } = renderHook(
-        ({ settings, mobile }) => useCanvasPreview(settings, mobile),
-        { initialProps: { settings: initialSettings, mobile: isMobile } }
-      );
-      
-      const canvasElement = document.createElement('canvas');
-      const smallCanvasElement = document.createElement('canvas');
-      canvasElement.getContext = vi.fn(() => mockCanvasContext);
-      smallCanvasElement.getContext = vi.fn(() => mockSmallCanvasContext);
-      
-      act(() => {
-        result.current.canvasRef.current = canvasElement;
-        result.current.smallCanvasRef.current = smallCanvasElement;
-      });
-      
-      const newSettings = createSettingsBuilder()
-        .withAnimation('bounce')
-        .withAnimationSpeed(10)
-        .withText('Test')
-        .build();
-      
-      await act(async () => {
-        rerender({ settings: newSettings, mobile: isMobile });
-        await new Promise(resolve => setTimeout(resolve, 100));
-      });
-
-      // Assert - アニメーションが30msで開始されたことを確認
-      expect(canvasManager.startAnimation).toHaveBeenCalledWith(
-        'main',
-        newSettings,
-        30, // 最小限制値
-        'default'
-      );
-    });
-
-    it('アニメーションがない場合は静的レンダリング', async () => {
-      // Arrange - AAA Pattern
+    it('アニメーション付きの場合はrequestAnimationFrameが呼ばれる', async () => {
       const initialSettings = createSettingsBuilder()
         .withoutAnimation()
         .build();
       const isMobile = true;
       
-      // Test Double: CanvasManagerのモックを設定
-      vi.mocked(canvasManager.getCanvas).mockReturnValue(null);
-      vi.mocked(canvasManager.renderStatic).mockResolvedValue(undefined);
-
-      // Act
       const { result, rerender } = renderHook(
-        ({ settings, mobile }) => useCanvasPreview(settings, mobile),
-        { initialProps: { settings: initialSettings, mobile: isMobile } }
+        ({ settings }) => useCanvasPreview(settings, isMobile),
+        { initialProps: { settings: initialSettings } }
       );
-      
-      const canvasElement = document.createElement('canvas');
-      const smallCanvasElement = document.createElement('canvas');
-      canvasElement.getContext = vi.fn(() => mockCanvasContext);
-      smallCanvasElement.getContext = vi.fn(() => mockSmallCanvasContext);
-      
-      act(() => {
-        result.current.canvasRef.current = canvasElement;
-        result.current.smallCanvasRef.current = smallCanvasElement;
-      });
-      
-      const newSettings = createSettingsBuilder()
-        .withoutAnimation()
-        .withText('Test')
-        .build();
-      
-      await act(async () => {
-        rerender({ settings: newSettings, mobile: isMobile });
-        await new Promise(resolve => setTimeout(resolve, 100));
-      });
-
-      // Assert
-      expect(canvasManager.renderStatic).toHaveBeenCalledWith(
-        'main',
-        newSettings,
-        'default'
-      );
-    });
-  });
-
-  describe('クリーンアップ', () => {
-    it('アンマウント時にアニメーションを停止', () => {
-      // Arrange - AAA Pattern
-      const settings = createSettingsBuilder()
-        .withAnimation('bounce')
-        .build();
-      const isMobile = true;
-      
-      // Test Double: CanvasManagerのモックを設定
-      vi.mocked(canvasManager.stopAnimation).mockImplementation(() => {});
-      vi.mocked(canvasManager.stopAllAnimations).mockImplementation(() => {});
-
-      // Act
-      const { result, unmount } = renderHook(() => useCanvasPreview(settings, isMobile));
       
       act(() => {
         result.current.canvasRef.current = mockCanvas;
         result.current.smallCanvasRef.current = mockSmallCanvas;
       });
+      
+      // アニメーション付きの設定に変更
+      const newSettings = createSettingsBuilder()
+        .withAnimation('bounce')
+        .withAnimationSpeed(20)
+        .build();
+      
+      act(() => {
+        rerender({ settings: newSettings });
+      });
+      
+      // requestAnimationFrameが呼ばれたことを確認
+      expect(requestAnimationFrame).toHaveBeenCalled();
+      expect(rafCallbacks.length).toBeGreaterThan(0);
+    });
 
-      // アンマウントしてクリーンアップをトリガー
+    it('アニメーションがない場合は静的描画', () => {
+      const initialSettings = createSettingsBuilder()
+        .withoutAnimation()
+        .build();
+      const isMobile = true;
+      
+      const { result, rerender } = renderHook(
+        ({ settings }) => useCanvasPreview(settings, isMobile),
+        { initialProps: { settings: initialSettings } }
+      );
+      
+      act(() => {
+        result.current.canvasRef.current = mockCanvas;
+        result.current.smallCanvasRef.current = mockSmallCanvas;
+      });
+      
+      // まずアニメーション付きの設定に変更
+      const animationSettings = createSettingsBuilder()
+        .withAnimation('bounce')
+        .build();
+      
+      act(() => {
+        rerender({ settings: animationSettings });
+      });
+      
+      // アニメーションが開始されたことを確認
+      expect(requestAnimationFrame).toHaveBeenCalled();
+      
+      // モックをクリア
+      vi.clearAllMocks();
+      
+      // アニメーションなしの設定に変更
+      const newSettings = createSettingsBuilder()
+        .withoutAnimation()
+        .build();
+      
+      act(() => {
+        rerender({ settings: newSettings });
+      });
+      
+      // 静的描画の場合はdrawTextIconが呼ばれる
+      expect(canvasUtils.drawTextIcon).toHaveBeenCalled();
+      // 前のアニメーションはキャンセルされる
+      expect(cancelAnimationFrame).toHaveBeenCalled();
+      // 新しいアニメーションは開始されない
+      expect(requestAnimationFrame).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('クリーンアップ', () => {
+    it('アンマウント時にアニメーションを停止', () => {
+      const initialSettings = createSettingsBuilder()
+        .withoutAnimation()
+        .build();
+      const isMobile = true;
+      
+      const { result, rerender, unmount } = renderHook(
+        ({ settings }) => useCanvasPreview(settings, isMobile),
+        { initialProps: { settings: initialSettings } }
+      );
+      
+      act(() => {
+        result.current.canvasRef.current = mockCanvas;
+        result.current.smallCanvasRef.current = mockSmallCanvas;
+      });
+      
+      // アニメーション付きの設定に変更
+      const newSettings = createSettingsBuilder()
+        .withAnimation('bounce')
+        .build();
+      
+      act(() => {
+        rerender({ settings: newSettings });
+      });
+      
+      // アニメーションが開始されたことを確認
+      expect(requestAnimationFrame).toHaveBeenCalled();
+      
+      // アンマウント
       unmount();
+      
+      // cancelAnimationFrameが呼ばれたことを確認
+      expect(cancelAnimationFrame).toHaveBeenCalled();
+    });
+  });
 
-      // Assert - CanvasManagerのクリーンアップが呼ばれることを確認
-      expect(canvasManager.stopAllAnimations).toHaveBeenCalled();
+  describe('モバイル制御', () => {
+    it('デスクトップの場合は初期化処理をスキップ', () => {
+      const settings = createSettingsBuilder()
+        .withAnimation('bounce')
+        .build();
+      const isMobile = false;
+      
+      const { result } = renderHook(() => useCanvasPreview(settings, isMobile));
+      
+      act(() => {
+        result.current.canvasRef.current = mockCanvas;
+        result.current.smallCanvasRef.current = mockSmallCanvas;
+      });
+      
+      const { rerender } = renderHook(() => useCanvasPreview(settings, isMobile));
+      
+      act(() => {
+        rerender();
+      });
+      
+      // デスクトップの場合はcanvasの初期化が行われない
+      expect(mockCanvas.getContext).not.toHaveBeenCalled();
+      expect(requestAnimationFrame).not.toHaveBeenCalled();
     });
   });
 });

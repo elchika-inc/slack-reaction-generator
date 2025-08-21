@@ -1,13 +1,10 @@
 import { useEffect, useRef } from 'react';
-import { canvasManager } from '../utils/CanvasManager';
-import { registerDefaultPipelines, selectOptimalPipeline } from '../utils/RenderingPipelines';
 import { handleError, ErrorTypes } from '../utils/errorHandler';
 import { drawAnimationFrame, drawTextIcon } from '../utils/canvasUtils';
 
-export const useCanvasPreview = (iconSettings, isMobile) => {
+export const useCanvasPreview = (iconSettings: any, isMobile: boolean) => {
   const canvasRef = useRef(null);
   const smallCanvasRef = useRef(null);
-  const managerInitialized = useRef(false);
   const animationRef = useRef(null);
   const smallAnimationRef = useRef(null);
   const frameRef = useRef(0);
@@ -57,7 +54,7 @@ export const useCanvasPreview = (iconSettings, isMobile) => {
             let lastTime = 0;
             let smallLastTime = 0;
             
-            const animate = (currentTime) => {
+            const animate = (currentTime: number) => {
               if (!lastTime) lastTime = currentTime;
               const deltaTime = currentTime - lastTime;
               
@@ -74,7 +71,7 @@ export const useCanvasPreview = (iconSettings, isMobile) => {
               animationRef.current = requestAnimationFrame(animate);
             };
             
-            const animateSmall = (currentTime) => {
+            const animateSmall = (currentTime: number) => {
               if (!smallLastTime) smallLastTime = currentTime;
               const deltaTime = currentTime - smallLastTime;
               
@@ -116,7 +113,7 @@ export const useCanvasPreview = (iconSettings, isMobile) => {
           }
         }
       } catch (error) {
-        handleError(ErrorTypes.CANVAS_OPERATION, error);
+        handleError(ErrorTypes.CANVAS_RENDER, error);
       }
     };
 
