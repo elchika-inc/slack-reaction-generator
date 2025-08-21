@@ -5,6 +5,9 @@ export interface BasicSettings {
   text: string;
   fontSize: number;
   fontFamily: string;
+  fontWeight: 'normal' | 'bold';
+  fontStyle: 'normal' | 'italic';
+  textLineThrough: boolean;
   fontColor: string;
   textColorType: 'solid' | 'gradient';
   gradientColor1: string;
@@ -100,6 +103,9 @@ export const createDefaultSettings = (): StructuredSettings => {
       text: 'いいかも',
       fontSize: 60,
       fontFamily: '"Noto Sans JP", sans-serif',
+      fontWeight: 'bold' as const,
+      fontStyle: 'normal' as const,
+      textLineThrough: false,
       fontColor: getRandomColor(),
       textColorType: 'solid',
       gradientColor1: getRandomColor(),
@@ -147,6 +153,9 @@ export const structureSettings = (flatSettings: Partial<FlatSettings>): Structur
   if (flatSettings.text !== undefined) structured.basic.text = flatSettings.text;
   if (flatSettings.fontSize !== undefined) structured.basic.fontSize = flatSettings.fontSize;
   if (flatSettings.fontFamily !== undefined) structured.basic.fontFamily = flatSettings.fontFamily;
+  if (flatSettings.fontWeight !== undefined) structured.basic.fontWeight = flatSettings.fontWeight;
+  if (flatSettings.fontStyle !== undefined) structured.basic.fontStyle = flatSettings.fontStyle;
+  if (flatSettings.textLineThrough !== undefined) structured.basic.textLineThrough = flatSettings.textLineThrough;
   if (flatSettings.fontColor !== undefined) structured.basic.fontColor = flatSettings.fontColor;
   if (flatSettings.textColorType !== undefined) structured.basic.textColorType = flatSettings.textColorType;
   if (flatSettings.gradientColor1 !== undefined) structured.basic.gradientColor1 = flatSettings.gradientColor1;

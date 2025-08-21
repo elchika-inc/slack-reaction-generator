@@ -191,7 +191,7 @@ const generateAnimatedGIFFallback = async (settings): Promise<string> => {
       });
       
       const frameCount = settings.gifFrames || 30;
-      const requestedDelay = settings.animationSpeed || 33;
+      const requestedDelay = settings.animationSpeed || CANVAS_CONFIG.DEFAULT_ANIMATION_SPEED;
       let validFramesAdded = 0;
       
       for (let i = 0; i < frameCount; i++) {
@@ -207,8 +207,8 @@ const generateAnimatedGIFFallback = async (settings): Promise<string> => {
           const imageData = frameCtx.getImageData(0, 0, canvasSize, canvasSize);
           if (imageData && imageData.data && imageData.data.length > 0) {
             // gif.jsのdelayはミリ秒単位（プレビューと同じ）
-            // プレビューとGIFで同じ速度にする
-            const normalizedDelay = Math.max(20, requestedDelay); // 20ms未満はGIFビューアによりデフォルト速度になるため
+            // プレビューとGIFで同じ速度にする - CANVAS_CONFIG.MIN_ANIMATION_SPEEDを使用
+            const normalizedDelay = Math.max(CANVAS_CONFIG.MIN_ANIMATION_SPEED, requestedDelay);
             
             gif.addFrame(imageData, { 
               copy: true, 

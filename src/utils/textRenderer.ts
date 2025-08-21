@@ -25,16 +25,24 @@ export const renderText = (ctx, settings, canvasSize = CANVAS_CONFIG.SIZE) => {
   ctx.save()
   ctx.translate(canvasSize / 2, canvasSize / 2) // 中心を原点に
   
-  // フォントウェイトの設定
-  let fontWeight = 'bold'
-  if (fontFamily.includes('M PLUS') || fontFamily.includes('M+')) {
-    fontWeight = '900'
-  } else if (isDecorative) {
-    fontWeight = 'normal'  // 装飾的フォントはnormalウェイト
+  // フォントスタイルの設定
+  let fontWeight = settings.fontWeight || 'bold'
+  let fontStyle = settings.fontStyle || 'normal'
+  
+  // フォントファミリーに応じたウェイト調整
+  if (fontWeight === 'bold') {
+    if (fontFamily.includes('M PLUS') || fontFamily.includes('M+')) {
+      fontWeight = '900'
+    } else if (isDecorative) {
+      fontWeight = 'normal'  // 装飾的フォントはnormalウェイト
+    }
   }
   
+  // フォントスタイル文字列の構築
+  const fontStyleStr = fontStyle === 'italic' ? 'italic ' : ''
+  
   // 各行の幅を計測
-  ctx.font = `${fontWeight} ${baseFontSize}px ${fontFamily}`
+  ctx.font = `${fontStyleStr}${fontWeight} ${baseFontSize}px ${fontFamily}`
   const maxLineWidth = Math.max(...lines.map(line => ctx.measureText(line).width))
   
   // テキスト全体の高さを計算（装飾的フォントは行間を広く）
@@ -58,6 +66,21 @@ export const renderText = (ctx, settings, canvasSize = CANVAS_CONFIG.SIZE) => {
     scaleY = Math.min(scaleY, 0.9)
   }
   
+  // スケール適用前の座標情報を保存（装飾用）
+  const linePositions = []
+  const lineMetrics = []
+  
+  // 実際のテキスト高さを計算
+  const lineGap = lineHeight - baseFontSize
+  const actualTextHeight = baseFontSize * lineCount + lineGap * (lineCount - 1)
+  const startY = -(actualTextHeight / 2) + (baseFontSize / 2)
+  
+  lines.forEach((line, index) => {
+    const y = startY + (index * lineHeight)
+    linePositions.push(y)
+    lineMetrics.push(ctx.measureText(line))
+  })
+  
   // 縦横独立でスケールを適用（文字を枠いっぱいに表示）
   ctx.scale(scaleX, scaleY)
   
@@ -80,18 +103,48 @@ export const renderText = (ctx, settings, canvasSize = CANVAS_CONFIG.SIZE) => {
     ctx.fillStyle = settings.fontColor
   }
   
-  ctx.font = `${fontWeight} ${baseFontSize}px ${fontFamily}`
+  // フォント設定にtext-decorationを追加
+  let fontDecoration = ''
+  if (settings.textDecoration === 'underline') {
+    fontDecoration = 'underline'
+  } else if (settings.textDecoration === 'line-through') {
+    fontDecoration = 'line-through'
+  }
+  
+  // Canvas 2D APIにはtext-decorationがないため、手動で装飾線を描画
+  ctx.font = `${fontStyleStr}${fontWeight} ${baseFontSize}px ${fontFamily}`
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
   
-  // 各行を描画（完全に中央に配置）
-  const lineGap = lineHeight - baseFontSize  // 実際の行間
-  const actualTextHeight = baseFontSize * lineCount + lineGap * (lineCount - 1)
-  const startY = -(actualTextHeight / 2) + (baseFontSize / 2)
-  
+  // テキストを描画
   lines.forEach((line, index) => {
-    const y = startY + (index * lineHeight)
+    const y = linePositions[index]
     ctx.fillText(line, 0, y)
+    
+    // 打ち消し線の描画
+    if (settings.textLineThrough) {
+      const metrics = lineMetrics[index]
+      ctx.save()
+      
+      // 打ち消し線の色をテキストと同じにする
+      if (settings.textColorType === 'gradient') {
+        ctx.strokeStyle = ctx.fillStyle
+      } else {
+        ctx.strokeStyle = settings.fontColor
+      }
+      
+      // 線の太さを適切に設定
+      ctx.lineWidth = Math.max(1, baseFontSize * 0.06)
+      
+      // 打ち消し線を描画（テキストの中央）
+      const lineY = y - baseFontSize * 0.05
+      ctx.beginPath()
+      ctx.moveTo(-metrics.width / 2, lineY)
+      ctx.lineTo(metrics.width / 2, lineY)
+      ctx.stroke()
+      
+      ctx.restore()
+    }
   })
   
   ctx.restore()

@@ -211,8 +211,8 @@ export class CanvasManager {
       await pipeline.prepare(settings);
 
       // アニメーション設定
-      const requestedDelay = settings.animationSpeed || 33;
-      const delay = Math.max(30, requestedDelay); // 最小30ms
+      const requestedDelay = settings.animationSpeed || CANVAS_CONFIG.DEFAULT_ANIMATION_SPEED;
+      const delay = Math.max(CANVAS_CONFIG.MIN_ANIMATION_SPEED, requestedDelay);
 
       const animate = (currentTime: number) => {
         if (!canvasInstance.isActive) return;

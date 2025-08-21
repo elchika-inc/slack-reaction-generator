@@ -1,6 +1,7 @@
 // 統一レンダリングエンジン - モバイル・デスクトップ共通
 
 import { drawAnimationFrame, drawTextIcon } from './canvasUtils';
+import { CANVAS_CONFIG } from '../constants/canvasConstants';
 
 export class RenderingEngine {
   constructor() {
@@ -56,8 +57,8 @@ export class RenderingEngine {
     }
 
     // アニメーション描画
-    const requestedDelay = settings.animationSpeed || 33;
-    const delay = requestedDelay < 30 ? 30 : requestedDelay;
+    const requestedDelay = settings.animationSpeed || CANVAS_CONFIG.DEFAULT_ANIMATION_SPEED;
+    const delay = Math.max(CANVAS_CONFIG.MIN_ANIMATION_SPEED, requestedDelay);
 
     const animate = (currentTime) => {
       if (!canvasData.lastTime) canvasData.lastTime = currentTime;

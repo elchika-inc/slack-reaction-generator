@@ -8,6 +8,7 @@ function BasicSettings({ settings, onChange, isMobile }: BasicSettingsProps) {
   const [showGradient1Picker, setShowGradient1Picker] = useState(false)
   const [showGradient2Picker, setShowGradient2Picker] = useState(false)
   const [showBgColorPicker, setShowBgColorPicker] = useState(false)
+  const [showFontStyleAccordion, setShowFontStyleAccordion] = useState(false)
   
   const [pickerPosition, setPickerPosition] = useState({ top: 0, left: 0 })
   const fontColorButtonRef = useRef(null)
@@ -87,6 +88,120 @@ function BasicSettings({ settings, onChange, isMobile }: BasicSettingsProps) {
         </div>
       </fieldset>
 
+      {/* フォント詳細設定アコーディオン */}
+      <div className="border border-gray-200 rounded-lg">
+        <button
+          onClick={() => setShowFontStyleAccordion(!showFontStyleAccordion)}
+          className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-inset rounded-lg transition-colors"
+          aria-expanded={showFontStyleAccordion}
+          aria-controls="font-style-panel"
+        >
+          <span>詳細設定</span>
+          <svg
+            className={`w-5 h-5 text-gray-400 transition-transform ${
+              showFontStyleAccordion ? 'rotate-180' : ''
+            }`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+        
+        {showFontStyleAccordion && (
+          <div id="font-style-panel" className="px-4 pb-4 pt-2 space-y-3">
+            {/* フォントスタイル設定 */}
+            <div className="space-y-3">
+              <label className="block text-sm text-gray-600 mb-2">
+                文字スタイル
+              </label>
+              <div className="grid grid-cols-3 gap-2">
+                <button
+                  onClick={() => onChange({ 
+                    fontWeight: settings.fontWeight === 'bold' ? 'normal' : 'bold' 
+                  })}
+                  className={`px-3 py-2 rounded-lg border text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                    settings.fontWeight === 'bold'
+                      ? 'border-purple-500 bg-purple-50 text-purple-700'
+                      : 'border-gray-300 hover:bg-gray-50'
+                  }`}
+                  aria-pressed={settings.fontWeight === 'bold'}
+                >
+                  <span className="font-bold">太字</span>
+                </button>
+                
+                <button
+                  onClick={() => onChange({ 
+                    fontStyle: settings.fontStyle === 'italic' ? 'normal' : 'italic' 
+                  })}
+                  className={`px-3 py-2 rounded-lg border text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                    settings.fontStyle === 'italic'
+                      ? 'border-purple-500 bg-purple-50 text-purple-700'
+                      : 'border-gray-300 hover:bg-gray-50'
+                  }`}
+                  aria-pressed={settings.fontStyle === 'italic'}
+                >
+                  <span className="italic">斜体</span>
+                </button>
+                
+                <button
+                  onClick={() => onChange({ 
+                    textLineThrough: !settings.textLineThrough 
+                  })}
+                  className={`px-3 py-2 rounded-lg border text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                    settings.textLineThrough
+                      ? 'border-purple-500 bg-purple-50 text-purple-700'
+                      : 'border-gray-300 hover:bg-gray-50'
+                  }`}
+                  aria-pressed={settings.textLineThrough}
+                >
+                  <span className="line-through">打消し</span>
+                </button>
+              </div>
+
+              {/* 文字色タイプ切り替え */}
+              <div>
+                <label className="block text-sm text-gray-600 mb-2">
+                  文字色タイプ
+                </label>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => onChange({ textColorType: 'solid' })}
+                    className={`
+                      flex-1 px-3 py-2 rounded-lg border transition-colors text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-1
+                      ${settings.textColorType === 'solid'
+                        ? 'border-purple-500 bg-purple-50 text-purple-700'
+                        : 'border-gray-300 hover:bg-gray-50 focus:bg-gray-50'
+                      }
+                    `}
+                    role="radio"
+                    aria-checked={settings.textColorType === 'solid'}
+                  >
+                    単色
+                  </button>
+                  <button
+                    onClick={() => onChange({ textColorType: 'gradient' })}
+                    className={`
+                      flex-1 px-3 py-2 rounded-lg border transition-colors text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-1
+                      ${settings.textColorType === 'gradient'
+                        ? 'border-purple-500 bg-purple-50 text-purple-700'
+                        : 'border-gray-300 hover:bg-gray-50 focus:bg-gray-50'
+                      }
+                    `}
+                    role="radio"
+                    aria-checked={settings.textColorType === 'gradient'}
+                  >
+                    グラデーション
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* カラー設定 */}
       <div className="space-y-4">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -95,166 +210,149 @@ function BasicSettings({ settings, onChange, isMobile }: BasicSettingsProps) {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               文字色
             </label>
-          
-          {/* 単色/グラデーション切り替え */}
-          <fieldset className={`flex ${isMobile ? 'gap-1' : 'gap-2'} mb-2`} role="radiogroup" aria-label="文字色タイプ選択">
-            <legend className="sr-only">単色またはグラデーション</legend>
-            <button
-              onClick={() => onChange({ textColorType: 'solid' })}
-              className={`
-                flex-1 px-3 py-2 rounded-lg border transition-colors text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-1
-                ${settings.textColorType === 'solid'
-                  ? 'border-purple-500 bg-purple-50 text-purple-700'
-                  : 'border-gray-300 hover:bg-gray-50 focus:bg-gray-50'
-                }
-              `}
-              role="radio"
-              aria-checked={settings.textColorType === 'solid'}
-            >
-              単色
-            </button>
-            <button
-              onClick={() => onChange({ textColorType: 'gradient' })}
-              className={`
-                flex-1 px-3 py-2 rounded-lg border transition-colors text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-1
-                ${settings.textColorType === 'gradient'
-                  ? 'border-purple-500 bg-purple-50 text-purple-700'
-                  : 'border-gray-300 hover:bg-gray-50 focus:bg-gray-50'
-                }
-              `}
-              role="radio"
-              aria-checked={settings.textColorType === 'gradient'}
-            >
-              グラデーション
-            </button>
-          </fieldset>
-          
-          {/* 単色選択 */}
-          {settings.textColorType === 'solid' && (
-            <div className="relative">
-              <button
-                ref={fontColorButtonRef}
-                onClick={() => setShowFontColorPicker(!showFontColorPicker)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg flex items-center justify-center active:bg-gray-50 text-sm"
-                aria-expanded={showFontColorPicker}
-                aria-haspopup="dialog"
-                aria-label={`文字色を選択: ${settings.fontColor}`}
-              >
-                <span className="flex items-center">
-                  <span
-                    className="w-4 h-4 rounded mr-2 border border-gray-300"
-                    style={{ backgroundColor: settings.fontColor }}
-                    aria-hidden="true"
-                  />
-                  {settings.fontColor}
-                </span>
-              </button>
-              {showFontColorPicker && (
-                <Suspense fallback={<div className="p-3 bg-gray-100 rounded" />}>
-                  <ColorPickerPortal
-                    color={settings.fontColor}
-                    onChange={(color) => onChange({ fontColor: color })}
-                    onClose={() => setShowFontColorPicker(false)}
-                    anchorEl={fontColorButtonRef.current}
-                  />
-                </Suspense>
-              )}
-            </div>
-          )}
-          
-          {/* グラデーション設定 */}
-          {settings.textColorType === 'gradient' && (
-            <div className="space-y-2 mt-2">
-              {/* グラデーション方向 */}
-              <fieldset className="flex gap-2" role="radiogroup" aria-label="グラデーション方向選択">
-                <legend className="sr-only">グラデーション方向</legend>
-                <button
-                  onClick={() => onChange({ gradientDirection: 'vertical' })}
-                  className={`
-                    flex-1 px-3 py-2 rounded-lg border transition-colors text-xs
-                    ${settings.gradientDirection === 'vertical'
-                      ? 'border-purple-500 bg-purple-50 text-purple-700'
-                      : 'border-gray-300 hover:bg-gray-50'
-                    }
-                  `}
-                  role="radio"
-                  aria-checked={settings.gradientDirection === 'vertical'}
-                  aria-label="縦方向のグラデーション"
-                >
-                  ↕ 上下
-                </button>
-                <button
-                  onClick={() => onChange({ gradientDirection: 'horizontal' })}
-                  className={`
-                    flex-1 px-3 py-2 rounded-lg border transition-colors text-xs
-                    ${settings.gradientDirection === 'horizontal'
-                      ? 'border-purple-500 bg-purple-50 text-purple-700'
-                      : 'border-gray-300 hover:bg-gray-50'
-                    }
-                  `}
-                  role="radio"
-                  aria-checked={settings.gradientDirection === 'horizontal'}
-                  aria-label="横方向のグラデーション"
-                >
-                  ↔ 左右
-                </button>
-              </fieldset>
-              
-              {/* グラデーション色1 */}
+            
+
+            {/* 単色設定 */}
+            {settings.textColorType === 'solid' && (
               <div className="relative">
                 <button
-                  ref={gradient1ButtonRef}
-                  onClick={() => setShowGradient1Picker(!showGradient1Picker)}
+                  ref={fontColorButtonRef}
+                  onClick={() => setShowFontColorPicker(!showFontColorPicker)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg flex items-center justify-center active:bg-gray-50 text-sm"
+                  aria-expanded={showFontColorPicker}
+                  aria-haspopup="dialog"
+                  aria-label={`文字色を選択: ${settings.fontColor === 'transparent' ? '透明' : settings.fontColor}`}
                 >
                   <span className="flex items-center">
                     <span
                       className="w-4 h-4 rounded mr-2 border border-gray-300"
-                      style={{ backgroundColor: settings.gradientColor1 }}
+                      style={settings.fontColor === 'transparent' ? { 
+                        background: 'linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)',
+                        backgroundSize: '8px 8px',
+                        backgroundPosition: '0 0, 0 4px, 4px -4px, -4px 0px'
+                      } : { backgroundColor: settings.fontColor }}
+                      aria-hidden="true"
                     />
-                    {settings.gradientColor1}
+                    {settings.fontColor === 'transparent' ? '透明' : settings.fontColor}
                   </span>
                 </button>
-                {showGradient1Picker && (
+                {showFontColorPicker && (
                   <Suspense fallback={<div className="p-3 bg-gray-100 rounded" />}>
                     <ColorPickerPortal
-                      color={settings.gradientColor1}
-                      onChange={(color) => onChange({ gradientColor1: color })}
-                      onClose={() => setShowGradient1Picker(false)}
-                      anchorEl={gradient1ButtonRef.current}
+                      color={settings.fontColor}
+                      onChange={(color) => onChange({ fontColor: color })}
+                      onClose={() => setShowFontColorPicker(false)}
+                      anchorEl={fontColorButtonRef.current}
+                      allowTransparent={true}
                     />
                   </Suspense>
                 )}
               </div>
-              
-              {/* グラデーション色2 */}
-              <div className="relative">
-                <button
-                  ref={gradient2ButtonRef}
-                  onClick={() => setShowGradient2Picker(!showGradient2Picker)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg flex items-center justify-center active:bg-gray-50 text-sm"
-                >
-                  <span className="flex items-center">
-                    <span
-                      className="w-4 h-4 rounded mr-2 border border-gray-300"
-                      style={{ backgroundColor: settings.gradientColor2 }}
-                    />
-                    {settings.gradientColor2}
-                  </span>
-                </button>
-                {showGradient2Picker && (
-                  <Suspense fallback={<div className="p-3 bg-gray-100 rounded" />}>
-                    <ColorPickerPortal
-                      color={settings.gradientColor2}
-                      onChange={(color) => onChange({ gradientColor2: color })}
-                      onClose={() => setShowGradient2Picker(false)}
-                      anchorEl={gradient2ButtonRef.current}
-                    />
-                  </Suspense>
-                )}
+            )}
+
+            {/* グラデーション設定 */}
+            {settings.textColorType === 'gradient' && (
+              <div className="space-y-3">
+                {/* グラデーション方向 */}
+                <fieldset className="flex gap-2" role="radiogroup" aria-label="グラデーション方向選択">
+                  <legend className="sr-only">グラデーション方向</legend>
+                  <button
+                    onClick={() => onChange({ gradientDirection: 'vertical' })}
+                    className={`
+                      flex-1 px-3 py-2 rounded-lg border transition-colors text-xs
+                      ${settings.gradientDirection === 'vertical'
+                        ? 'border-purple-500 bg-purple-50 text-purple-700'
+                        : 'border-gray-300 hover:bg-gray-50'
+                      }
+                    `}
+                    role="radio"
+                    aria-checked={settings.gradientDirection === 'vertical'}
+                    aria-label="縦方向のグラデーション"
+                  >
+                    ↕ 上下
+                  </button>
+                  <button
+                    onClick={() => onChange({ gradientDirection: 'horizontal' })}
+                    className={`
+                      flex-1 px-3 py-2 rounded-lg border transition-colors text-xs
+                      ${settings.gradientDirection === 'horizontal'
+                        ? 'border-purple-500 bg-purple-50 text-purple-700'
+                        : 'border-gray-300 hover:bg-gray-50'
+                      }
+                    `}
+                    role="radio"
+                    aria-checked={settings.gradientDirection === 'horizontal'}
+                    aria-label="横方向のグラデーション"
+                  >
+                    ↔ 左右
+                  </button>
+                </fieldset>
+                
+                {/* グラデーション色1 */}
+                <div className="relative">
+                  <button
+                    ref={gradient1ButtonRef}
+                    onClick={() => setShowGradient1Picker(!showGradient1Picker)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg flex items-center justify-center active:bg-gray-50 text-sm"
+                  >
+                    <span className="flex items-center">
+                      <span
+                        className="w-4 h-4 rounded mr-2 border border-gray-300"
+                        style={settings.gradientColor1 === 'transparent' ? { 
+                          background: 'linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)',
+                          backgroundSize: '8px 8px',
+                          backgroundPosition: '0 0, 0 4px, 4px -4px, -4px 0px'
+                        } : { backgroundColor: settings.gradientColor1 }}
+                      />
+                      {settings.gradientColor1 === 'transparent' ? '透明' : settings.gradientColor1}
+                    </span>
+                  </button>
+                  {showGradient1Picker && (
+                    <Suspense fallback={<div className="p-3 bg-gray-100 rounded" />}>
+                      <ColorPickerPortal
+                        color={settings.gradientColor1}
+                        onChange={(color) => onChange({ gradientColor1: color })}
+                        onClose={() => setShowGradient1Picker(false)}
+                        anchorEl={gradient1ButtonRef.current}
+                        allowTransparent={true}
+                      />
+                    </Suspense>
+                  )}
+                </div>
+                
+                {/* グラデーション色2 */}
+                <div className="relative">
+                  <button
+                    ref={gradient2ButtonRef}
+                    onClick={() => setShowGradient2Picker(!showGradient2Picker)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg flex items-center justify-center active:bg-gray-50 text-sm"
+                  >
+                    <span className="flex items-center">
+                      <span
+                        className="w-4 h-4 rounded mr-2 border border-gray-300"
+                        style={settings.gradientColor2 === 'transparent' ? { 
+                          background: 'linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)',
+                          backgroundSize: '8px 8px',
+                          backgroundPosition: '0 0, 0 4px, 4px -4px, -4px 0px'
+                        } : { backgroundColor: settings.gradientColor2 }}
+                      />
+                      {settings.gradientColor2 === 'transparent' ? '透明' : settings.gradientColor2}
+                    </span>
+                  </button>
+                  {showGradient2Picker && (
+                    <Suspense fallback={<div className="p-3 bg-gray-100 rounded" />}>
+                      <ColorPickerPortal
+                        color={settings.gradientColor2}
+                        onChange={(color) => onChange({ gradientColor2: color })}
+                        onClose={() => setShowGradient2Picker(false)}
+                        anchorEl={gradient2ButtonRef.current}
+                        allowTransparent={true}
+                      />
+                    </Suspense>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            )}
           </div>
 
           {/* 背景設定 */}
@@ -263,65 +361,45 @@ function BasicSettings({ settings, onChange, isMobile }: BasicSettingsProps) {
               背景
             </label>
             
-            {/* アニメーションがない場合のみ透明/色選択を表示 */}
+            {/* アニメーションがない場合のみ背景色選択を表示 */}
             {settings.animation === 'none' && (
-              <fieldset className={isMobile ? "flex gap-2" : "flex flex-col space-y-2"} role="radiogroup" aria-label="背景タイプ選択">
-                <legend className="sr-only">透明背景または色背景</legend>
+              <div className="relative">
                 <button
-                  onClick={() => onChange({ backgroundType: 'transparent' })}
-                  className={`
-                    ${isMobile ? 'flex-1' : ''} px-3 py-2 rounded-lg border transition-colors text-sm
-                    ${
-                      settings.backgroundType === 'transparent'
-                        ? 'border-purple-500 bg-purple-50 text-purple-700'
-                        : 'border-gray-300 hover:bg-gray-50'
-                    }
-                  `}
-                  role="radio"
-                  aria-checked={settings.backgroundType === 'transparent'}
+                  ref={bgColorButtonRef}
+                  onClick={() => setShowBgColorPicker(!showBgColorPicker)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg flex items-center justify-center active:bg-gray-50 text-sm"
+                  aria-label={`背景色: ${settings.backgroundColor === 'transparent' ? '透明' : settings.backgroundColor || '#FFFFFF'}`}
                 >
-                  透明
-                </button>
-                <div className={`relative ${isMobile ? 'flex-1' : ''}`}>
-                  <button
-                    ref={bgColorButtonRef}
-                    onClick={() => {
-                      onChange({ backgroundType: 'color' })
-                      setShowBgColorPicker(true)
-                    }}
-                    className={`
-                      w-full px-3 py-2 rounded-lg border transition-colors flex items-center justify-center text-sm
-                      ${
-                        settings.backgroundType === 'color'
-                          ? 'border-purple-500 bg-purple-50'
-                          : 'border-gray-300 hover:bg-gray-50'
-                      }
-                    `}
-                    role="radio"
-                    aria-checked={settings.backgroundType === 'color'}
-                    aria-label={`背景色: ${settings.backgroundColor || '#FFFFFF'}`}
-                  >
+                  <span className="flex items-center">
                     <span
                       className="w-4 h-4 rounded mr-2 border border-gray-400"
-                      style={{ backgroundColor: settings.backgroundColor || '#FFFFFF' }}
+                      style={settings.backgroundColor === 'transparent' ? { 
+                        background: 'linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)',
+                        backgroundSize: '8px 8px',
+                        backgroundPosition: '0 0, 0 4px, 4px -4px, -4px 0px'
+                      } : { backgroundColor: settings.backgroundColor || '#FFFFFF' }}
                       aria-hidden="true"
                     />
-                    <span className={settings.backgroundType === 'color' ? 'text-purple-700' : ''}>
-                      {settings.backgroundColor || '#FFFFFF'}
-                    </span>
-                  </button>
-                  {showBgColorPicker && settings.backgroundType === 'color' && (
-                    <Suspense fallback={<div className="p-3 bg-gray-100 rounded" />}>
-                      <ColorPickerPortal
-                        color={settings.backgroundColor || '#FFFFFF'}
-                        onChange={(color) => onChange({ backgroundColor: color })}
-                        onClose={() => setShowBgColorPicker(false)}
-                        anchorEl={bgColorButtonRef.current}
-                      />
-                    </Suspense>
-                  )}
-                </div>
-              </fieldset>
+                    {settings.backgroundColor === 'transparent' ? '透明' : settings.backgroundColor || '#FFFFFF'}
+                  </span>
+                </button>
+                {showBgColorPicker && (
+                  <Suspense fallback={<div className="p-3 bg-gray-100 rounded" />}>
+                    <ColorPickerPortal
+                      color={settings.backgroundColor || '#FFFFFF'}
+                      onChange={(color) => {
+                        onChange({ 
+                          backgroundColor: color,
+                          backgroundType: color === 'transparent' ? 'transparent' : 'color'
+                        })
+                      }}
+                      onClose={() => setShowBgColorPicker(false)}
+                      anchorEl={bgColorButtonRef.current}
+                      allowTransparent={true}
+                    />
+                  </Suspense>
+                )}
+              </div>
             )}
           
             {/* アニメーション時のみ背景色選択 */}

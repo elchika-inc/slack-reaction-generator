@@ -4,7 +4,7 @@ import { createPortal } from 'react-dom'
 // react-colorを動的インポート
 let SketchPicker = null
 
-function ColorPickerPortal({ color, onChange, onClose, anchorEl }) {
+function ColorPickerPortal({ color, onChange, onClose, anchorEl, allowTransparent = false }) {
   const [isLoaded, setIsLoaded] = useState(false)
   const [position, setPosition] = useState({ top: 0, left: 0 })
   const PickerComponent = useRef(null)
@@ -54,7 +54,21 @@ function ColorPickerPortal({ color, onChange, onClose, anchorEl }) {
   }, [anchorEl])
 
   const handleChange = (newColor) => {
-    onChange(newColor.hex)
+    if (allowTransparent && newColor.rgb.a !== undefined) {
+      // アルファ値が0の場合は'transparent'として扱う
+      if (newColor.rgb.a === 0) {
+        onChange('transparent')
+      } else {
+        onChange(newColor.hex)
+      }
+    } else {
+      onChange(newColor.hex)
+    }
+  }
+
+  const handleTransparentClick = () => {
+    onChange('transparent')
+    onClose()
   }
 
   // ピッカーがまだロードされていない場合はローディング表示
@@ -85,14 +99,36 @@ function ColorPickerPortal({ color, onChange, onClose, anchorEl }) {
         onClick={onClose}
       />
       <div 
-        className="absolute z-[1001] bg-white rounded-lg shadow-xl"
-        style={{ top: position.top, left: position.left }}
+        className="absolute z-[1001] bg-white rounded-lg overflow-hidden"
+        style={{ 
+          top: position.top, 
+          left: position.left,
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05)'
+        }}
       >
         <Picker
-          color={color}
+          color={color === 'transparent' ? '#FFFFFF' : color}
           onChangeComplete={handleChange}
-          disableAlpha
+          disableAlpha={!allowTransparent}
         />
+        {allowTransparent && (
+          <div className="p-3 border-t border-gray-200">
+            <button
+              onClick={handleTransparentClick}
+              className="w-full px-3 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm flex items-center justify-center"
+            >
+              <span 
+                className="w-4 h-4 rounded mr-2 border border-gray-400"
+                style={{ 
+                  background: 'linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)',
+                  backgroundSize: '8px 8px',
+                  backgroundPosition: '0 0, 0 4px, 4px -4px, -4px 0px'
+                }}
+              />
+              透明
+            </button>
+          </div>
+        )}
       </div>
     </>,
     document.body
