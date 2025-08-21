@@ -21,6 +21,6 @@ export const createPreviewCanvas = (size) => {
 };
 
 export const createAnimationCanvas = (settings) => {
-  const size = settings.canvasSize || 128;
+  const size = (settings && settings.canvasSize) || 128;
   return createCanvas(size, size);
 };

@@ -179,6 +179,10 @@ describe('useFileGeneration', () => {
       const error = new Error('Generation failed');
       generateIconData.mockRejectedValue(error);
       
+      // コンソール出力を一時的に抑制
+      const consoleTracespy = vi.spyOn(console, 'trace').mockImplementation(() => {});
+      const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+      
       const { result } = renderHook(() => useFileGeneration());
 
       // Act & Assert - エラーをキャッチする
@@ -191,6 +195,8 @@ describe('useFileGeneration', () => {
       });
 
       expect(generateIconData).toHaveBeenCalledWith(settings);
+      consoleTracespy.mockRestore();
+      consoleLogSpy.mockRestore();
     });
 
     it('ダウンロード時のfetchエラーをハンドリング', async () => {
@@ -204,6 +210,10 @@ describe('useFileGeneration', () => {
       generateIconData.mockResolvedValue(expectedData);
       global.fetch.mockRejectedValue(fetchError);
       
+      // コンソール出力を一時的に抑制
+      const consoleTracespy = vi.spyOn(console, 'trace').mockImplementation(() => {});
+      const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+      
       const { result } = renderHook(() => useFileGeneration());
 
       // Act - エラーが発生してもクラッシュしない
@@ -216,6 +226,8 @@ describe('useFileGeneration', () => {
       expect(result.current.previewData).toBe(expectedData);
       expect(global.fetch).toHaveBeenCalledWith(expectedData);
       expect(mockSaveAs).not.toHaveBeenCalled(); // エラー時はsaveAsが呼ばれない
+      consoleTracespy.mockRestore();
+      consoleLogSpy.mockRestore();
     });
 
     it('ダウンロード時のblobエラーをハンドリング', async () => {
@@ -228,6 +240,10 @@ describe('useFileGeneration', () => {
       const blobError = new Error('Blob failed');
       generateIconData.mockResolvedValue(expectedData);
       mockResponse.blob.mockRejectedValue(blobError);
+      
+      // コンソール出力を一時的に抑制
+      const consoleTracespy = vi.spyOn(console, 'trace').mockImplementation(() => {});
+      const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
       
       const { result } = renderHook(() => useFileGeneration());
 
@@ -242,6 +258,8 @@ describe('useFileGeneration', () => {
       expect(global.fetch).toHaveBeenCalledWith(expectedData);
       expect(mockResponse.blob).toHaveBeenCalled();
       expect(mockSaveAs).not.toHaveBeenCalled(); // エラー時はsaveAsが呼ばれない
+      consoleTracespy.mockRestore();
+      consoleLogSpy.mockRestore();
     });
   });
 

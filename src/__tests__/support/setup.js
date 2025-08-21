@@ -25,8 +25,15 @@ if (typeof window !== 'undefined') {
   window.location = window.location || {};
 }
 
+// Console API のモック（Node.js環境で不足している場合）
+// eslint-disable-next-line no-console
+if (!console.trace) {
+  // eslint-disable-next-line no-console
+  console.trace = () => {};
+}
+
 // Canvas API の基本的なモック
-const mockCanvas = document.createElement('canvas');
+// const mockCanvas = document.createElement('canvas');
 const mockContext = {
   fillRect: vi.fn(),
   clearRect: vi.fn(),
@@ -61,6 +68,25 @@ const mockContext = {
 global.HTMLCanvasElement.prototype.getContext = vi.fn(() => mockContext);
 global.HTMLCanvasElement.prototype.toDataURL = vi.fn(() => 'data:image/png;base64,test');
 
+// Console APIの拡張モック
+Object.defineProperty(global.console, 'group', {
+  value: vi.fn(),
+  writable: true,
+  configurable: true
+});
+
+Object.defineProperty(global.console, 'groupCollapsed', {
+  value: vi.fn(),
+  writable: true,
+  configurable: true
+});
+
+Object.defineProperty(global.console, 'groupEnd', {
+  value: vi.fn(),
+  writable: true,
+  configurable: true
+});
+
 // IntersectionObserver のモック
 global.IntersectionObserver = vi.fn(() => ({
   observe: vi.fn(),
@@ -69,7 +95,7 @@ global.IntersectionObserver = vi.fn(() => ({
 }));
 
 // requestAnimationFrame のモック
-let animationId = 0;
+// let animationId = 0;
 global.requestAnimationFrame = vi.fn((callback) => {
   return setTimeout(() => callback(Date.now()), 16);
 });

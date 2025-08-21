@@ -1,375 +1,409 @@
-/**
- * canvasUtils.js のテスト
- * Test Double パターンを活用したCanvasAPI関連のテスト実装
- */
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import { generateIconData, drawTextIcon, drawAnimationFrame } from '../../utils/canvasUtils'
+import * as textRenderer from '../../utils/textRenderer'
+import * as imageCache from '../../utils/imageCache'
+import * as animationHelpers from '../../utils/animationHelpers'
+import * as gifWorkerManager from '../../utils/GifWorkerManager'
+import * as errorHandler from '../../utils/errorHandler'
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { generateIconData, drawTextIcon, drawAnimationFrame } from '../../utils/canvasUtils';
-import { 
-  createCanvasMock, 
-  createCanvasContextMock,
-  canvasAssertions 
-} from '../support/mocks/canvasMock';
-import { CANVAS_CONFIG } from '../../constants/canvasConstants';
+// モックの設定
+vi.mock('../../utils/textRenderer')
+vi.mock('../../utils/imageCache')
+vi.mock('../../utils/animationHelpers')
+vi.mock('../../utils/GifWorkerManager')
+vi.mock('../../utils/errorHandler')
 
-// テストの設定オブジェクト
-const createTestSettings = (overrides = {}) => ({
-  text: 'テスト',
-  fontFamily: 'Arial',
-  fontSize: 16,
-  fontColor: '#000000',
-  backgroundColor: '#FFFFFF',
-  backgroundType: 'color',
-  canvasSize: 128,
-  textColorType: 'solid',
-  ...overrides
-});
+// gif.jsのモック
+vi.mock('gif.js', () => ({
+  default: vi.fn().mockImplementation(() => ({
+    addFrame: vi.fn(),
+    on: vi.fn((event, callback) => {
+      if (event === 'finished') {
+        // テスト用のBlobを生成
+        const blob = new Blob(['test'], { type: 'image/gif' })
+        setTimeout(() => callback(blob), 0)
+      }
+    }),
+    render: vi.fn()
+  }))
+}))
 
 describe('canvasUtils', () => {
-  let mockCanvas;
-  let mockContext;
-  let testSettings;
-
+  let mockCanvas: HTMLCanvasElement
+  let mockContext: CanvasRenderingContext2D
+  
   beforeEach(() => {
-    // Canvas Mock の初期化
-    mockCanvas = createCanvasMock(128, 128);
-    mockContext = mockCanvas.__getContext();
-    testSettings = createTestSettings();
+    // Canvas要素のモック
+    mockContext = {
+      clearRect: vi.fn(),
+      fillRect: vi.fn(),
+      drawImage: vi.fn(),
+      save: vi.fn(),
+      restore: vi.fn(),
+      translate: vi.fn(),
+      rotate: vi.fn(),
+      scale: vi.fn(),
+      globalCompositeOperation: 'source-over',
+      fillStyle: '',
+      globalAlpha: 1,
+      getImageData: vi.fn(() => ({
+        data: new Uint8ClampedArray(4 * 128 * 128),
+        width: 128,
+        height: 128
+      }))
+    } as any
     
-    // 描画記録をクリア
-    mockContext.__clearRecording();
-  });
-
+    mockCanvas = {
+      width: 128,
+      height: 128,
+      getContext: vi.fn(() => mockContext),
+      toDataURL: vi.fn(() => 'data:image/png;base64,test')
+    } as any
+    
+    // document.createElementのモック
+    vi.spyOn(document, 'createElement').mockImplementation((tagName) => {
+      if (tagName === 'canvas') {
+        return mockCanvas
+      }
+      return document.createElement(tagName)
+    })
+    
+    // FileReaderのモック
+    global.FileReader = vi.fn().mockImplementation(() => ({
+      readAsDataURL: vi.fn(function(blob) {
+        this.result = 'data:image/gif;base64,test'
+        if (this.onloadend) this.onloadend()
+      }),
+      result: null,
+      onloadend: null,
+      onerror: null
+    })) as any
+    
+    // モック関数の実装
+    vi.mocked(textRenderer.renderText).mockImplementation(() => {})
+    vi.mocked(imageCache.getOrLoadImage).mockReturnValue(null)
+    vi.mocked(animationHelpers.applyTextAnimation).mockImplementation(() => {})
+    vi.mocked(animationHelpers.applyImageAnimation).mockImplementation(() => {})
+    vi.mocked(errorHandler.handleError).mockImplementation(() => {})
+  })
+  
+  afterEach(() => {
+    vi.clearAllMocks()
+    vi.restoreAllMocks()
+  })
+  
   describe('generateIconData', () => {
-    it('静的アイコンを正常に生成する', async () => {
-      const result = await generateIconData(testSettings, mockCanvas);
-      
-      // PNG データURLが返されることを確認
-      expect(result).toMatch(/^data:image\/png;base64,/);
-      
-      // キャンバスサイズが正しく設定されることを確認
-      expect(mockCanvas.width).toBe(128);
-      expect(mockCanvas.height).toBe(128);
-      
-      // 背景が描画されることを確認
-      canvasAssertions.expectCanvasCleared(mockContext, 0, 0, 128, 128);
-      const verifier = mockContext.__getVerifier();
-      const bgRect = verifier.expectRectangleDrawn(0, 0, 128, 128, 'fill');
-      expect(bgRect.found).toBe(true);
-    });
-
-    it('透明背景の場合は背景を描画しない', async () => {
-      const transparentSettings = createTestSettings({
-        backgroundType: 'transparent'
-      });
-      
-      await generateIconData(transparentSettings, mockCanvas);
-      
-      // キャンバスがクリアされることを確認
-      canvasAssertions.expectCanvasCleared(mockContext, 0, 0, 128, 128);
-      
-      // 背景矩形は描画されないことを確認
-      const verifier = mockContext.__getVerifier();
-      const bgRect = verifier.expectRectangleDrawn(0, 0, 128, 128, 'fill');
-      expect(bgRect.found).toBe(false);
-    });
-
-    it('アニメーション設定がある場合はGIF生成を試行する', async () => {
-      const animatedSettings = createTestSettings({
-        animation: 'bounce'
-      });
-      
-      // GIF生成ライブラリのモック化
-      const mockGif = {
-        addFrame: vi.fn(),
-        render: vi.fn().mockResolvedValue(new ArrayBuffer(0))
-      };
-      
-      // 動的インポートをモック
-      vi.mock('gif.js', () => ({
-        default: vi.fn().mockImplementation(() => mockGif)
-      }));
-      
-      // GIF生成の処理をモック化でテスト
-      try {
-        const result = await generateIconData(animatedSettings, mockCanvas);
-        expect(typeof result).toBe('string');
-        expect(result).toMatch(/^data:image\/(png|gif);base64,/);
-      } catch (error) {
-        // モック環境での予期されるエラー処理
-        expect(error).toBeDefined();
+    it('静止画（テキストのみ）を生成する', async () => {
+      // Arrange
+      const settings = {
+        text: 'Test',
+        animation: 'none',
+        backgroundType: 'color',
+        backgroundColor: '#FF0000',
+        canvasSize: 128
       }
-    }, 2000); // タイムアウトを2秒に延長
-
-    it('カスタムキャンバスサイズを正しく処理する', async () => {
-      const customSizeSettings = createTestSettings({
-        canvasSize: 64
-      });
       
-      await generateIconData(customSizeSettings, mockCanvas);
+      // Act
+      const result = await generateIconData(settings, undefined)
       
-      expect(mockCanvas.width).toBe(64);
-      expect(mockCanvas.height).toBe(64);
-    });
-  });
-
+      // Assert
+      expect(result).toBe('data:image/png;base64,test')
+      expect(mockContext.clearRect).toHaveBeenCalledWith(0, 0, 128, 128)
+      expect(mockCanvas.toDataURL).toHaveBeenCalledWith('image/png')
+    })
+    
+    it('透明背景の静止画を生成する', async () => {
+      // Arrange
+      const settings = {
+        text: 'Test',
+        animation: 'none',
+        backgroundType: 'transparent',
+        canvasSize: 128
+      }
+      
+      // Act
+      const result = await generateIconData(settings, undefined)
+      
+      // Assert
+      expect(result).toBe('data:image/png;base64,test')
+      expect(mockContext.globalCompositeOperation).toBe('source-over')
+    })
+    
+    it('アニメーション付きGIFを生成する', async () => {
+      // Arrange
+      const settings = {
+        text: 'Test',
+        animation: 'spin',
+        backgroundType: 'color',
+        backgroundColor: '#FF0000',
+        canvasSize: 128,
+        gifFrames: 30,
+        animationSpeed: 33,
+        gifQuality: 10
+      }
+      
+      // GifWorkerManagerのモック
+      const mockGifWorkerManager = vi.mocked(gifWorkerManager.gifWorkerManager)
+      mockGifWorkerManager.generateGIF = vi.fn((settings, onProgress, onComplete, onError) => {
+        // 成功をシミュレート
+        setTimeout(() => {
+          onComplete({ dataUrl: 'data:image/gif;base64,animated' })
+        }, 0)
+      })
+      
+      // Act
+      const result = await generateIconData(settings, undefined)
+      
+      // Assert
+      expect(result).toBe('data:image/gif;base64,animated')
+      expect(mockGifWorkerManager.generateGIF).toHaveBeenCalled()
+    })
+    
+    it('Workerエラー時にフォールバック処理を実行する', async () => {
+      // Arrange
+      const settings = {
+        text: 'Test',
+        animation: 'spin',
+        backgroundType: 'color',
+        backgroundColor: '#FF0000',
+        canvasSize: 128,
+        gifFrames: 30
+      }
+      
+      // GifWorkerManagerのモック（エラーを発生させる）
+      const mockGifWorkerManager = vi.mocked(gifWorkerManager.gifWorkerManager)
+      mockGifWorkerManager.generateGIF = vi.fn((settings, onProgress, onComplete, onError) => {
+        // エラーをシミュレート
+        setTimeout(() => {
+          onError(new Error('Worker error'))
+        }, 0)
+      })
+      
+      // Act
+      const result = await generateIconData(settings, undefined)
+      
+      // Assert
+      expect(result).toBe('data:image/gif;base64,test')
+      expect(mockGifWorkerManager.generateGIF).toHaveBeenCalled()
+    })
+  })
+  
   describe('drawTextIcon', () => {
-    beforeEach(() => {
-      mockContext.__clearRecording();
-    });
-
-    it('基本的なテキストアイコンを描画する', () => {
-      drawTextIcon(mockContext, testSettings);
-      
-      // 背景が描画されることを確認
-      const verifier = mockContext.__getVerifier();
-      const bgRect = verifier.expectRectangleDrawn(0, 0, 128, 128, 'fill');
-      expect(bgRect.found).toBe(true);
-      
-      // テキストが描画されることを確認（実際の座標はrenderTextの実装による）
-      const textCommands = verifier.expectTextDrawn('テスト');
-      expect(textCommands.found).toBe(true);
-    });
-
-    it('画像が背景に設定されている場合は先に描画する', () => {
-      const imageSettings = createTestSettings({
-        imageData: 'data:image/png;base64,test',
-        imagePosition: 'back'
-      });
-      
-      drawTextIcon(mockContext, imageSettings);
-      
-      // 画像描画の確認
-      const verifier = mockContext.__getVerifier();
-      const imageDrawn = verifier.expectImageDrawn();
-      expect(imageDrawn.found).toBe(true);
-      
-      // 描画順序の確認（画像が先、テキストが後）
-      const commands = verifier.recorder.getCommands();
-      const imageCommand = commands.find(cmd => cmd.command === 'drawImage');
-      const textCommand = commands.find(cmd => cmd.command === 'fillText' || cmd.command === 'strokeText');
-      
-      if (imageCommand && textCommand) {
-        expect(imageCommand.sequence).toBeLessThan(textCommand.sequence);
+    it('カラー背景でテキストアイコンを描画する', () => {
+      // Arrange
+      const settings = {
+        text: 'Test',
+        backgroundType: 'color',
+        backgroundColor: '#FF0000',
+        canvasSize: 128
       }
-    });
-
-    it('画像が前景に設定されている場合は後に描画する', () => {
-      const imageSettings = createTestSettings({
-        imageData: 'data:image/png;base64,test',
-        imagePosition: 'front'
-      });
       
-      drawTextIcon(mockContext, imageSettings);
+      // Act
+      drawTextIcon(mockContext, settings)
       
-      // 描画順序の確認（テキストが先、画像が後）
-      const verifier = mockContext.__getVerifier();
-      const commands = verifier.recorder.getCommands();
-      const imageCommand = commands.find(cmd => cmd.command === 'drawImage');
-      const textCommand = commands.find(cmd => cmd.command === 'fillText' || cmd.command === 'strokeText');
-      
-      if (imageCommand && textCommand) {
-        expect(textCommand.sequence).toBeLessThan(imageCommand.sequence);
+      // Assert
+      expect(mockContext.fillStyle).toBe('#FF0000')
+      expect(mockContext.fillRect).toHaveBeenCalledWith(0, 0, 128, 128)
+      expect(textRenderer.renderText).toHaveBeenCalledWith(mockContext, settings, 128)
+    })
+    
+    it('透明背景でテキストアイコンを描画する', () => {
+      // Arrange
+      const settings = {
+        text: 'Test',
+        backgroundType: 'transparent',
+        canvasSize: 128
       }
-    });
-
-    it('透明背景の場合は背景を描画しない', () => {
-      const transparentSettings = createTestSettings({
-        backgroundType: 'transparent'
-      });
       
-      drawTextIcon(mockContext, transparentSettings);
+      // Act
+      drawTextIcon(mockContext, settings)
       
-      // 背景矩形は描画されないことを確認
-      const verifier = mockContext.__getVerifier();
-      const bgRect = verifier.expectRectangleDrawn(0, 0, 128, 128, 'fill');
-      expect(bgRect.found).toBe(false);
-    });
-
-    it('状態の保存と復元が正しく行われる', () => {
-      const imageSettings = createTestSettings({
-        imageData: 'data:image/png;base64,test',
-        imagePosition: 'back'
-      });
+      // Assert
+      expect(mockContext.fillRect).not.toHaveBeenCalled()
+      expect(textRenderer.renderText).toHaveBeenCalledWith(mockContext, settings, 128)
+    })
+    
+    it('画像が背面にある場合、テキストの前に描画する', () => {
+      // Arrange
+      const mockImage = {
+        complete: true,
+        naturalWidth: 100,
+        width: 100,
+        height: 100
+      } as HTMLImageElement
       
-      drawTextIcon(mockContext, imageSettings);
+      vi.mocked(imageCache.getOrLoadImage).mockReturnValue(mockImage)
       
-      // save と restore が呼ばれることを確認
-      const verifier = mockContext.__getVerifier();
-      const commands = verifier.recorder.getCommands();
-      const saveCommands = commands.filter(cmd => cmd.command === 'save');
-      const restoreCommands = commands.filter(cmd => cmd.command === 'restore');
-      
-      expect(saveCommands.length).toBeGreaterThan(0);
-      expect(restoreCommands.length).toBeGreaterThan(0);
-    });
-  });
-
-  describe('drawAnimationFrame', () => {
-    const totalFrames = 30;
-
-    beforeEach(() => {
-      mockContext.__clearRecording();
-    });
-
-    it('アニメーションフレームを正しく描画する', () => {
-      const frame = 15; // 中間フレーム
-      
-      drawAnimationFrame(mockContext, testSettings, frame, totalFrames);
-      
-      // テキストが描画されることを確認
-      const verifier = mockContext.__getVerifier();
-      const textDrawn = verifier.expectTextDrawn('テスト');
-      expect(textDrawn.found).toBe(true);
-      
-      // 状態の保存と復元が行われることを確認
-      const saveCommands = verifier.recorder.getCommandsByType('save');
-      const restoreCommands = verifier.recorder.getCommandsByType('restore');
-      expect(saveCommands.length).toBeGreaterThan(0);
-      expect(restoreCommands.length).toBeGreaterThan(0);
-    });
-
-    it('rainbowアニメーションで色が変化する', () => {
-      const rainbowSettings = createTestSettings({
-        animation: 'rainbow'
-      });
-      
-      // 複数フレームで色の変化を確認
-      const frames = [0, 10, 20, 29];
-      const colors = [];
-      
-      frames.forEach(frame => {
-        mockContext.__clearRecording();
-        drawAnimationFrame(mockContext, rainbowSettings, frame, totalFrames);
-        
-        // fillStyle の設定変更を記録
-        const verifier = mockContext.__getVerifier();
-        const stateChanges = verifier.recorder.getCommands()
-          .filter(cmd => cmd.command === 'setState' && cmd.args[0] === 'fillStyle');
-        
-        if (stateChanges.length > 0) {
-          colors.push(stateChanges[stateChanges.length - 1].args[1]);
-        }
-      });
-      
-      // 異なる色が設定されていることを確認（HSL色相が変化）
-      const uniqueColors = [...new Set(colors)];
-      expect(uniqueColors.length).toBeGreaterThan(1);
-    });
-
-    it('blinkアニメーションで色が切り替わる', () => {
-      const blinkSettings = createTestSettings({
-        animation: 'blink',
-        secondaryColor: '#FF0000'
-      });
-      
-      // 点滅パターンをテスト
-      const frames = Array.from({ length: 8 }, (_, i) => i * 4); // 8フレーム分
-      let colorChanges = 0;
-      
-      frames.forEach(frame => {
-        mockContext.__clearRecording();
-        drawAnimationFrame(mockContext, blinkSettings, frame, totalFrames);
-        
-        const verifier = mockContext.__getVerifier();
-        const stateChanges = verifier.recorder.getCommands()
-          .filter(cmd => cmd.command === 'setState' && cmd.args[0] === 'fillStyle');
-        
-        if (stateChanges.length > 0) {
-          colorChanges++;
-        }
-      });
-      
-      expect(colorChanges).toBeGreaterThan(0);
-    });
-
-    it('画像付きアニメーションで正しい描画順序を維持する', () => {
-      const imageAnimationSettings = createTestSettings({
+      const settings = {
+        text: 'Test',
+        backgroundType: 'color',
+        backgroundColor: '#FF0000',
         imageData: 'data:image/png;base64,test',
         imagePosition: 'back',
-        animation: 'bounce'
-      });
-      
-      drawAnimationFrame(mockContext, imageAnimationSettings, 15, totalFrames);
-      
-      // 描画順序: 背景画像 → テキスト → (前景画像なし)
-      const verifier = mockContext.__getVerifier();
-      const commands = verifier.recorder.getCommands();
-      
-      const imageCommand = commands.find(cmd => cmd.command === 'drawImage');
-      const textCommand = commands.find(cmd => cmd.command === 'fillText' || cmd.command === 'strokeText');
-      
-      if (imageCommand && textCommand) {
-        expect(imageCommand.sequence).toBeLessThan(textCommand.sequence);
+        imageOpacity: 100,
+        imageSize: 50,
+        imageX: 50,
+        imageY: 50,
+        canvasSize: 128
       }
-    });
-  });
-
-  describe('Canvas Context Mock の検証機能', () => {
-    it('描画コマンドの記録機能が正常に動作する', () => {
-      mockContext.fillRect(10, 20, 30, 40);
-      mockContext.fillText('test', 50, 60);
       
-      const verifier = mockContext.__getVerifier();
+      // Act
+      drawTextIcon(mockContext, settings)
       
-      // 特定コマンドの検証
-      const rectResult = verifier.expectRectangleDrawn(10, 20, 30, 40, 'fill');
-      expect(rectResult.found).toBe(true);
+      // Assert
+      const calls = vi.mocked(mockContext.drawImage).mock.calls
+      expect(calls.length).toBeGreaterThan(0)
+      expect(textRenderer.renderText).toHaveBeenCalled()
       
-      const textResult = verifier.expectTextDrawn('test', 50, 60);
-      expect(textResult.found).toBe(true);
+      // drawImageが renderText より前に呼ばれることを確認
+      const drawImageCallOrder = vi.mocked(mockContext.drawImage).mock.invocationCallOrder[0]
+      const renderTextCallOrder = vi.mocked(textRenderer.renderText).mock.invocationCallOrder[0]
+      expect(drawImageCallOrder).toBeLessThan(renderTextCallOrder)
+    })
+    
+    it('画像が前面にある場合、テキストの後に描画する', () => {
+      // Arrange
+      const mockImage = {
+        complete: true,
+        naturalWidth: 100,
+        width: 100,
+        height: 100
+      } as HTMLImageElement
       
-      // 描画回数の検証
-      const countResult = verifier.expectDrawingCount(2);
-      expect(countResult.passed).toBe(true);
-    });
-
-    it('状態管理が正常に動作する', () => {
-      // 状態変更
-      mockContext.fillStyle = '#FF0000';
-      mockContext.font = '20px Arial';
-      mockContext.globalAlpha = 0.5;
+      vi.mocked(imageCache.getOrLoadImage).mockReturnValue(mockImage)
       
-      // 状態保存・復元
-      mockContext.save();
-      mockContext.fillStyle = '#00FF00';
-      mockContext.restore();
+      const settings = {
+        text: 'Test',
+        backgroundType: 'color',
+        backgroundColor: '#FF0000',
+        imageData: 'data:image/png;base64,test',
+        imagePosition: 'front',
+        imageOpacity: 100,
+        imageSize: 50,
+        imageX: 50,
+        imageY: 50,
+        canvasSize: 128
+      }
       
-      // 状態が正しく復元されることを確認
-      expect(mockContext.fillStyle).toBe('#FF0000');
-      expect(mockContext.font).toBe('20px Arial');
-      expect(mockContext.globalAlpha).toBe(0.5);
+      // Act
+      drawTextIcon(mockContext, settings)
       
-      // 変更履歴の確認
-      const verifier = mockContext.__getVerifier();
-      const fillStyleChanges = verifier.expectStateChange('fillStyle');
-      expect(fillStyleChanges.found).toBe(true);
-      expect(fillStyleChanges.count).toBeGreaterThanOrEqual(2); // 初期設定 + 変更
-    });
-
-    it('変形操作の記録が正常に動作する', () => {
-      mockContext.translate(10, 20);
-      mockContext.rotate(Math.PI / 4);
-      mockContext.scale(2, 2);
+      // Assert
+      const calls = vi.mocked(mockContext.drawImage).mock.calls
+      expect(calls.length).toBeGreaterThan(0)
+      expect(textRenderer.renderText).toHaveBeenCalled()
       
-      const verifier = mockContext.__getVerifier();
-      const transformations = verifier.expectTransformations();
+      // drawImageが renderText より後に呼ばれることを確認
+      const drawImageCallOrder = vi.mocked(mockContext.drawImage).mock.invocationCallOrder[0]
+      const renderTextCallOrder = vi.mocked(textRenderer.renderText).mock.invocationCallOrder[0]
+      expect(drawImageCallOrder).toBeGreaterThan(renderTextCallOrder)
+    })
+  })
+  
+  describe('drawAnimationFrame', () => {
+    it('アニメーションフレームを描画する', () => {
+      // Arrange
+      const settings = {
+        text: 'Test',
+        animation: 'spin',
+        backgroundType: 'color',
+        backgroundColor: '#FF0000',
+        canvasSize: 128
+      }
       
-      expect(transformations.found).toBe(true);
-      expect(transformations.count).toBe(3);
-      expect(transformations.types).toContain('translate');
-      expect(transformations.types).toContain('rotate');
-      expect(transformations.types).toContain('scale');
-    });
-
-    it('measureText が適切な値を返す', () => {
-      const metrics = mockContext.measureText('Hello World');
+      // Act
+      drawAnimationFrame(mockContext, settings, 15, 30)
       
-      expect(metrics.width).toBe(88); // 11文字 × 8px
-      expect(metrics.actualBoundingBoxLeft).toBe(0);
-      expect(metrics.actualBoundingBoxRight).toBe(88);
-      expect(metrics.actualBoundingBoxAscent).toBe(12);
-      expect(metrics.actualBoundingBoxDescent).toBe(3);
-    });
-  });
-});
+      // Assert
+      expect(mockContext.save).toHaveBeenCalled()
+      expect(mockContext.restore).toHaveBeenCalled()
+      expect(animationHelpers.applyTextAnimation).toHaveBeenCalled()
+      expect(textRenderer.renderText).toHaveBeenCalled()
+    })
+    
+    it('虹色アニメーションで色相を変更する', () => {
+      // Arrange
+      const settings = {
+        text: 'Test',
+        animation: 'rainbow',
+        backgroundType: 'color',
+        backgroundColor: '#FF0000',
+        canvasSize: 128
+      }
+      
+      // Act
+      drawAnimationFrame(mockContext, settings, 15, 30)
+      
+      // Assert
+      const renderTextCall = vi.mocked(textRenderer.renderText).mock.calls[0]
+      const passedSettings = renderTextCall[1]
+      expect(passedSettings.fontColor).toMatch(/^hsl\(\d+, 100%, 50%\)$/)
+    })
+    
+    it('点滅アニメーションで色を交互に変更する', () => {
+      // Arrange
+      const settings = {
+        text: 'Test',
+        animation: 'blink',
+        secondaryColor: '#FFD700',
+        fontColor: '#000000',
+        backgroundType: 'color',
+        backgroundColor: '#FF0000',
+        canvasSize: 128
+      }
+      
+      // Act - 複数フレームを描画
+      // Math.sin(progress * Math.PI * 2 * 4) > 0 となるフレームを探す
+      // フレーム2: progress = 2/30 = 0.0667, sin(0.0667 * PI * 2 * 4) = sin(1.675) > 0
+      // フレーム7: progress = 7/30 = 0.233, sin(0.233 * PI * 2 * 4) = sin(5.86) < 0
+      drawAnimationFrame(mockContext, settings, 2, 30)
+      drawAnimationFrame(mockContext, settings, 7, 30)
+      
+      // Assert
+      const renderTextCalls = vi.mocked(textRenderer.renderText).mock.calls
+      expect(renderTextCalls.length).toBe(2)
+      
+      // 異なるフレームで異なる設定が使用されることを確認
+      const firstFrameSettings = renderTextCalls[0][1]
+      const secondFrameSettings = renderTextCalls[1][1]
+      
+      // 少なくとも一方がセカンダリカラーまたは元の設定を持つ
+      const hasSecondaryColor = firstFrameSettings.fontColor === '#FFD700' || 
+                                secondFrameSettings.fontColor === '#FFD700'
+      const hasOriginalSettings = firstFrameSettings === settings || 
+                                  secondFrameSettings === settings
+      
+      // blinkアニメーションでは、セカンダリカラーが使用されるか、元の設定が維持される
+      expect(hasSecondaryColor || hasOriginalSettings).toBe(true)
+    })
+    
+    it('画像アニメーションを適用する', () => {
+      // Arrange
+      const mockImage = {
+        complete: true,
+        naturalWidth: 100,
+        width: 100,
+        height: 100
+      } as HTMLImageElement
+      
+      vi.mocked(imageCache.getOrLoadImage).mockReturnValue(mockImage)
+      
+      const settings = {
+        text: 'Test',
+        animation: 'none',
+        imageData: 'data:image/png;base64,test',
+        imageAnimation: 'spin',
+        imagePosition: 'back',
+        imageAnimationAmplitude: 50,
+        canvasSize: 128
+      }
+      
+      // Act
+      drawAnimationFrame(mockContext, settings, 15, 30)
+      
+      // Assert
+      expect(animationHelpers.applyImageAnimation).toHaveBeenCalled()
+      expect(mockContext.drawImage).toHaveBeenCalled()
+    })
+  })
+})

@@ -64,6 +64,7 @@ export const ANIMATION_TYPES = {
 
 // ヘルパー関数
 export const isDecorativeFont = (fontFamily) => {
+  if (!fontFamily) return false
   return CANVAS_CONFIG.DECORATIVE_FONTS.some(font => fontFamily.includes(font))
 }
 
