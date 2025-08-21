@@ -87,7 +87,10 @@ class ErrorManager {
       try {
         handler(error);
       } catch (e) {
-        console.error('Error in error handler:', e);
+        // 本番環境では何も出力しない
+        if (typeof window !== 'undefined' && window.location?.hostname === 'localhost') {
+          console.error('Error in error handler:', e);
+        }
       }
     });
 
@@ -97,7 +100,10 @@ class ErrorManager {
       try {
         handler(error);
       } catch (e) {
-        console.error('Error in global error handler:', e);
+        // 本番環境では何も出力しない
+        if (typeof window !== 'undefined' && window.location?.hostname === 'localhost') {
+          console.error('Error in global error handler:', e);
+        }
       }
     });
   }
@@ -116,7 +122,16 @@ export const errorManager = ErrorManager.getInstance();
 // エラーログ用の統一フォーマット
 const logError = (error: AppError) => {
   const isDev = typeof window !== 'undefined' && window.location?.hostname === 'localhost';
+  const isProduction = typeof window !== 'undefined' && !isDev;
   
+  // 本番環境では一切ログを出力しない
+  if (isProduction) {
+    // エラーマネージャーには通知するが、コンソールには出力しない
+    errorManager.notify(error);
+    return;
+  }
+  
+  // 開発環境でのみコンソールに出力
   if (isDev) {
     const severityColors = {
       [ErrorSeverity.LOW]: 'color: #888',
@@ -239,24 +254,36 @@ export const useErrorHandler = (errorType = '*') => {
 
 // グローバルエラーハンドラー設定
 if (typeof window !== 'undefined') {
+  const isDev = window.location?.hostname === 'localhost';
+  
   window.addEventListener('unhandledrejection', (event) => {
-    const error = new AppError(
-      ErrorTypes.NETWORK,
-      'Unhandled Promise Rejection',
-      event.reason,
-      ErrorSeverity.HIGH
-    );
-    logError(error);
+    // 本番環境ではサイレントにエラーを処理
+    if (isDev) {
+      const error = new AppError(
+        ErrorTypes.NETWORK,
+        'Unhandled Promise Rejection',
+        event.reason,
+        ErrorSeverity.HIGH
+      );
+      logError(error);
+    }
     event.preventDefault();
   });
 
   window.addEventListener('error', (event) => {
-    const error = new AppError(
-      ErrorTypes.INITIALIZATION,
-      event.message || 'Uncaught Error',
-      event.error,
-      ErrorSeverity.CRITICAL
-    );
-    logError(error);
+    // 本番環境ではサイレントにエラーを処理
+    if (isDev) {
+      const error = new AppError(
+        ErrorTypes.INITIALIZATION,
+        event.message || 'Uncaught Error',
+        event.error,
+        ErrorSeverity.CRITICAL
+      );
+      logError(error);
+    }
+    // 本番環境でもエラーのデフォルト動作は防ぐ
+    if (!isDev) {
+      event.preventDefault();
+    }
   });
 }

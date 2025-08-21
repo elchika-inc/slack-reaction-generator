@@ -1,4 +1,25 @@
 const ErrorFallback = ({ error, retry, report }) => {
+  const isDev = typeof window !== 'undefined' && window.location?.hostname === 'localhost';
+  
+  // 本番環境では簡素なエラー画面を表示
+  if (!isDev) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-600 to-pink-600">
+        <div className="text-center text-white">
+          <h2 className="text-2xl font-bold mb-4">一時的な問題が発生しました</h2>
+          <p className="mb-6">ページを再読み込みしてください</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="bg-white text-purple-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+          >
+            再読み込み
+          </button>
+        </div>
+      </div>
+    );
+  }
+  
+  // 開発環境では詳細なエラー情報を表示
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
       <div className="max-w-lg w-full mx-4">

@@ -8,11 +8,8 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=()
   
-  # キャッシュバスティング - 古いキャッシュをクリア
-  Clear-Site-Data: "cache", "storage"
-  
-  # キャッシュコントロール（HTML）- 一時的にキャッシュ無効化
-  Cache-Control: no-cache, no-store, must-revalidate
+  # キャッシュコントロール（HTML）
+  Cache-Control: no-cache, must-revalidate
   
   # プリロード・プリコネクト最適化
   Link: <https://fonts.googleapis.com>; rel=preconnect
