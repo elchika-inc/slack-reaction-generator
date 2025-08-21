@@ -267,8 +267,7 @@ function PreviewPanel({ previewData, onRegenerate }: PreviewPanelProps) {
     >
       {/* テーマ切り替え */}
       <div className="flex justify-center mb-4">
-        <fieldset className="inline-flex rounded-lg border border-gray-200">
-          <legend className="sr-only">プレビューテーマ選択</legend>
+        <div className="inline-flex rounded-lg border border-gray-200" role="radiogroup" aria-label="プレビューテーマ選択">
           <button
             onClick={() => setTheme("light")}
             className={`px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-1 ${
@@ -276,7 +275,7 @@ function PreviewPanel({ previewData, onRegenerate }: PreviewPanelProps) {
             }`}
             role="radio"
             aria-checked={theme === "light"}
-            aria-label="ライトテーマを選択"
+            aria-label="ライトテーマ"
           >
             ライト
           </button>
@@ -287,11 +286,11 @@ function PreviewPanel({ previewData, onRegenerate }: PreviewPanelProps) {
             }`}
             role="radio"
             aria-checked={theme === "dark"}
-            aria-label="ダークテーマを選択"
+            aria-label="ダークテーマ"
           >
             ダーク
           </button>
-        </fieldset>
+        </div>
       </div>
 
       {/* プレビューエリア */}

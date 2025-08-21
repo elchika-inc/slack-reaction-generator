@@ -122,8 +122,7 @@ const AppContent: FunctionalComponent = () => {
                 >
                   背景
                 </p>
-                <fieldset className="inline-flex rounded-lg border border-gray-200">
-                  <legend className="sr-only">モバイル用テーマ選択</legend>
+                <div className="inline-flex rounded-lg border border-gray-200" role="radiogroup" aria-labelledby="mobile-theme-label">
                   <button
                     onClick={() => setTheme("light")}
                     className={`px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-purple-500 ${
@@ -131,8 +130,7 @@ const AppContent: FunctionalComponent = () => {
                     }`}
                     role="radio"
                     aria-checked={theme === "light"}
-                    aria-labelledby="mobile-theme-label"
-                    aria-label="ライトテーマを選択"
+                    aria-label="ライトテーマ"
                   >
                     ライト
                   </button>
@@ -143,12 +141,11 @@ const AppContent: FunctionalComponent = () => {
                     }`}
                     role="radio"
                     aria-checked={theme === "dark"}
-                    aria-labelledby="mobile-theme-label"
-                    aria-label="ダークテーマを選択"
+                    aria-label="ダークテーマ"
                   >
                     ダーク
                   </button>
-                </fieldset>
+                </div>
               </div>
             </div>
           </div>

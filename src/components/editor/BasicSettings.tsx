@@ -299,9 +299,7 @@ function BasicSettings({ settings, onChange, isMobile }: BasicSettingsProps) {
                     `}
                     role="radio"
                     aria-checked={settings.backgroundType === 'color'}
-                    aria-expanded={showBgColorPicker && settings.backgroundType === 'color'}
-                    aria-haspopup="dialog"
-                    aria-label={`背景色を選択: ${settings.backgroundColor || '#FFFFFF'}`}
+                    aria-label={`背景色: ${settings.backgroundColor || '#FFFFFF'}`}
                   >
                     <span
                       className="w-4 h-4 rounded mr-2 border border-gray-400"
