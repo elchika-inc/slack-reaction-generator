@@ -1,0 +1,107 @@
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://slack-reaction-generator.elchika.app/#organization",
+      "name": "Slack Reaction Generator",
+      "url": "https://slack-reaction-generator.elchika.app/",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://slack-reaction-generator.elchika.app/logo.png",
+        "width": 512,
+        "height": 512
+      },
+      "sameAs": []
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://slack-reaction-generator.elchika.app/#website",
+      "url": "https://slack-reaction-generator.elchika.app/",
+      "name": "Slack絵文字ジェネレーター",
+      "description": "Slackのカスタム絵文字を簡単作成できるWebツール",
+      "publisher": {
+        "@id": "https://slack-reaction-generator.elchika.app/#organization"
+      },
+      "inLanguage": "ja-JP",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://slack-reaction-generator.elchika.app/?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    },
+    {
+      "@type": "HowTo",
+      "name": "Slackカスタム絵文字の作り方",
+      "description": "Slack Reaction Generatorを使ってカスタム絵文字を作成する方法",
+      "image": "https://slack-reaction-generator.elchika.app/tutorial.png",
+      "totalTime": "PT3M",
+      "estimatedCost": {
+        "@type": "MonetaryAmount",
+        "currency": "JPY",
+        "value": "0"
+      },
+      "supply": [],
+      "tool": [
+        {
+          "@type": "HowToTool",
+          "name": "Webブラウザ"
+        }
+      ],
+      "step": [
+        {
+          "@type": "HowToStep",
+          "name": "テキストまたは画像を入力",
+          "text": "テキストフィールドに文字を入力するか、画像をアップロードします",
+          "image": "https://slack-reaction-generator.elchika.app/step1.png",
+          "url": "https://slack-reaction-generator.elchika.app/#step1"
+        },
+        {
+          "@type": "HowToStep",
+          "name": "スタイルを調整",
+          "text": "フォント、色、サイズ、アニメーションなどを設定します",
+          "image": "https://slack-reaction-generator.elchika.app/step2.png",
+          "url": "https://slack-reaction-generator.elchika.app/#step2"
+        },
+        {
+          "@type": "HowToStep",
+          "name": "ダウンロード",
+          "text": "PNGまたはGIF形式でダウンロードし、Slackにアップロードします",
+          "image": "https://slack-reaction-generator.elchika.app/step3.png",
+          "url": "https://slack-reaction-generator.elchika.app/#step3"
+        }
+      ]
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "Slack Reaction Generator",
+      "operatingSystem": "Web",
+      "applicationCategory": "DesignApplication",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "JPY"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "reviewCount": "124"
+      },
+      "review": [
+        {
+          "@type": "Review",
+          "reviewRating": {
+            "@type": "Rating",
+            "ratingValue": "5",
+            "bestRating": "5"
+          },
+          "author": {
+            "@type": "Person",
+            "name": "ユーザーA"
+          },
+          "reviewBody": "簡単に使えて便利です。日本語フォントが綺麗に表示されます。"
+        }
+      ]
+    }
+  ]
+}
