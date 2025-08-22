@@ -39,6 +39,12 @@ function BasicSettings({ settings, onChange, isMobile }: BasicSettingsProps) {
           id="emoji-text-input"
           value={settings.text}
           onChange={(e) => onChange({ text: e.target.value })}
+          onKeyDown={(e) => {
+            // Enterキーが押されたときはイベントの伝播を停止
+            if (e.key === 'Enter') {
+              e.stopPropagation();
+            }
+          }}
           maxLength={30}
           rows={3}
           className="w-full px-3 py-3 lg:py-2 text-base lg:text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none font-mono"

@@ -25,6 +25,12 @@ function IconEditor() {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (!editorRef.current) return;
 
+      // textareaにフォーカスがある場合は、デフォルトの動作を維持
+      const activeElement = document.activeElement as HTMLElement;
+      if (activeElement?.tagName === 'TEXTAREA') {
+        return;
+      }
+
       // 上下矢印でセクション間を移動
       if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
         const focusableElements = Array.from(

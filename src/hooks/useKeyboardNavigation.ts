@@ -20,6 +20,12 @@ export function useKeyboardNavigation({
   const handleKeyDown = useCallback((event: KeyboardEvent) => {
     if (disabled) return;
 
+    // textareaやinputにフォーカスがある場合は、デフォルトの動作を維持
+    const activeElement = document.activeElement as HTMLElement;
+    if (activeElement?.tagName === 'TEXTAREA' || activeElement?.tagName === 'INPUT') {
+      return;
+    }
+
     switch (event.key) {
       case 'Escape':
         if (onEscape) {
