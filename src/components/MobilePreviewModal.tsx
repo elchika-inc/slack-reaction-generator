@@ -2,9 +2,11 @@ import { useState, useEffect, useRef } from 'react'
 import { saveAs } from 'file-saver'
 // gifencライブラリを使用（透明背景サポート向上）
 import { generateIconData, drawAnimationFrame } from '../utils/canvasUtils'
+import { useLanguage } from '../contexts/LanguageContext'
 // 従来のgif.jsを使いたい場合は以下をコメントアウト解除
 
 function MobilePreviewModal({ isOpen, onClose, settings }) {
+  const { t } = useLanguage();
   const [dataUrl, setDataUrl] = useState(null)
   const canvasRef = useRef(null)
   const [theme, setTheme] = useState('light')
@@ -93,8 +95,8 @@ function MobilePreviewModal({ isOpen, onClose, settings }) {
         
         await navigator.share({
           files: [file],
-          title: 'Slackアイコン',
-          text: 'カスタムSlackアイコンを作成しました！',
+          title: t('preview.shareTitle'),
+          text: t('preview.shareText'),
         })
       } catch (err) {
         // Share error
@@ -118,7 +120,7 @@ function MobilePreviewModal({ isOpen, onClose, settings }) {
         <div className="sticky top-0 bg-white pt-4 pb-2">
           <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-4" />
           <div className="flex items-center justify-between px-4">
-            <h3 className="text-lg font-semibold">プレビュー</h3>
+            <h3 className="text-lg font-semibold">{t('preview.title')}</h3>
             <button
               onClick={onClose}
               className="p-2 rounded-full hover:bg-gray-100"
@@ -142,7 +144,7 @@ function MobilePreviewModal({ isOpen, onClose, settings }) {
                     : 'text-gray-600'
                 }`}
               >
-                ライト
+{t('common.light')}
               </button>
               <button
                 onClick={() => setTheme('dark')}
@@ -152,7 +154,7 @@ function MobilePreviewModal({ isOpen, onClose, settings }) {
                     : 'text-gray-600'
                 }`}
               >
-                ダーク
+{t('common.dark')}
               </button>
             </div>
           </div>
@@ -168,7 +170,7 @@ function MobilePreviewModal({ isOpen, onClose, settings }) {
               {/* 実サイズ */}
               <div className="text-center">
                 <p className={`text-sm mb-3 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
-                  実サイズ (128x128px)
+{t('preview.actualSize')} (128x128px)
                 </p>
                 <canvas
                   ref={canvasRef}
@@ -182,13 +184,13 @@ function MobilePreviewModal({ isOpen, onClose, settings }) {
               {/* Slack表示サイズ */}
               <div className="text-center">
                 <p className={`text-sm mb-3 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
-                  Slack表示 (32x32px)
+{t('preview.slackSize')} (32x32px)
                 </p>
                 <div className="w-8 h-8 mx-auto">
                   {dataUrl && (
                     <img
                       src={dataUrl}
-                      alt="プレビュー"
+                      alt={t('preview.title')}
                       className="w-full h-full"
                       style={{ imageRendering: 'pixelated' }}
                       loading="lazy"

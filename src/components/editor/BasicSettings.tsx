@@ -1,9 +1,11 @@
 import { useState, useRef, Suspense, lazy } from 'react'
 import { BasicSettingsProps } from '../../types/settings'
+import { useLanguage } from '../../contexts/LanguageContext'
 
 const ColorPickerPortal = lazy(() => import('../ColorPickerPortal'))
 
 function BasicSettings({ settings, onChange, isMobile }: BasicSettingsProps) {
+  const { t, locale } = useLanguage();
   const [showFontColorPicker, setShowFontColorPicker] = useState(false)
   const [showGradient1Picker, setShowGradient1Picker] = useState(false)
   const [showGradient2Picker, setShowGradient2Picker] = useState(false)
@@ -32,8 +34,8 @@ function BasicSettings({ settings, onChange, isMobile }: BasicSettingsProps) {
       {/* テキスト入力 */}
       <div>
         <label htmlFor="emoji-text-input" className="block text-sm font-medium text-gray-700 mb-2">
-          テキスト
-          <span className="text-xs text-gray-500 ml-1">(最大30文字)</span>
+          {t('editor.basic.text')}
+          <span className="text-xs text-gray-500 ml-1">({t('editor.basic.maxChars')})</span>
         </label>
         <textarea
           id="emoji-text-input"
@@ -49,11 +51,11 @@ function BasicSettings({ settings, onChange, isMobile }: BasicSettingsProps) {
           rows={3}
           className="w-full px-3 py-3 lg:py-2 text-base lg:text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none font-mono"
           aria-describedby="text-help"
-          placeholder="例: OK&#10;了解&#10;👍"
+          placeholder={t('editor.basic.textPlaceholder')}
         />
         <div id="text-help" className="mt-1 flex justify-between text-xs text-gray-500" aria-live="polite">
-          <span>Enterキーで改行 • 文字数に応じて自動調整</span>
-          <span aria-label={`現在の文字数: ${settings.text.length}文字、最大30文字`}>
+          <span>{t('editor.basic.textHelp')}</span>
+          <span aria-label={t('editor.basic.charCount', { current: settings.text.length, max: 30 })}>
             {settings.text.length} / 30
           </span>
         </div>
@@ -62,10 +64,12 @@ function BasicSettings({ settings, onChange, isMobile }: BasicSettingsProps) {
       {/* フォント選択 */}
       <fieldset>
         <legend className="block text-sm font-medium text-gray-700 mb-3">
-          フォント選択
+          {t('editor.basic.fontFamily')}
         </legend>
         <div className={`grid ${isMobile ? 'grid-cols-3 gap-1.5' : 'grid-cols-5 gap-2'}`} role="radiogroup" aria-label="フォントファミリー選択">
-          {fonts.map((font) => (
+          {fonts
+            .filter(font => locale === 'ja' || font.hasEnglish)
+            .map((font) => (
             <button
               key={font.value}
               onClick={() => onChange({ fontFamily: font.value })}
@@ -79,15 +83,21 @@ function BasicSettings({ settings, onChange, isMobile }: BasicSettingsProps) {
               `}
               role="radio"
               aria-checked={settings.fontFamily === font.value}
-              aria-label={`${font.label}${font.hasJapanese ? ' 日本語対応' : ''}${font.hasEnglish ? ' 英語対応' : ''}`}
+              aria-label={`${font.label}${font.hasJapanese ? ` ${t('editor.basic.fontSupportsJapanese')}` : ''}${font.hasEnglish ? ` ${t('editor.basic.fontSupportsEnglish')}` : ''}`}
             >
               <div className={`${isMobile ? 'text-[10px]' : 'text-xs'} text-gray-600 mb-1`}>{font.label}</div>
               <div 
                 className={`${isMobile ? 'text-sm' : 'text-base'} font-bold`}
                 style={{ fontFamily: font.value, lineHeight: '1.2' }}
               >
-                {font.hasJapanese && <div>あア</div>}
-                {font.hasEnglish && <div>Aa</div>}
+                {locale === 'en' ? (
+                  font.hasEnglish && <div>Sample</div>
+                ) : (
+                  <>
+                    {font.hasJapanese && <div>あア</div>}
+                    {font.hasEnglish && <div>Aa</div>}
+                  </>
+                )}
               </div>
             </button>
           ))}
@@ -102,7 +112,7 @@ function BasicSettings({ settings, onChange, isMobile }: BasicSettingsProps) {
           aria-expanded={showFontStyleAccordion}
           aria-controls="font-style-panel"
         >
-          <span>詳細設定</span>
+          <span>{t('editor.basic.advancedSettings')}</span>
           <svg
             className={`w-5 h-5 text-gray-400 transition-transform ${
               showFontStyleAccordion ? 'rotate-180' : ''
@@ -121,7 +131,7 @@ function BasicSettings({ settings, onChange, isMobile }: BasicSettingsProps) {
             {/* フォントスタイル設定 */}
             <div className="space-y-3">
               <label className="block text-sm text-gray-600 mb-2">
-                文字スタイル
+                {t('editor.basic.textStyle')}
               </label>
               <div className="grid grid-cols-3 gap-2">
                 <button
@@ -135,7 +145,7 @@ function BasicSettings({ settings, onChange, isMobile }: BasicSettingsProps) {
                   }`}
                   aria-pressed={settings.fontWeight === 'bold'}
                 >
-                  <span className="font-bold">太字</span>
+                  <span className="font-bold">{t('editor.basic.bold')}</span>
                 </button>
                 
                 <button
@@ -149,7 +159,7 @@ function BasicSettings({ settings, onChange, isMobile }: BasicSettingsProps) {
                   }`}
                   aria-pressed={settings.fontStyle === 'italic'}
                 >
-                  <span className="italic">斜体</span>
+                  <span className="italic">{t('editor.basic.italic')}</span>
                 </button>
                 
                 <button
@@ -163,14 +173,14 @@ function BasicSettings({ settings, onChange, isMobile }: BasicSettingsProps) {
                   }`}
                   aria-pressed={settings.textLineThrough}
                 >
-                  <span className="line-through">打消し</span>
+                  <span className="line-through">{t('editor.basic.strikethrough')}</span>
                 </button>
               </div>
 
               {/* 文字色タイプ切り替え */}
               <div>
                 <label className="block text-sm text-gray-600 mb-2">
-                  文字色タイプ
+                  {t('editor.basic.textColorType')}
                 </label>
                 <div className="flex gap-2">
                   <button
@@ -185,7 +195,7 @@ function BasicSettings({ settings, onChange, isMobile }: BasicSettingsProps) {
                     role="radio"
                     aria-checked={settings.textColorType === 'solid'}
                   >
-                    単色
+{t('editor.basic.solidColor')}
                   </button>
                   <button
                     onClick={() => onChange({ textColorType: 'gradient' })}
@@ -199,7 +209,7 @@ function BasicSettings({ settings, onChange, isMobile }: BasicSettingsProps) {
                     role="radio"
                     aria-checked={settings.textColorType === 'gradient'}
                   >
-                    グラデーション
+{t('editor.basic.gradient')}
                   </button>
                 </div>
               </div>
@@ -214,7 +224,7 @@ function BasicSettings({ settings, onChange, isMobile }: BasicSettingsProps) {
           {/* 文字色設定 */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              文字色
+              {t('editor.basic.textColor')}
             </label>
             
 
@@ -364,7 +374,7 @@ function BasicSettings({ settings, onChange, isMobile }: BasicSettingsProps) {
           {/* 背景設定 */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              背景
+              {t('editor.basic.background')}
             </label>
             
             {/* アニメーションがない場合のみ背景色選択を表示 */}
@@ -437,7 +447,7 @@ function BasicSettings({ settings, onChange, isMobile }: BasicSettingsProps) {
                   )}
                 </div>
                 <p className="mt-1 text-xs text-gray-500">
-                  GIF背景色
+                  {t('editor.basic.gifBackgroundColor')}
                 </p>
               </div>
             )}

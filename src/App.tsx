@@ -8,11 +8,13 @@ import ErrorNotification from "./components/ErrorNotification";
 import { IconSettingsProvider, useIconSettingsContext } from "./contexts/IconSettingsContext";
 import { CanvasProvider, useCanvasContext } from "./contexts/CanvasContext";
 import { AppStateProvider, useAppStateContext } from "./contexts/AppStateContext";
+import { LanguageProvider, useLanguage } from "./contexts/LanguageContext";
 
 const AppContent: FunctionalComponent = () => {
   const { iconSettings, handleSettingsChange } = useIconSettingsContext();
   const { previewData, handleGeneratePreview, canvasRef, smallCanvasRef } = useCanvasContext();
   const { isMobile, theme, setTheme, configureNetworkFeatures } = useAppStateContext();
+  const { t } = useLanguage();
 
   useEffect(() => {
     configureNetworkFeatures(handleSettingsChange);
@@ -32,18 +34,18 @@ const AppContent: FunctionalComponent = () => {
           isMobile ? "pb-80" : ""
         }`}
         role="main"
-        aria-label="Slack絵文字作成エディタ"
+        aria-label={t('app.title')}
       >
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-8">
           {/* エディタ部分 */}
-          <section className="lg:col-span-2" aria-label="絵文字設定エディタ">
-            <h2 className="sr-only">絵文字の設定とカスタマイズ</h2>
+          <section className="lg:col-span-2" aria-label={t('editor.basic.title')}>
+            <h2 className="sr-only">{t('editor.basic.title')}</h2>
             <IconEditor />
           </section>
 
           {/* デスクトップ用プレビュー */}
           {!isMobile && (
-            <section className="lg:col-span-1" aria-label="絵文字プレビュー">
+            <section className="lg:col-span-1" aria-label={t('preview.title')}>
               <PreviewPanel
                 previewData={previewData}
                 onRegenerate={onGeneratePreview}
@@ -71,7 +73,7 @@ const AppContent: FunctionalComponent = () => {
                   }`}
                   id="mobile-main-preview-label"
                 >
-                  実サイズ
+{t('preview.actualSize')}
                 </p>
                 <canvas
                   ref={canvasRef}
@@ -93,7 +95,7 @@ const AppContent: FunctionalComponent = () => {
                   }`}
                   id="mobile-slack-preview-label"
                 >
-                  Slack表示
+{t('preview.slackSize')}
                 </p>
                 <div
                   className="flex items-center justify-center"
@@ -120,7 +122,7 @@ const AppContent: FunctionalComponent = () => {
                   }`}
                   id="mobile-theme-label"
                 >
-                  背景
+{t('common.theme')}
                 </p>
                 <div className="inline-flex rounded-lg border border-gray-200" role="radiogroup" aria-labelledby="mobile-theme-label">
                   <button
@@ -130,9 +132,9 @@ const AppContent: FunctionalComponent = () => {
                     }`}
                     role="radio"
                     aria-checked={theme === "light"}
-                    aria-label="ライトテーマ"
+                    aria-label={t('common.light')}
                   >
-                    ライト
+                    {t('common.light')}
                   </button>
                   <button
                     onClick={() => setTheme("dark")}
@@ -141,9 +143,9 @@ const AppContent: FunctionalComponent = () => {
                     }`}
                     role="radio"
                     aria-checked={theme === "dark"}
-                    aria-label="ダークテーマ"
+                    aria-label={t('common.dark')}
                   >
-                    ダーク
+                    {t('common.dark')}
                   </button>
                 </div>
               </div>
@@ -155,7 +157,7 @@ const AppContent: FunctionalComponent = () => {
             <button
               onClick={onGeneratePreview}
               className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 rounded-xl font-semibold text-lg shadow-lg active:scale-95 transition-transform flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-purple-300 focus:ring-offset-2"
-              aria-label="作成した絵文字をダウンロード"
+              aria-label={t('preview.download')}
             >
               <svg
                 className="w-5 h-5 mr-2"
@@ -171,7 +173,7 @@ const AppContent: FunctionalComponent = () => {
                   d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
                 />
               </svg>
-              ダウンロード
+              {t('preview.download')}
             </button>
           </div>
         </div>
@@ -182,11 +184,13 @@ const AppContent: FunctionalComponent = () => {
 
 const App: FunctionalComponent = () => {
   return (
-    <AppStateProvider>
-      <IconSettingsProvider>
-        <AppWithProviders />
-      </IconSettingsProvider>
-    </AppStateProvider>
+    <LanguageProvider>
+      <AppStateProvider>
+        <IconSettingsProvider>
+          <AppWithProviders />
+        </IconSettingsProvider>
+      </AppStateProvider>
+    </LanguageProvider>
   );
 }
 

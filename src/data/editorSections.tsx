@@ -9,30 +9,31 @@ import { BasicIcon, AnimationIcon, ImageIcon, OptimizationIcon } from '../compon
 export function createEditorSections(
   iconSettings: FlatSettings,
   handleSettingsChange: (key: keyof FlatSettings, value: any) => void,
-  isMobile: boolean
+  isMobile: boolean,
+  t: (key: string) => string
 ): Section[] {
   return [
     {
       id: 'basic',
-      title: '基本設定',
+      title: t('editor.basic.title'),
       icon: <BasicIcon />,
       component: <BasicSettings settings={iconSettings} onChange={handleSettingsChange} isMobile={isMobile} />
     },
     {
       id: 'animation',
-      title: 'アニメーション',
+      title: t('editor.animation.title'),
       icon: <AnimationIcon />,
       component: <AnimationSettings settings={iconSettings} onChange={handleSettingsChange} isMobile={isMobile} />
     },
     {
       id: 'image',
-      title: '画像',
+      title: t('editor.image.title'),
       icon: <ImageIcon />,
       component: <ImageSettings settings={iconSettings} onChange={handleSettingsChange} />
     },
     {
       id: 'optimization',
-      title: 'サイズ最適化',
+      title: t('editor.optimization.title'),
       icon: <OptimizationIcon />,
       component: <OptimizationSettings settings={iconSettings} onChange={handleSettingsChange} />
     }

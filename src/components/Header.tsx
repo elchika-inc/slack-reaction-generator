@@ -1,4 +1,8 @@
+import { useLanguage } from '../contexts/LanguageContext';
+import LanguageSwitcher from './LanguageSwitcher';
+
 function Header() {
+  const { t } = useLanguage();
   return (
     <header
       className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40"
@@ -12,7 +16,7 @@ function Header() {
               className="w-8 h-8 lg:w-10 lg:h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center flex-shrink-0"
               aria-hidden="true"
               role="img"
-              aria-label="Slack Reaction Generatorロゴ"
+              aria-label={t('app.title')}
             >
               <span className="text-white font-bold text-lg lg:text-xl">S</span>
             </div>
@@ -21,32 +25,19 @@ function Header() {
                 className="text-lg lg:text-2xl font-bold text-gray-900"
                 style={{ lineHeight: "1.2" }}
               >
-                Slack Reaction Generator
+                {t('app.title')}
               </h1>
               <p
                 className="text-xs lg:text-sm text-gray-700 hidden lg:block"
                 style={{ lineHeight: "1.2" }}
               >
-                カスタム絵文字を簡単作成
+                {t('app.subtitle')}
               </p>
             </div>
           </div>
-          <nav
-            className="flex items-center"
-            role="navigation"
-            aria-label="外部リンク"
-          >
-            <a
-              href="https://slack.com/help/articles/206870177"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs lg:text-sm text-purple-700 hover:text-purple-800 font-medium focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 rounded px-2 py-1"
-              aria-label="Slackのカスタム絵文字ガイドライン（新しいタブで開きます）"
-            >
-              <span className="hidden lg:inline">Slackガイドライン</span>
-              <span className="lg:hidden">ガイド</span>
-            </a>
-          </nav>
+          <div className="flex items-center space-x-3">
+            <LanguageSwitcher />
+          </div>
         </div>
       </div>
     </header>

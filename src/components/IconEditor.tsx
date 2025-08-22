@@ -1,6 +1,7 @@
 import { useRef, useEffect } from 'react'
 import { useIconSettingsContext } from '../contexts/IconSettingsContext'
 import { useAppStateContext } from '../contexts/AppStateContext'
+import { useLanguage } from '../contexts/LanguageContext'
 import { useAccordion } from '../hooks/useAccordion'
 import { createEditorSections } from '../data/editorSections'
 import AccordionHeader from './editor/AccordionHeader'
@@ -10,6 +11,7 @@ import { Section } from '../types/editor'
 function IconEditor() {
   const { iconSettings, handleSettingsChange } = useIconSettingsContext();
   const { isMobile } = useAppStateContext();
+  const { t } = useLanguage();
   const editorRef = useRef<HTMLDivElement>(null);
   
   const { openSections, toggleSection } = useAccordion({
@@ -19,7 +21,7 @@ function IconEditor() {
     optimization: false
   });
 
-  const sections: Section[] = createEditorSections(iconSettings, handleSettingsChange, isMobile);
+  const sections: Section[] = createEditorSections(iconSettings, handleSettingsChange, isMobile, t);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -59,7 +61,7 @@ function IconEditor() {
       ref={editorRef}
       className="space-y-2"
       role="region"
-      aria-label="絵文字設定エディタ"
+      aria-label={t('editor.title')}
     >
       {sections.map((section) => (
         <div key={section.id} className="border border-gray-200 rounded-lg shadow-md">

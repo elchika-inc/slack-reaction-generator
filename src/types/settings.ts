@@ -87,7 +87,7 @@ export const SettingCategories = {
 } as const;
 
 // デフォルト設定の構造化
-export const createDefaultSettings = (): StructuredSettings => {
+export const createDefaultSettings = (locale: string = 'ja'): StructuredSettings => {
   const getRandomColor = () => {
     const colors = [
       '#FF6B6B', '#4ECDC4', '#45B7D1', '#FD79A8', '#A29BFE',
@@ -100,7 +100,7 @@ export const createDefaultSettings = (): StructuredSettings => {
   return {
     // 基本設定
     basic: {
-      text: 'いいかも',
+      text: locale === 'en' ? 'Good' : 'いいかも',
       fontSize: 60,
       fontFamily: '"Noto Sans JP", sans-serif',
       fontWeight: 'bold' as const,

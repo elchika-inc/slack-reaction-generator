@@ -1,8 +1,10 @@
 import { useState, useRef, useEffect } from 'react'
 import { OptimizationSettingsProps } from '../../types/settings'
 import { useSliderDebounce, useDebounce } from '../../hooks/useDebounce'
+import { useLanguage } from '../../contexts/LanguageContext'
 
 function OptimizationSettings({ settings, onChange }: OptimizationSettingsProps) {
+  const { t } = useLanguage();
   const debouncedOnChange = useSliderDebounce(onChange);
   
   // GIF品質のローカル状態
@@ -45,7 +47,7 @@ function OptimizationSettings({ settings, onChange }: OptimizationSettingsProps)
       {/* 出力サイズ選択 */}
       <div>
         <label className="block text-xs font-medium text-gray-600 mb-2">
-          出力サイズ
+          {t('editor.optimization.outputSize')}
         </label>
         <div className="flex gap-2">
           <button
@@ -60,7 +62,7 @@ function OptimizationSettings({ settings, onChange }: OptimizationSettingsProps)
           >
             64×64px
             <span className="block text-xs mt-1 opacity-75">
-              小サイズ（〜50KB）
+              {t('editor.optimization.smallSize')}
             </span>
           </button>
           <button
@@ -75,7 +77,7 @@ function OptimizationSettings({ settings, onChange }: OptimizationSettingsProps)
           >
             128×128px
             <span className="block text-xs mt-1 opacity-75">
-              標準サイズ
+              {t('editor.optimization.standardSize')}
             </span>
           </button>
         </div>
@@ -85,7 +87,7 @@ function OptimizationSettings({ settings, onChange }: OptimizationSettingsProps)
       {settings.animation === 'none' && (
         <div>
           <label htmlFor="pngQuality-slider" className="block text-xs font-medium text-gray-600 mb-2">
-            PNG圧縮率
+            {t('editor.optimization.pngCompression')}
           </label>
           <div className="space-y-2">
             <input
@@ -103,9 +105,9 @@ function OptimizationSettings({ settings, onChange }: OptimizationSettingsProps)
               }}
             />
             <div className="flex justify-between text-xs text-gray-500">
-              <span>高圧縮</span>
+              <span>{t('editor.optimization.highCompression')}</span>
               <span className="text-purple-600 font-medium">{settings.pngQuality || 85}%</span>
-              <span>高品質</span>
+              <span>{t('editor.optimization.highQuality')}</span>
             </div>
           </div>
         </div>
@@ -116,7 +118,7 @@ function OptimizationSettings({ settings, onChange }: OptimizationSettingsProps)
         <>
           <div>
             <label htmlFor="gifQuality-slider" className="block text-xs font-medium text-gray-600 mb-2">
-              GIF品質
+              {t('editor.optimization.gifQuality')}
             </label>
             <div className="space-y-2">
               <input
@@ -134,18 +136,18 @@ function OptimizationSettings({ settings, onChange }: OptimizationSettingsProps)
                 }}
               />
               <div className="flex justify-between text-xs text-gray-500">
-                <span>低品質</span>
+                <span>{t('editor.optimization.lowQuality')}</span>
                 <span className="text-purple-600 font-medium">
-                  {localGifQuality <= 10 ? '高' : localGifQuality <= 20 ? '中' : '低'}
+                  {localGifQuality <= 10 ? t('editor.optimization.high') : localGifQuality <= 20 ? t('editor.optimization.medium') : t('editor.optimization.low')}
                 </span>
-                <span>高品質</span>
+                <span>{t('editor.optimization.highQuality')}</span>
               </div>
             </div>
           </div>
 
           <div>
             <label htmlFor="gifFrames-slider" className="block text-xs font-medium text-gray-600 mb-2">
-              GIFフレーム数
+              {t('editor.optimization.gifFrames')}
             </label>
             <div className="space-y-2">
               <input
@@ -163,9 +165,9 @@ function OptimizationSettings({ settings, onChange }: OptimizationSettingsProps)
                 }}
               />
               <div className="flex justify-between text-xs text-gray-500">
-                <span>少ない</span>
-                <span className="text-purple-600 font-medium">{localGifFrames || 30}フレーム</span>
-                <span>多い</span>
+                <span>{t('editor.optimization.fewFrames')}</span>
+                <span className="text-purple-600 font-medium">{localGifFrames || 30} {t('editor.optimization.frames')}</span>
+                <span>{t('editor.optimization.manyFrames')}</span>
               </div>
             </div>
           </div>
@@ -175,16 +177,16 @@ function OptimizationSettings({ settings, onChange }: OptimizationSettingsProps)
       {/* サイズ最適化のヒント */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
         <p className="text-xs text-blue-800">
-          <strong>ヒント:</strong> Slackの128KB制限に収めるには：
+          <strong>{t('editor.optimization.hint')}:</strong> {t('editor.optimization.slackSizeLimit')}
           {settings.canvasSize === 128 ? (
-            <span className="block mt-1">• 64×64pxに変更すると約75%サイズ削減</span>
+            <span className="block mt-1">• {t('editor.optimization.changeToSmallSize')}</span>
           ) : (
-            <span className="block mt-1">• 現在の64×64px設定で大幅にサイズ削減中</span>
+            <span className="block mt-1">• {t('editor.optimization.currentSmallSize')}</span>
           )}
           {settings.animation !== 'none' && (
             <>
-              <span className="block">• GIF品質を「低」にすると約50%削減</span>
-              <span className="block">• フレーム数を減らすとさらに削減</span>
+              <span className="block">• {t('editor.optimization.lowerGifQuality')}</span>
+              <span className="block">• {t('editor.optimization.reduceFrames')}</span>
             </>
           )}
         </p>

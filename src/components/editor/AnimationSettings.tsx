@@ -2,10 +2,12 @@ import { useState, useRef, useEffect, Suspense, lazy } from 'react'
 import { CANVAS_CONFIG } from '../../constants/canvasConstants'
 import { AnimationSettingsProps } from '../../types/settings'
 import { useDebounce } from '../../hooks/useDebounce'
+import { useLanguage } from '../../contexts/LanguageContext'
 
 const ColorPickerPortal = lazy(() => import('../ColorPickerPortal'))
 
 function AnimationSettings({ settings, onChange, isMobile }: AnimationSettingsProps) {
+  const { t } = useLanguage();
   const [showSecondaryColorPicker, setShowSecondaryColorPicker] = useState(false)
   const secondaryColorButtonRef = useRef(null)
   
@@ -45,15 +47,15 @@ function AnimationSettings({ settings, onChange, isMobile }: AnimationSettingsPr
 
 
   const animations = [
-    { value: 'none', label: 'なし', description: 'アニメーションなし' },
-    { value: 'rainbow', label: 'レインボー', description: '色が虹色に変化' },
-    { value: 'blink', label: '点滅', description: '明滅するエフェクト' },
-    { value: 'rotate', label: '回転', description: '360度回転' },
-    { value: 'bounce', label: 'バウンス', description: '上下に弾む' },
-    { value: 'pulse', label: 'パルス', description: '拡大縮小を繰り返す' },
-    { value: 'glow', label: 'グロー', description: '光るエフェクト' },
-    { value: 'slide', label: 'スライド', description: '左右にスライド' },
-    { value: 'fade', label: 'フェード', description: 'フェードイン/アウト' },
+    { value: 'none', label: t('editor.animation.types.none'), description: t('editor.animation.descriptions.none') },
+    { value: 'rainbow', label: t('editor.animation.types.rainbow'), description: t('editor.animation.descriptions.rainbow') },
+    { value: 'blink', label: t('editor.animation.types.blink'), description: t('editor.animation.descriptions.blink') },
+    { value: 'rotate', label: t('editor.animation.types.rotate'), description: t('editor.animation.descriptions.rotate') },
+    { value: 'bounce', label: t('editor.animation.types.bounce'), description: t('editor.animation.descriptions.bounce') },
+    { value: 'pulse', label: t('editor.animation.types.pulse'), description: t('editor.animation.descriptions.pulse') },
+    { value: 'glow', label: t('editor.animation.types.glow'), description: t('editor.animation.descriptions.glow') },
+    { value: 'slide', label: t('editor.animation.types.slide'), description: t('editor.animation.descriptions.slide') },
+    { value: 'fade', label: t('editor.animation.types.fade'), description: t('editor.animation.descriptions.fade') },
   ]
 
   return (
@@ -61,7 +63,7 @@ function AnimationSettings({ settings, onChange, isMobile }: AnimationSettingsPr
       {/* アニメーション選択 */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-3">
-          アニメーション効果
+          {t('editor.animation.effect')}
         </label>
         <div className={`grid ${isMobile ? 'grid-cols-3 gap-1.5' : 'grid-cols-1 lg:grid-cols-3 gap-3'}`}>
           {animations.map((anim) => (
@@ -93,7 +95,7 @@ function AnimationSettings({ settings, onChange, isMobile }: AnimationSettingsPr
             {/* アニメーション速度 */}
             <div>
               <label htmlFor="animationSpeed-slider" className="block text-sm font-medium text-gray-700 mb-3">
-                アニメーション速度
+                {t('editor.animation.speed')}
               </label>
               <div className="space-y-2">
                 <input
@@ -114,8 +116,8 @@ function AnimationSettings({ settings, onChange, isMobile }: AnimationSettingsPr
                   }}
                 />
                 <div className="flex justify-between text-xs text-gray-500">
-                  <span>遅い</span>
-                  <span>速い</span>
+                  <span>{t('editor.animation.slow')}</span>
+                  <span>{t('editor.animation.fast')}</span>
                 </div>
               </div>
             </div>
@@ -161,7 +163,7 @@ function AnimationSettings({ settings, onChange, isMobile }: AnimationSettingsPr
             {(settings.animation === 'glow' || settings.animation === 'blink') && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-3">
-                  セカンドカラー
+                  {t('editor.animation.secondaryColor')}
                 </label>
                 <div className="relative">
                   <button
@@ -190,8 +192,8 @@ function AnimationSettings({ settings, onChange, isMobile }: AnimationSettingsPr
                 </div>
                 <p className="mt-1 text-xs text-gray-500">
                   {settings.animation === 'glow' 
-                    ? 'グロー効果の光の色' 
-                    : '点滅時の切り替え色'}
+                    ? t('editor.animation.glowColorDescription')
+                    : t('editor.animation.blinkColorDescription')}
                 </p>
               </div>
             )}
@@ -203,8 +205,8 @@ function AnimationSettings({ settings, onChange, isMobile }: AnimationSettingsPr
       {settings.animation !== 'none' && (
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
           <p className="text-sm text-yellow-800">
-            <strong>注意:</strong> アニメーション付きアイコンはGIF形式でエクスポートされます。
-            ファイルサイズが128KBを超える場合は自動的に最適化されます。
+            <strong>{t('editor.animation.note')}:</strong> {t('editor.animation.gifExportNote')}
+            {t('editor.animation.autoOptimizeNote')}
           </p>
         </div>
       )}

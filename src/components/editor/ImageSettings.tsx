@@ -1,14 +1,16 @@
 import { preloadImage } from '../../utils/imageCache'
 import { ImageSettingsProps } from '../../types/settings'
 import { useSliderDebounce } from '../../hooks/useDebounce'
+import { useLanguage } from '../../contexts/LanguageContext'
 
 function ImageSettings({ settings, onChange }: ImageSettingsProps) {
+  const { t } = useLanguage();
   const debouncedOnChange = useSliderDebounce(onChange);
   return (
     <div className="space-y-4">
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          画像を追加
+          {t('editor.image.addImage')}
         </label>
         <div className="space-y-3">
           {/* 画像アップロード */}
@@ -44,14 +46,14 @@ function ImageSettings({ settings, onChange }: ImageSettingsProps) {
                       alt="Uploaded" 
                       className="w-8 h-8 object-contain"
                     />
-                    <span className="text-sm text-gray-600">画像を変更</span>
+                    <span className="text-sm text-gray-600">{t('editor.image.changeImage')}</span>
                   </div>
                 ) : (
                   <div className="flex items-center gap-2">
                     <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                     </svg>
-                    <span className="text-sm text-gray-600">画像を選択</span>
+                    <span className="text-sm text-gray-600">{t('editor.image.selectImage')}</span>
                   </div>
                 )}
               </label>

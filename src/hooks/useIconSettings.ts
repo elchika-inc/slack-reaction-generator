@@ -1,9 +1,29 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { createDefaultSettings, structureSettings, flattenSettings, validateSettings, SettingCategories } from '../types/settings';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export const useIconSettings = () => {
+  const { locale } = useLanguage();
+  
   // 構造化された設定で内部管理
-  const [structuredSettings, setStructuredSettings] = useState(createDefaultSettings);
+  const [structuredSettings, setStructuredSettings] = useState(() => createDefaultSettings(locale));
+  
+  // 言語が変更されたときにテキストのみ更新
+  useEffect(() => {
+    setStructuredSettings(prev => {
+      // テキストが初期値（'いいかも' または 'Good'）の場合のみ更新
+      if (prev.basic.text === 'いいかも' || prev.basic.text === 'Good') {
+        return {
+          ...prev,
+          basic: {
+            ...prev.basic,
+            text: locale === 'en' ? 'Good' : 'いいかも'
+          }
+        };
+      }
+      return prev;
+    });
+  }, [locale]);
   
   // 下位互換性のためフラット形式も提供
   const iconSettings = flattenSettings(structuredSettings);

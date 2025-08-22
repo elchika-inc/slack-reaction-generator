@@ -18,6 +18,7 @@ import {
 import { useIconSettingsContext } from '../contexts/IconSettingsContext';
 import { useCanvasContext } from '../contexts/CanvasContext';
 import { useAppStateContext } from '../contexts/AppStateContext';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface PreviewPanelProps {
   previewData?: string | null;
@@ -27,6 +28,7 @@ interface PreviewPanelProps {
 function PreviewPanel({ previewData, onRegenerate }: PreviewPanelProps) {
   const { iconSettings } = useIconSettingsContext();
   const { isMobile } = useAppStateContext();
+  const { t } = useLanguage();
   const [theme, setTheme] = useState("light");
   const canvasRef = useRef(null);
   const smallCanvasRef = useRef(null);
@@ -245,15 +247,15 @@ function PreviewPanel({ previewData, onRegenerate }: PreviewPanelProps) {
     } catch (error) {
       console.error('Download error:', error);
       // ユーザーにエラーを表示（必要に応じて）
-      alert(`ダウンロードエラー: ${error.message}`);
+      alert(`${t('preview.downloadError')}: ${error.message}`);
     }
   };
 
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
-        title: "Slackアイコン",
-        text: "カスタムSlackアイコンを作成しました！",
+        title: t('preview.shareTitle'),
+        text: t('preview.shareText'),
         url: window.location.href,
       });
     }
@@ -267,7 +269,7 @@ function PreviewPanel({ previewData, onRegenerate }: PreviewPanelProps) {
     >
       {/* テーマ切り替え */}
       <div className="flex justify-center mb-4">
-        <div className="inline-flex rounded-lg border border-gray-200" role="radiogroup" aria-label="プレビューテーマ選択">
+        <div className="inline-flex rounded-lg border border-gray-200" role="radiogroup" aria-label={t('preview.themeSelect')}>
           <button
             onClick={() => setTheme("light")}
             className={`px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-1 ${
@@ -275,9 +277,9 @@ function PreviewPanel({ previewData, onRegenerate }: PreviewPanelProps) {
             }`}
             role="radio"
             aria-checked={theme === "light"}
-            aria-label="ライトテーマ"
+            aria-label={t('preview.lightTheme')}
           >
-            ライト
+            {t('common.light')}
           </button>
           <button
             onClick={() => setTheme("dark")}
@@ -286,9 +288,9 @@ function PreviewPanel({ previewData, onRegenerate }: PreviewPanelProps) {
             }`}
             role="radio"
             aria-checked={theme === "dark"}
-            aria-label="ダークテーマ"
+            aria-label={t('preview.darkTheme')}
           >
-            ダーク
+            {t('common.dark')}
           </button>
         </div>
       </div>
@@ -313,7 +315,7 @@ function PreviewPanel({ previewData, onRegenerate }: PreviewPanelProps) {
               }`}
               id="main-preview-label"
             >
-              実サイズ ({iconSettings.canvasSize || 128}×{iconSettings.canvasSize || 128})
+              {t('preview.actualSize')} ({iconSettings.canvasSize || 128}×{iconSettings.canvasSize || 128})
             </p>
             <canvas
               ref={canvasRef}
@@ -322,7 +324,7 @@ function PreviewPanel({ previewData, onRegenerate }: PreviewPanelProps) {
               className="icon-canvas mx-auto"
               role="img"
               aria-labelledby="main-preview-label"
-              aria-description="作成された絵文字のメインプレビュー表示"
+              aria-description={t('preview.mainPreviewDescription')}
             />
           </div>
 
@@ -334,7 +336,7 @@ function PreviewPanel({ previewData, onRegenerate }: PreviewPanelProps) {
               }`}
               id="slack-preview-label"
             >
-              Slack表示 (32×32)
+              {t('preview.slackSize')} (32×32)
             </p>
             <div className="flex items-center justify-center h-32">
               <canvas
@@ -345,7 +347,7 @@ function PreviewPanel({ previewData, onRegenerate }: PreviewPanelProps) {
                 style={{ imageRendering: "pixelated" }}
                 role="img"
                 aria-labelledby="slack-preview-label"
-                aria-description="Slackアプリでの実際の表示サイズのプレビュー"
+                aria-description={t('preview.slackPreviewDescription')}
               />
             </div>
           </div>
@@ -356,17 +358,17 @@ function PreviewPanel({ previewData, onRegenerate }: PreviewPanelProps) {
       <div className="bg-gray-50 rounded-lg p-3 mb-6">
         <div className="text-xs space-y-1">
           <div className="flex justify-between">
-            <span className="text-gray-600">フォーマット:</span>
+            <span className="text-gray-600">{t('preview.fileInfo.format')}:</span>
             <span className="font-medium">
               {iconSettings.animation !== "none" ? "GIF" : "PNG"}
             </span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-600">サイズ:</span>
+            <span className="text-gray-600">{t('preview.fileInfo.size')}:</span>
             <span className="font-medium">128 × 128px</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-600">推定ファイルサイズ:</span>
+            <span className="text-gray-600">{t('preview.fileInfo.estimatedFileSize')}:</span>
             <span className="font-medium">&lt; 128KB</span>
           </div>
         </div>
@@ -378,7 +380,7 @@ function PreviewPanel({ previewData, onRegenerate }: PreviewPanelProps) {
           <button
             onClick={handleDownload}
             className="w-full btn-primary flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
-            aria-label="作成した絵文字をダウンロード"
+            aria-label={t('preview.downloadButtonLabel')}
           >
             <svg
               className="w-5 h-5 mr-2"
@@ -394,14 +396,14 @@ function PreviewPanel({ previewData, onRegenerate }: PreviewPanelProps) {
                 d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
               />
             </svg>
-            ダウンロード
+            {t('preview.download')}
           </button>
 
           {navigator.share && (
             <button
               onClick={handleShare}
               className="w-full btn-secondary flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
-              aria-label="絵文字作成ページをシェア"
+              aria-label={t('preview.shareButtonLabel')}
             >
               <svg
                 className="w-5 h-5 mr-2"
@@ -417,7 +419,7 @@ function PreviewPanel({ previewData, onRegenerate }: PreviewPanelProps) {
                   d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m9.032 4.026a9.001 9.001 0 01-7.432 0m9.032-4.026A9.001 9.001 0 0112 3c-4.474 0-8.268 3.12-9.032 7.326m0 0A9.001 9.001 0 0012 21c4.474 0 8.268-3.12 9.032-7.326"
                 />
               </svg>
-              シェア
+              {t('preview.share')}
             </button>
           )}
         </div>
@@ -426,12 +428,12 @@ function PreviewPanel({ previewData, onRegenerate }: PreviewPanelProps) {
       {/* Slackへの追加方法 - デスクトップのみ表示 */}
       {!isMobile && (
         <div className="mt-6 pt-6 border-t border-gray-200">
-          <h3 className="text-sm font-medium mb-2">💡 Slackへの追加方法</h3>
+          <h3 className="text-sm font-medium mb-2">{t('preview.slackInstructions.title')}</h3>
           <ol className="text-xs text-gray-600 space-y-1">
-            <li>1. Slackを開き、ワークスペース名をクリック</li>
-            <li>2. 「ワークスペースをカスタマイズ」を選択</li>
-            <li>3. 「カスタム絵文字を追加する」をクリック</li>
-            <li>4. ダウンロードしたファイルをアップロード</li>
+            <li>{t('preview.slackInstructions.step1')}</li>
+            <li>{t('preview.slackInstructions.step2')}</li>
+            <li>{t('preview.slackInstructions.step3')}</li>
+            <li>{t('preview.slackInstructions.step4')}</li>
           </ol>
         </div>
       )}
