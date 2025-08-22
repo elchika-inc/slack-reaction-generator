@@ -1,5 +1,6 @@
-# Robots.txt for Slack Reaction Generator
+# Robots.txt for Slack Reaction Generator / Slack絵文字ジェネレーター
 # https://slack-reaction-generator.elchika.app/
+# Supports both Japanese and English text generation
 
 User-agent: *
 Allow: /

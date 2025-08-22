@@ -1,7 +1,7 @@
 {
   "name": "Slack Reaction Generator",
   "short_name": "Slack絵文字",
-  "description": "Slackのカスタム絵文字を簡単作成",
+  "description": "Slackのカスタム絵文字を簡単作成 / Create custom Slack emojis easily",
   "start_url": "/",
   "display": "standalone",
   "theme_color": "#7c3aed",

@@ -21,6 +21,10 @@
     <meta name="author" content="Slack Reaction Generator" />
     <link rel="canonical" href="https://slack-reaction-generator.elchika.app/" />
     
+    <!-- 国際化対応とhreflang -->
+    <link rel="alternate" hreflang="ja" href="https://slack-reaction-generator.elchika.app/" />
+    <link rel="alternate" hreflang="x-default" href="https://slack-reaction-generator.elchika.app/" />
+    
     <!-- Open Graph Protocol -->
     <meta property="og:title" content="Slack絵文字ジェネレーター | カスタムリアクション作成ツール" />
     <meta property="og:description" content="テキストや画像から簡単にSlackのカスタム絵文字を作成。アニメーション付きGIFやPNG形式で保存可能。" />
@@ -49,7 +53,7 @@
     
     <!-- Additional SEO Meta Tags -->
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-    <meta name="keywords" content="Slack,絵文字,emoji,カスタム絵文字,リアクション,ジェネレーター,作成ツール,GIF,PNG,アニメーション,日本語フォント,無料" />
+    <meta name="keywords" content="Slack,絵文字,emoji,カスタム絵文字,リアクション,ジェネレーター,作成ツール,GIF,PNG,アニメーション,日本語フォント,無料,slack emoji generator,custom emoji,reaction creator,English support" />
     <meta name="format-detection" content="telephone=no" />
     <meta name="geo.region" content="JP" />
     <meta name="geo.country" content="Japan" />
@@ -59,6 +63,11 @@
     <meta name="category" content="Utility" />
     <meta name="target" content="all" />
     <meta name="audience" content="all" />
+    
+    <!-- Performance Hints -->
+    <meta name="referrer" content="no-referrer-when-downgrade" />
+    <meta http-equiv="x-dns-prefetch-control" content="on" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     
     <!-- Google Fontsのプリコネクトとプリロード -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -94,8 +103,8 @@
       "@context": "https://schema.org",
       "@type": "WebApplication",
       "name": "Slack Reaction Generator",
-      "alternateName": "Slack絵文字ジェネレーター",
-      "description": "Slackのカスタム絵文字を簡単作成できるWebアプリケーション。テキスト入力や画像アップロードから、アニメーション付きGIFやPNG形式のリアクション絵文字を無料で生成。",
+      "alternateName": ["Slack絵文字ジェネレーター", "Slack Emoji Generator", "Custom Emoji Creator"],
+      "description": "Slackのカスタム絵文字を簡単作成できるWebアプリケーション。テキスト入力や画像アップロードから、アニメーション付きGIFやPNG形式のリアクション絵文字を無料で生成。英語テキストにも対応。",
       "url": "https://slack-reaction-generator.elchika.app/",
       "applicationCategory": "UtilitiesApplication",
       "operatingSystem": "Any",
@@ -111,7 +120,11 @@
         "アニメーション効果",
         "GIF/PNG形式エクスポート",
         "リアルタイムプレビュー",
-        "日本語フォント対応"
+        "日本語フォント対応",
+        "英語テキスト対応",
+        "カスタムフォントスタイル",
+        "透明背景サポート",
+        "ファイルサイズ最適化"
       ],
       "screenshot": "https://slack-reaction-generator.elchika.app/screenshot.png",
       "author": {
@@ -173,6 +186,20 @@
         "acceptedAnswer": {
           "@type": "Answer",
           "text": "はい、作成した絵文字は自由に使用できます。ただし、アップロードする画像の著作権にはご注意ください。"
+        }
+      }, {
+        "@type": "Question",
+        "name": "英語のテキストでも絵文字を作成できますか？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "はい、日本語だけでなく英語やその他の言語のテキストからも絵文字を作成できます。フォントスタイルも自由に選択できます。"
+        }
+      }, {
+        "@type": "Question",
+        "name": "作成した絵文字のファイルサイズはどれくらいですか？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Slackの制限に合わせて最適化されており、GIFは128KB以下、PNGは64KB以下になるよう自動調整されます。"
         }
       }]
     }

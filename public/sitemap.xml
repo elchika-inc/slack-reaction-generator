@@ -8,10 +8,12 @@
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="ja" href="https://slack-reaction-generator.elchika.app/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://slack-reaction-generator.elchika.app/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://slack-reaction-generator.elchika.app/" />
     <image:image>
       <image:loc>https://slack-reaction-generator.elchika.app/og-image.avif</image:loc>
-      <image:title>Slack絵文字ジェネレーター</image:title>
-      <image:caption>Slackのカスタム絵文字を簡単作成</image:caption>
+      <image:title>Slack絵文字ジェネレーター / Slack Emoji Generator</image:title>
+      <image:caption>Slackのカスタム絵文字を簡単作成 / Create custom Slack emojis easily</image:caption>
     </image:image>
   </url>
 </urlset>
