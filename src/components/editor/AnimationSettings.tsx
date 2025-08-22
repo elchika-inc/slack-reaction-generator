@@ -43,17 +43,6 @@ function AnimationSettings({ settings, onChange, isMobile }: AnimationSettingsPr
     debouncedSpeedChange(value)
   }
 
-  // クリーンアップ
-  useEffect(() => {
-    return () => {
-      if (amplitudeTimeoutRef.current) {
-        clearTimeout(amplitudeTimeoutRef.current)
-      }
-      if (speedTimeoutRef.current) {
-        clearTimeout(speedTimeoutRef.current)
-      }
-    }
-  }, [])
 
   const animations = [
     { value: 'none', label: 'なし', description: 'アニメーションなし' },

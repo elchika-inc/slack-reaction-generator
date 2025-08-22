@@ -79,6 +79,8 @@ export default defineConfig({
         /^lg:/, /^md:/, /^sm:/, /^xl:/,
         // Flexboxとグリッド
         /^flex/, /^grid/, /^gap-/, /^space-/,
+        // z-indexクラスを保護
+        /^z-/, 'z-[1000]', 'z-[1001]', 'fixed', 'absolute', 'relative',
         // Tailwindの重要なユーティリティ
         'sr-only', 'container', 'mx-auto', 'hidden', 'block', 'inline-block',
         'will-change-transform', 'transform', 'scale-95'
