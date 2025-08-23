@@ -14,11 +14,16 @@ export const supportedLocales: Locale[] = ['ja', 'en'];
 
 export type TranslationKey = keyof typeof ja;
 
-export function getNestedValue(obj: any, path: string): string {
-  return path.split('.').reduce((current, key) => current?.[key], obj) || path;
+export function getNestedValue(obj: Record<string, unknown>, path: string): string {
+  return path.split('.').reduce((current: unknown, key: string) => 
+    (current && typeof current === 'object' && key in current) 
+      ? (current as Record<string, unknown>)[key] 
+      : undefined,
+    obj
+  ) as string || path;
 }
 
-export function t(key: string, locale: Locale = defaultLocale, params?: Record<string, any>): string {
+export function t(key: string, locale: Locale = defaultLocale, params?: Record<string, string | number>): string {
   const translations = locales[locale] || locales[defaultLocale];
   let result = getNestedValue(translations, key);
   

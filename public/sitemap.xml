@@ -3,15 +3,15 @@
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://slack-reaction-generator.elchika.app/</loc>
+    <loc>https://slack-emoji-generator.elchika.app/</loc>
     <lastmod>2025-08-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
-    <xhtml:link rel="alternate" hreflang="ja" href="https://slack-reaction-generator.elchika.app/" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://slack-reaction-generator.elchika.app/" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://slack-reaction-generator.elchika.app/" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://slack-emoji-generator.elchika.app/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://slack-emoji-generator.elchika.app/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://slack-emoji-generator.elchika.app/" />
     <image:image>
-      <image:loc>https://slack-reaction-generator.elchika.app/og-image.avif</image:loc>
+      <image:loc>https://slack-emoji-generator.elchika.app/og-image.avif</image:loc>
       <image:title>Slack絵文字ジェネレーター / Slack Emoji Generator</image:title>
       <image:caption>Slackのカスタム絵文字を簡単作成 / Create custom Slack emojis easily</image:caption>
     </image:image>

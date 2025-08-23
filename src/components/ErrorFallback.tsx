@@ -1,4 +1,7 @@
-const ErrorFallback = ({ error, retry, report }) => {
+import React from 'react';
+import { ErrorFallbackProps } from '@/types/components';
+
+const ErrorFallback: React.FC<ErrorFallbackProps> = ({ error, retry, report }) => {
   const isDev = typeof window !== 'undefined' && window.location?.hostname === 'localhost';
   
   // 本番環境では簡素なエラー画面を表示

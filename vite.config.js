@@ -6,16 +6,7 @@ import purgecss from 'vite-plugin-purgecss'
 
 export default defineConfig({
   resolve: {
-    alias: {
-      'react': 'preact/compat',
-      'react-dom': 'preact/compat',
-      'react/jsx-runtime': 'preact/jsx-runtime',
-      '@': '/src',
-      '@/components': '/src/components',
-      '@/hooks': '/src/hooks',
-      '@/utils': '/src/utils',
-      '@/types': '/src/types'
-    }
+    alias: (await import('./config/aliases.js')).aliases
   },
   plugins: [
     react(),

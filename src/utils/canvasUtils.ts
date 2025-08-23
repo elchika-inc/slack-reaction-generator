@@ -19,7 +19,9 @@ const loadGIF = async () => {
   return GIF;
 };
 
-export const generateIconData = async (settings, canvas) => {
+import { FlatSettings } from '../types/settings';
+
+export const generateIconData = async (settings: FlatSettings, canvas?: HTMLCanvasElement | null): Promise<string> => {
   // キャンバスサイズを取得（デフォルト128）
   const canvasSize = settings.canvasSize || CANVAS_CONFIG.SIZE;
   
@@ -62,7 +64,7 @@ export const generateIconData = async (settings, canvas) => {
   return canvas.toDataURL('image/png')
 }
 
-export const drawTextIcon = (ctx, settings) => {
+export const drawTextIcon = (ctx: CanvasRenderingContext2D, settings: FlatSettings): void => {
   // キャンバスサイズを取得
   const canvasSize = settings.canvasSize || CANVAS_CONFIG.SIZE;
   
@@ -253,7 +255,7 @@ const generateAnimatedGIFFallback = async (settings): Promise<string> => {
   }
 };
 
-export const drawAnimationFrame = (ctx, settings, frame, totalFrames) => {
+export const drawAnimationFrame = (ctx: CanvasRenderingContext2D, settings: FlatSettings, frame: number, totalFrames: number): void => {
   const progress = frame / totalFrames;
   const canvasSize = settings.canvasSize || CANVAS_CONFIG.SIZE;
   

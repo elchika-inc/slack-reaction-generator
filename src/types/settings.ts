@@ -59,24 +59,24 @@ export type FlatSettings = BasicSettings & AnimationSettings & ImageSettings & O
 // コンポーネントプロパティの型定義
 export interface BasicSettingsProps {
   settings: FlatSettings;
-  onChange: (key: keyof FlatSettings, value: any) => void;
+  onChange: <K extends keyof FlatSettings>(key: K, value: FlatSettings[K]) => void;
   isMobile: boolean;
 }
 
 export interface AnimationSettingsProps {
   settings: FlatSettings;
-  onChange: (key: keyof FlatSettings, value: any) => void;
+  onChange: <K extends keyof FlatSettings>(key: K, value: FlatSettings[K]) => void;
   isMobile: boolean;
 }
 
 export interface ImageSettingsProps {
   settings: FlatSettings;
-  onChange: (key: keyof FlatSettings, value: any) => void;
+  onChange: <K extends keyof FlatSettings>(key: K, value: FlatSettings[K]) => void;
 }
 
 export interface OptimizationSettingsProps {
   settings: FlatSettings;
-  onChange: (key: keyof FlatSettings, value: any) => void;
+  onChange: <K extends keyof FlatSettings>(key: K, value: FlatSettings[K]) => void;
 }
 
 export const SettingCategories = {

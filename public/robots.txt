@@ -1,5 +1,5 @@
-# Robots.txt for Slack Reaction Generator / Slack絵文字ジェネレーター
-# https://slack-reaction-generator.elchika.app/
+# Robots.txt for Slack Emoji Generator / Slack絵文字ジェネレーター
+# https://slack-emoji-generator.elchika.app/
 # Supports both Japanese and English text generation
 
 User-agent: *
@@ -9,7 +9,7 @@ Disallow: /src/
 Disallow: /__docs__/
 
 # Sitemap location
-Sitemap: https://slack-reaction-generator.elchika.app/sitemap.xml
+Sitemap: https://slack-emoji-generator.elchika.app/sitemap.xml
 
 # Crawl-delay (seconds)
 Crawl-delay: 1

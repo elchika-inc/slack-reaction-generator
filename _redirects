@@ -1,7 +1,7 @@
-# Redirects for Slack Reaction Generator
+# Redirects for Slack Emoji Generator
 
 # WWW to non-WWW redirect (if needed)
-# https://www.slack-reaction-generator.elchika.app/* https://slack-reaction-generator.elchika.app/:splat 301!
+# https://www.slack-emoji-generator.elchika.app/* https://slack-emoji-generator.elchika.app/:splat 301!
 
 # HTTP to HTTPS redirect (handled by Cloudflare automatically)
 

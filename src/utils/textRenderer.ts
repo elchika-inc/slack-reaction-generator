@@ -1,9 +1,10 @@
-import { CANVAS_CONFIG, isDecorativeFont, calculatePadding, calculateFontSize } from '../constants/canvasConstants'
+import { CANVAS_CONFIG, isDecorativeFont, calculatePadding, calculateFontSize } from '../constants/canvasConstants';
+import { FlatSettings } from '../types/settings';
 
 // 統一されたテキスト描画関数
-export const renderText = (ctx, settings, canvasSize = CANVAS_CONFIG.SIZE) => {
+export const renderText = (ctx: CanvasRenderingContext2D, settings: FlatSettings, canvasSize = CANVAS_CONFIG.SIZE): void => {
   
-  const lines = settings.text.split('\n').filter(line => line.trim())
+  const lines: string[] = settings.text.split('\n').filter((line: string) => line.trim())
   const lineCount = lines.length
   
   if (lineCount === 0) return
@@ -43,7 +44,7 @@ export const renderText = (ctx, settings, canvasSize = CANVAS_CONFIG.SIZE) => {
   
   // 各行の幅を計測
   ctx.font = `${fontStyleStr}${fontWeight} ${baseFontSize}px ${fontFamily}`
-  const maxLineWidth = Math.max(...lines.map(line => ctx.measureText(line).width))
+  const maxLineWidth = Math.max(...lines.map((line: string) => ctx.measureText(line).width))
   
   // テキスト全体の高さを計算（装飾的フォントは行間を広く）
   const lineHeight = isDecorative ? baseFontSize * 1.1 : baseFontSize * 0.9

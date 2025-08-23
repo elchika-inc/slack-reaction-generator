@@ -836,7 +836,7 @@ export const createEventBuilder = () => new EventBuilder();
 export const createScenarioBuilder = () => new TestScenarioBuilder();
 
 // 後方互換性のため、元のSettingsBuilderも残す
-export { EnhancedSettingsBuilder as SettingsBuilder };
+// export { EnhancedSettingsBuilder as SettingsBuilder }; // 重複エクスポートを削除
 
 /**
  * 組み合わせプリセット関数
