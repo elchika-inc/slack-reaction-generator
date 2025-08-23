@@ -100,7 +100,7 @@ export const createDefaultSettings = (locale: string = 'ja'): StructuredSettings
   return {
     // 基本設定
     basic: {
-      text: locale === 'en' ? 'Good' : 'いいかも',
+      text: locale === 'en' ? 'Good' : 'いい\nかも',
       fontSize: 60,
       fontFamily: '"Noto Sans JP", sans-serif',
       fontWeight: 'bold' as const,
