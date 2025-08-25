@@ -2,113 +2,108 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Development Commands
+## Common Development Commands
 
-### Essential Commands
+### Development
 ```bash
-# Development
-npm run dev              # Start development server at http://localhost:5173
+npm run dev          # Start development server on http://localhost:5173
+npm run preview      # Preview production build on http://localhost:4173
+```
 
-# Build & Deploy
-npm run build           # Production build with asset optimization
-npm run preview        # Preview production build at http://localhost:4173
-npm run deploy         # Build and deploy to Cloudflare Pages
-
-# Quality Checks
-npm run lint           # Run ESLint checks
-npm run test          # Run Vitest tests
-npm run test:coverage # Run tests with coverage report
-
-# Cleanup
-npm run clean         # Remove dist/, node_modules/.vite/, .wrangler/
+### Build & Deploy
+```bash
+npm run build        # Build for production (includes copying _headers, _redirects, sitemap, robots.txt)
+npm run deploy       # Build and deploy to Cloudflare Pages via Wrangler
+npm run clean        # Clean build artifacts and caches
 ```
 
 ### Testing
 ```bash
-npm run test:watch    # Watch mode for test development
-npm run test:ui       # Interactive UI test runner
-npm run test:run      # Run tests once (CI mode)
+npm test             # Run tests in watch mode
+npm run test:run     # Run tests once
+npm run test:coverage # Run tests with coverage report
+npm run test:ui      # Run tests with UI interface
+npm run test:watch   # Run tests in watch mode
 ```
 
-## Architecture Overview
+### Code Quality
+```bash
+npm run lint         # Run ESLint on src/**/*.{js,jsx}
+```
 
-### Core Technology Stack
-- **Frontend**: Preact (React-compatible but 3KB bundle) aliased as React in vite.config.js
-- **Build Tool**: Vite with aggressive optimization (terser, purgecss, asset inlining)
-- **Styling**: Tailwind CSS with PurgeCSS for minimal bundle
-- **Canvas Rendering**: HTML5 Canvas API for icon generation
-- **GIF Generation**: gif.js library loaded dynamically
-- **Deployment**: Cloudflare Pages with custom headers and redirects
+### Performance
+```bash
+npm run lighthouse   # Run Lighthouse performance monitoring
+npm run lighthouse:ci # Run Lighthouse in CI mode
+```
 
-### Application Structure
+## Project Architecture
 
-The app is a single-page Slack emoji generator with:
+### Technology Stack
+- **Framework**: Preact (aliased as React for compatibility, see config/aliases.js)
+- **Build Tool**: Vite with PWA support
+- **Styling**: Tailwind CSS with PurgeCSS optimization
+- **Language**: TypeScript/JavaScript hybrid (migrating to TypeScript)
+- **Testing**: Vitest with Happy DOM
+- **Deployment**: Cloudflare Pages
 
-1. **Main Entry** (`src/main.jsx`): Mounts App component
-2. **App Component** (`src/App.jsx`): Manages global state and layout
-3. **Component Architecture**:
-   - `IconEditor`: Main editing interface with tabs for different settings
-   - `PreviewPanel`: Real-time canvas preview with download buttons
-   - `editor/` components: Modular settings (Basic, Animation, Image, Optimization)
+### Core Architecture
 
-### State Management Pattern
-- Custom hooks pattern for state encapsulation:
-  - `useIconSettings`: Core icon configuration state
-  - `useCanvasPreview`: Canvas rendering and animation logic
-  - `useFileGeneration`: PNG/GIF export functionality
-  - `useAppState`: Global app state coordination
+#### Canvas-based Icon Generation System
+The application uses a multi-layered architecture for generating Slack-compatible emojis:
 
-### Canvas Rendering Pipeline
-1. **Text/Image Input** → `canvasUtils.js` processing
-2. **Frame Generation** → `frameRenderer.js` for animations
-3. **Export Pipeline** → `canvasFactory.js` creates appropriate canvas instances
-4. **Optimization** → `renderingEngine.js` manages render cycles
+1. **Icon Generators** (`src/utils/canvas/`)
+   - `StaticIconGenerator.ts`: Generates PNG images directly from canvas
+   - `AnimatedIconGenerator.ts`: Creates frame-by-frame GIF animations
+   - `CanvasRenderer.ts`: Core rendering logic for both static and animated icons
+
+2. **Generation Pipeline** (`src/utils/`)
+   - `SafeIconGenerator.ts`: Wrapper with error handling and fallback mechanisms
+   - `SimpleGifGenerator.ts`: Simplified GIF generation interface
+   - `RenderingPipelines.ts`: Orchestrates the rendering process
+   - `GifWorkerManager.ts`: Manages Web Worker for GIF encoding
+
+3. **Context-based State Management** (`src/contexts/`)
+   - `AppContext.tsx`: Global application state
+   - `IconSettingsContext.tsx`: Icon configuration state
+   - `CanvasContext.tsx`: Canvas rendering state
+   - `LanguageContext.tsx`: i18n support (Japanese/English)
+
+### TypeScript Migration
+The project is actively migrating from JavaScript to TypeScript:
+- Strict TypeScript configuration in `tsconfig.json`
+- Path aliases configured for cleaner imports (`@/components`, `@/utils`, etc.)
+- Type definitions in `src/types/`
+- Gradual enforcement of type safety (noUnusedLocals/Parameters currently false)
+
+### Key Design Patterns
+
+1. **Result Pattern**: Error handling using Result<T, E> pattern (`src/utils/Result.ts`)
+2. **Factory Pattern**: Canvas creation abstraction (`src/utils/canvasFactory.ts`)
+3. **Manager Pattern**: Resource management (CanvasManager, GifWorkerManager)
+4. **Component Composition**: Modular UI components with clear separation
 
 ### Performance Optimizations
-- Dynamic imports for heavy libraries (gif.js, react-color)
-- Image caching with `imageCache.js`
-- Network-aware rendering with `networkAware.js`
-- Animation frame debouncing in `animationHelpers.js`
-- Canvas pooling to reduce memory allocation
+- Code splitting and lazy loading (react-color, file-saver, gif.js)
+- Image optimization with inline threshold (4KB)
+- Font preloading and caching
+- PWA with service worker for offline support
+- PurgeCSS for minimal CSS bundle
 
-### Build Configuration
-- **Preact aliasing**: All React imports resolve to Preact for smaller bundle
-- **Asset optimization**: 4KB inline threshold, aggressive minification
-- **CSS splitting**: Enabled for better caching
-- **PurgeCSS safelist**: Preserves dynamic Tailwind classes and animations
+### Testing Strategy
+- Unit tests for utilities and hooks
+- Integration tests for canvas operations
+- Test builders for consistent test data (`src/__tests__/support/builders.js`)
+- Coverage thresholds: 70% for all metrics
 
-## Code Conventions
+## Important Constraints
 
-### Component Patterns
-- Functional components with hooks
-- Lazy loading for heavy components (ColorPicker)
-- Prop spreading avoided for explicit prop passing
-- Event handlers prefixed with `handle` (e.g., `handleTextChange`)
+### Slack Emoji Requirements
+- Maximum size: 128x128 pixels
+- File size limits: GIF max 128KB, others max 64KB
+- Supported formats: PNG, GIF, JPEG
 
-### State Updates
-- Use functional updates for dependent state changes
-- Debounce expensive operations (canvas rendering)
-- Batch related state updates
-
-### Canvas Operations
-- Always clear canvas before drawing
-- Use requestAnimationFrame for animations
-- Dispose of resources (workers, object URLs) in cleanup
-
-### Error Handling
-- Centralized error handler in `utils/errorHandler.js`
-- Graceful fallbacks for unsupported features
-- User-friendly error messages in UI
-
-## Testing Requirements
-- Minimum 70% coverage thresholds (branches, functions, lines, statements)
-- Test files in `__tests__` directories or `*.test.js`
-- Setup file at `src/test/setup.js` for test environment
-- Use Vitest globals (describe, it, expect, vi)
-
-## Deployment Notes
-- Cloudflare Pages deployment via Wrangler
-- Custom headers in `_headers` for security and caching
-- Redirects in `_redirects` for URL handling
-- Static assets in `public/` directory
-- Sitemap and robots.txt for SEO
+### Browser Compatibility
+- Target: ES2015
+- Minimum browser versions: Chrome/Edge 90+, Firefox 88+, Safari 14+
+- Mobile support required
