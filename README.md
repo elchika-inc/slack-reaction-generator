@@ -2,7 +2,7 @@
 
 A web application for creating custom Slack emojis and reactions with ease. Generate animated GIFs and static PNG icons from text or images with real-time preview.
 
-[![Deploy to Cloudflare Pages](https://img.shields.io/badge/Deploy-Cloudflare%20Pages-orange)](https://slack-reaction-generator.elchika.app/)
+[![Deploy to Cloudflare Pages](https://img.shields.io/badge/Deploy-Cloudflare%20Pages-orange)](https://slack-emoji-generator.elchika.app/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ## 🎨 Features
@@ -20,7 +20,7 @@ A web application for creating custom Slack emojis and reactions with ease. Gene
 
 ### For Users
 
-1. Visit [https://slack-reaction-generator.elchika.app/](https://slack-reaction-generator.elchika.app/)
+1. Visit [https://slack-emoji-generator.elchika.app/](https://slack-emoji-generator.elchika.app/)
 2. Enter your text or upload an image
 3. Customize colors, fonts, and animations
 4. Preview your emoji in real-time
@@ -30,7 +30,7 @@ A web application for creating custom Slack emojis and reactions with ease. Gene
 ### Slack Emoji Requirements
 
 - **Size**: Maximum 128x128 pixels
-- **File Size**: 
+- **File Size**:
   - GIF: Maximum 128KB
   - Other formats: Maximum 64KB
 - **Formats**: PNG, GIF, or JPEG
@@ -39,15 +39,15 @@ A web application for creating custom Slack emojis and reactions with ease. Gene
 
 ### Prerequisites
 
-- Node.js 18+ 
+- Node.js 18+
 - npm or yarn
 
 ### Installation
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/slack-reaction-generator.git
-cd slack-reaction-generator
+git clone https://github.com/yourusername/slack-emoji-generator.git
+cd slack-emoji-generator
 
 # Install dependencies
 npm install
@@ -123,17 +123,20 @@ npm run deploy
 ### Key Features Implementation
 
 #### Canvas-Based Icon Generation
+
 - Static icons rendered directly to canvas and exported as PNG
 - Animated icons generated frame-by-frame using gif.js
 - Font preloading and caching for better performance
 
 #### Performance Optimizations
+
 - Lazy loading of heavy libraries (gif.js, file-saver, react-color)
 - Code splitting for optimal bundle sizes
 - Critical CSS inlining for faster initial paint
 - Preact instead of React for smaller bundle size
 
 #### Responsive Design
+
 - Mobile-first approach with breakpoint at 1024px
 - Desktop: Side-by-side editor and preview
 - Mobile: Fixed bottom preview with scrollable editor
@@ -141,16 +144,21 @@ npm run deploy
 ### Configuration
 
 #### Environment Variables
+
 No environment variables required for basic operation.
 
 #### Vite Configuration
+
 See `vite.config.js` for build optimization settings:
+
 - React aliased to Preact for smaller bundle
 - Aggressive minification with Terser
 - Asset optimization with 4KB inline threshold
 
 #### Cloudflare Pages
+
 Configuration in `wrangler.toml`:
+
 - Custom headers in `_headers`
 - Redirects in `_redirects`
 
@@ -209,6 +217,6 @@ For questions or support, please open an issue on GitHub.
 
 ## 🔗 Links
 
-- [Live Demo](https://slack-reaction-generator.elchika.app/)
-- [Documentation](https://github.com/yourusername/slack-reaction-generator/wiki)
-- [Bug Reports](https://github.com/yourusername/slack-reaction-generator/issues)
+- [Live Demo](https://slack-emoji-generator.elchika.app/)
+- [Documentation](https://github.com/yourusername/slack-emoji-generator/wiki)
+- [Bug Reports](https://github.com/yourusername/slack-emoji-generator/issues)

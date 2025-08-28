@@ -54,7 +54,7 @@
 
 ## サポート
 
-- **URL**: https://slack-reaction-generator.elchika.app/
+- **URL**: https://slack-emoji-generator.elchika.app/
 - **ソースコード**: GitHub（リポジトリ公開予定）
 - **問題報告**: GitHubのIssuesにて受付
 

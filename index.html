@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
   <head>
     <meta charset="UTF-8" />
@@ -9,25 +9,31 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/manifest.json" />
-    
+
     <!-- Preload critical resources -->
     <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
     <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    
+
     <!-- SEO Meta Tags -->
     <title>Slack絵文字ジェネレーター | 無料でカスタム絵文字を作成 - Slack Emoji Generator</title>
-    <meta name="description" content="【完全無料】Slackのカスタム絵文字・リアクションを簡単作成！テキストや画像から128×128pxのGIF/PNGを自動生成。日本語・英語対応、アニメーション効果付き、リアルタイムプレビュー機能搭載。" />
+    <meta
+      name="description"
+      content="【完全無料】Slackのカスタム絵文字・リアクションを簡単作成！テキストや画像から128×128pxのGIF/PNGを自動生成。日本語・英語対応、アニメーション効果付き、リアルタイムプレビュー機能搭載。"
+    />
     <meta name="author" content="Slack Emoji Generator" />
     <link rel="canonical" href="https://slack-emoji-generator.elchika.app/" />
-    
+
     <!-- 国際化対応とhreflang -->
     <link rel="alternate" hreflang="ja" href="https://slack-emoji-generator.elchika.app/" />
     <link rel="alternate" hreflang="x-default" href="https://slack-emoji-generator.elchika.app/" />
-    
+
     <!-- Open Graph Protocol -->
     <meta property="og:title" content="Slack絵文字ジェネレーター | 無料でカスタム絵文字を作成" />
-    <meta property="og:description" content="完全無料でSlackのカスタム絵文字を作成。テキストや画像から128×128pxのGIF/PNGを自動生成。日本語・英語対応、アニメーション効果も簡単に追加可能。" />
+    <meta
+      property="og:description"
+      content="完全無料でSlackのカスタム絵文字を作成。テキストや画像から128×128pxのGIF/PNGを自動生成。日本語・英語対応、アニメーション効果も簡単に追加可能。"
+    />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://slack-emoji-generator.elchika.app/" />
     <meta property="og:image" content="https://slack-emoji-generator.elchika.app/og-image.avif" />
@@ -35,14 +41,20 @@
     <meta property="og:image:alt" content="Slack Reaction Generator - カスタム絵文字作成ツール" />
     <meta property="og:site_name" content="Slack Reaction Generator" />
     <meta property="og:locale" content="ja_JP" />
-    
+
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Slack絵文字ジェネレーター | 無料でカスタム絵文字を作成" />
-    <meta name="twitter:description" content="完全無料でSlackのカスタム絵文字を作成。テキストや画像から128×128pxのGIF/PNGを自動生成。日本語・英語対応。" />
-    <meta name="twitter:image" content="https://slack-emoji-generator.elchika.app/twitter-card.avif" />
+    <meta
+      name="twitter:description"
+      content="完全無料でSlackのカスタム絵文字を作成。テキストや画像から128×128pxのGIF/PNGを自動生成。日本語・英語対応。"
+    />
+    <meta
+      name="twitter:image"
+      content="https://slack-emoji-generator.elchika.app/twitter-card.avif"
+    />
     <meta name="twitter:image:alt" content="Slack Reaction Generator - カスタム絵文字作成ツール" />
-    
+
     <!-- Mobile App Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
@@ -50,182 +62,387 @@
     <meta name="apple-mobile-web-app-title" content="Slack絵文字" />
     <meta name="application-name" content="Slack Reaction Generator" />
     <meta name="theme-color" content="#7c3aed" />
-    
+
     <!-- Additional SEO Meta Tags -->
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-    <meta name="keywords" content="Slack絵文字ジェネレーター,Slack emoji generator,カスタム絵文字作成,custom emoji creator,リアクション作成,reaction generator,無料ツール,free tool,128x128,GIF作成,PNG作成,アニメーション絵文字,animated emoji,日本語対応,English support,テキスト絵文字,text emoji,画像変換,image converter,Slack reaction,スラック絵文字" />
+    <meta
+      name="robots"
+      content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    />
+    <meta
+      name="keywords"
+      content="Slack絵文字ジェネレーター,Slack emoji generator,カスタム絵文字作成,custom emoji creator,リアクション作成,reaction generator,無料ツール,free tool,128x128,GIF作成,PNG作成,アニメーション絵文字,animated emoji,日本語対応,English support,テキスト絵文字,text emoji,画像変換,image converter,Slack reaction,スラック絵文字"
+    />
     <meta name="format-detection" content="telephone=no" />
     <meta name="geo.region" content="JP" />
     <meta name="geo.country" content="Japan" />
     <meta name="content-language" content="ja-JP" />
-    <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <meta
+      name="googlebot"
+      content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"
+    />
     <meta name="google" content="notranslate" />
     <meta name="category" content="Utility" />
     <meta name="target" content="all" />
     <meta name="audience" content="all" />
-    
+
     <!-- Performance Hints -->
     <meta name="referrer" content="no-referrer-when-downgrade" />
     <meta http-equiv="x-dns-prefetch-control" content="on" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    
+
     <!-- Google Fontsのプリコネクトとプリロード -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <!-- Critical font preload for CLS prevention -->
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap" media="print" onload="this.media='all'">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap"></noscript>
-    
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript
+      ><link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap"
+    /></noscript>
+
     <!-- Critical CSS inline for faster first paint and CLS prevention -->
     <style>
-      *{margin:0;padding:0;box-sizing:border-box}html{font-family:'Noto Sans JP',-apple-system,BlinkMacSystemFont,'Segoe UI','Roboto','Oxygen','Ubuntu','Cantarell','Fira Sans','Droid Sans','Helvetica Neue',sans-serif;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}body{margin:0;min-height:100vh;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%)}#root{min-height:100vh;display:flex;flex-direction:column}.min-h-screen{min-height:100vh}.bg-gradient-to-br{background-image:linear-gradient(to bottom right,var(--tw-gradient-stops))}.from-purple-600{--tw-gradient-from:#9333ea;--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.to-pink-600{--tw-gradient-to:#db2777}.p-4{padding:1rem}.container{width:100%;margin-right:auto;margin-left:auto}@media (min-width:640px){.container{max-width:640px}}@media (min-width:768px){.container{max-width:768px}}@media (min-width:1024px){.container{max-width:1024px}}@media (min-width:1280px){.container{max-width:1280px}}.text-white{color:#fff}.text-center{text-align:center}.mb-8{margin-bottom:2rem}.text-4xl{font-size:2.25rem;line-height:2.5rem}.font-bold{font-weight:700}.bg-white{background-color:#fff}.rounded-lg{border-radius:.5rem}.shadow-xl{box-shadow:0 20px 25px -5px rgba(0,0,0,.1),0 10px 10px -5px rgba(0,0,0,.04)}.overflow-hidden{overflow:hidden}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}button:focus-visible{outline:2px solid #3b82f6;outline-offset:2px}
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html {
+        font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
+          'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+      #root {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      .min-h-screen {
+        min-height: 100vh;
+      }
+      .bg-gradient-to-br {
+        background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
+      }
+      .from-purple-600 {
+        --tw-gradient-from: #9333ea;
+        --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+      }
+      .to-pink-600 {
+        --tw-gradient-to: #db2777;
+      }
+      .p-4 {
+        padding: 1rem;
+      }
+      .container {
+        width: 100%;
+        margin-right: auto;
+        margin-left: auto;
+      }
+      @media (min-width: 640px) {
+        .container {
+          max-width: 640px;
+        }
+      }
+      @media (min-width: 768px) {
+        .container {
+          max-width: 768px;
+        }
+      }
+      @media (min-width: 1024px) {
+        .container {
+          max-width: 1024px;
+        }
+      }
+      @media (min-width: 1280px) {
+        .container {
+          max-width: 1280px;
+        }
+      }
+      .text-white {
+        color: #fff;
+      }
+      .text-center {
+        text-align: center;
+      }
+      .mb-8 {
+        margin-bottom: 2rem;
+      }
+      .text-4xl {
+        font-size: 2.25rem;
+        line-height: 2.5rem;
+      }
+      .font-bold {
+        font-weight: 700;
+      }
+      .bg-white {
+        background-color: #fff;
+      }
+      .rounded-lg {
+        border-radius: 0.5rem;
+      }
+      .shadow-xl {
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      }
+      .overflow-hidden {
+        overflow: hidden;
+      }
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+      button:focus-visible {
+        outline: 2px solid #3b82f6;
+        outline-offset: 2px;
+      }
       /* Font fallback to prevent CLS */
-      @font-face{font-family:'Noto Sans JP';font-style:normal;font-weight:400;font-display:swap;src:local('Noto Sans JP Regular'),local('NotoSansJP-Regular')}
-      @font-face{font-family:'Noto Sans JP';font-style:normal;font-weight:700;font-display:swap;src:local('Noto Sans JP Bold'),local('NotoSansJP-Bold')}
-      @font-face{font-family:'Noto Sans JP';font-style:normal;font-weight:900;font-display:swap;src:local('Noto Sans JP Black'),local('NotoSansJP-Black')}
+      @font-face {
+        font-family: 'Noto Sans JP';
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+        src: local('Noto Sans JP Regular'), local('NotoSansJP-Regular');
+      }
+      @font-face {
+        font-family: 'Noto Sans JP';
+        font-style: normal;
+        font-weight: 700;
+        font-display: swap;
+        src: local('Noto Sans JP Bold'), local('NotoSansJP-Bold');
+      }
+      @font-face {
+        font-family: 'Noto Sans JP';
+        font-style: normal;
+        font-weight: 900;
+        font-display: swap;
+        src: local('Noto Sans JP Black'), local('NotoSansJP-Black');
+      }
       /* Prevent layout shift for buttons and text */
-      button{min-height:44px;transform:translateZ(0)}
+      button {
+        min-height: 44px;
+        transform: translateZ(0);
+      }
       /* Reserve space for dynamic content */
-      .space-y-4{min-height:200px}
-      .space-y-4>*+*{margin-top:1rem}
-      .mt-6{margin-top:1.5rem}
+      .space-y-4 {
+        min-height: 200px;
+      }
+      .space-y-4 > * + * {
+        margin-top: 1rem;
+      }
+      .mt-6 {
+        margin-top: 1.5rem;
+      }
       /* Font size antiflash */
-      h1,h2,h3,h4,h5,h6{line-height:1.2;font-size-adjust:0.5}
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        line-height: 1.2;
+        font-size-adjust: 0.5;
+      }
       /* Optimize animations */
-      .transition-all{transition:transform 150ms cubic-bezier(0.4,0,0.2,1),opacity 150ms cubic-bezier(0.4,0,0.2,1)}
-      .active\:scale-95:active{transform:scale(0.95)}
+      .transition-all {
+        transition: transform 150ms cubic-bezier(0.4, 0, 0.2, 1),
+          opacity 150ms cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .active\:scale-95:active {
+        transform: scale(0.95);
+      }
     </style>
-    
+
     <!-- JSON-LD Structured Data -->
     <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "Slack絵文字ジェネレーター - Slack Emoji Generator",
-      "alternateName": ["Slack Emoji Generator", "Slack Reaction Generator", "Custom Emoji Creator", "スラック絵文字作成ツール"],
-      "description": "【完全無料】Slackのカスタム絵文字・リアクションを簡単作成できるWebアプリケーション。テキスト入力や画像アップロードから128×128pxの絵文字を自動生成。GIF/PNG形式、アニメーション効果付き。日本語・英語対応。",
-      "url": "https://slack-emoji-generator.elchika.app/",
-      "applicationCategory": "UtilitiesApplication",
-      "operatingSystem": "Any",
-      "browserRequirements": "HTML5対応ブラウザ",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "JPY"
-      },
-      "featureList": [
-        "テキストから絵文字生成",
-        "画像アップロード対応",
-        "アニメーション効果",
-        "GIF/PNG形式エクスポート",
-        "リアルタイムプレビュー",
-        "日本語フォント対応",
-        "英語テキスト対応",
-        "カスタムフォントスタイル",
-        "透明背景サポート",
-        "ファイルサイズ最適化"
-      ],
-      "screenshot": "https://slack-reaction-generator.elchika.app/screenshot.png",
-      "author": {
-        "@type": "Person",
-        "name": "Slack Emoji Generator Developer",
-        "url": "https://slack-emoji-generator.elchika.app/"
-      },
-      "datePublished": "2025-01-15",
-      "dateModified": "2025-08-28",
-      "softwareVersion": "1.3.0",
-      "inLanguage": "ja",
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": "4.9",
-        "ratingCount": "256",
-        "bestRating": "5",
-        "worstRating": "1"
-      },
-      "potentialAction": {
-        "@type": "UseAction",
-        "target": "https://slack-emoji-generator.elchika.app/",
-        "name": "Slack絵文字を作成する"
-      },
-      "isAccessibleForFree": true,
-      "sameAs": [
-        "https://github.com/naoto24kawa/slack-reaction-generator"
-      ]
-    }
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Slack絵文字ジェネレーター - Slack Emoji Generator",
+        "alternateName": [
+          "Slack Emoji Generator",
+          "Slack Reaction Generator",
+          "Custom Emoji Creator",
+          "スラック絵文字作成ツール"
+        ],
+        "description": "【完全無料】Slackのカスタム絵文字・リアクションを簡単作成できるWebアプリケーション。テキスト入力や画像アップロードから128×128pxの絵文字を自動生成。GIF/PNG形式、アニメーション効果付き。日本語・英語対応。",
+        "url": "https://slack-emoji-generator.elchika.app/",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Any",
+        "browserRequirements": "HTML5対応ブラウザ",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "JPY"
+        },
+        "featureList": [
+          "テキストから絵文字生成",
+          "画像アップロード対応",
+          "アニメーション効果",
+          "GIF/PNG形式エクスポート",
+          "リアルタイムプレビュー",
+          "日本語フォント対応",
+          "英語テキスト対応",
+          "カスタムフォントスタイル",
+          "透明背景サポート",
+          "ファイルサイズ最適化"
+        ],
+        "screenshot": "https://slack-emoji-generator.elchika.app/screenshot.png",
+        "author": {
+          "@type": "Person",
+          "name": "Slack Emoji Generator Developer",
+          "url": "https://slack-emoji-generator.elchika.app/"
+        },
+        "datePublished": "2025-01-15",
+        "dateModified": "2025-08-28",
+        "softwareVersion": "1.3.0",
+        "inLanguage": "ja",
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.9",
+          "ratingCount": "256",
+          "bestRating": "5",
+          "worstRating": "1"
+        },
+        "potentialAction": {
+          "@type": "UseAction",
+          "target": "https://slack-emoji-generator.elchika.app/",
+          "name": "Slack絵文字を作成する"
+        },
+        "isAccessibleForFree": true,
+        "sameAs": ["https://github.com/naoto24kawa/slack-reaction-generator"]
+      }
     </script>
-    
+
     <!-- BreadcrumbList Schema -->
     <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      "itemListElement": [{
-        "@type": "ListItem",
-        "position": 1,
-        "name": "ホーム",
-        "item": "https://slack-reaction-generator.elchika.app/"
-      }]
-    }
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "ホーム",
+            "item": "https://slack-emoji-generator.elchika.app/"
+          }
+        ]
+      }
     </script>
-    
+
     <!-- FAQPage Schema -->
     <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "mainEntity": [{
-        "@type": "Question",
-        "name": "Slackの絵文字サイズ制限は？",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Slackのカスタム絵文字は128x128ピクセル以下、ファイルサイズはGIFで128KB、その他の形式で64KB以下である必要があります。"
-        }
-      }, {
-        "@type": "Question",
-        "name": "どのような画像形式に対応していますか？",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "PNG、GIF、JPEG形式に対応しています。透明背景が必要な場合はPNGまたはGIFを推奨します。"
-        }
-      }, {
-        "@type": "Question",
-        "name": "作成した絵文字は商用利用できますか？",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "はい、作成した絵文字は自由に使用できます。ただし、アップロードする画像の著作権にはご注意ください。"
-        }
-      }, {
-        "@type": "Question",
-        "name": "英語のテキストでも絵文字を作成できますか？",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "はい、日本語だけでなく英語やその他の言語のテキストからも絵文字を作成できます。フォントスタイルも自由に選択できます。"
-        }
-      }, {
-        "@type": "Question",
-        "name": "作成した絵文字のファイルサイズはどれくらいですか？",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Slackの制限に合わせて最適化されており、GIFは128KB以下、PNGは64KB以下になるよう自動調整されます。"
-        }
-      }]
-    }
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Slackの絵文字サイズ制限は？",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Slackのカスタム絵文字は128x128ピクセル以下、ファイルサイズはGIFで128KB、その他の形式で64KB以下である必要があります。"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "どのような画像形式に対応していますか？",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "PNG、GIF、JPEG形式に対応しています。透明背景が必要な場合はPNGまたはGIFを推奨します。"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "作成した絵文字は商用利用できますか？",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "はい、作成した絵文字は自由に使用できます。ただし、アップロードする画像の著作権にはご注意ください。"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "英語のテキストでも絵文字を作成できますか？",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "はい、日本語だけでなく英語やその他の言語のテキストからも絵文字を作成できます。フォントスタイルも自由に選択できます。"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "作成した絵文字のファイルサイズはどれくらいですか？",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Slackの制限に合わせて最適化されており、GIFは128KB以下、PNGは64KB以下になるよう自動調整されます。"
+            }
+          }
+        ]
+      }
     </script>
   </head>
   <body>
     <div id="root">
       <!-- Loading placeholder for better UX -->
-      <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%)" role="main" aria-label="アプリケーション読み込み中">
-        <div style="text-align:center;color:white">
-          <div style="width:50px;height:50px;border:5px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 20px" role="progressbar" aria-label="読み込み中"></div>
+      <div
+        style="
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        "
+        role="main"
+        aria-label="アプリケーション読み込み中"
+      >
+        <div style="text-align: center; color: white">
+          <div
+            style="
+              width: 50px;
+              height: 50px;
+              border: 5px solid rgba(255, 255, 255, 0.3);
+              border-top-color: white;
+              border-radius: 50%;
+              animation: spin 1s linear infinite;
+              margin: 0 auto 20px;
+            "
+            role="progressbar"
+            aria-label="読み込み中"
+          ></div>
           <p aria-live="polite">アプリケーションを読み込んでいます...</p>
-          <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+          <style>
+            @keyframes spin {
+              to {
+                transform: rotate(360deg);
+              }
+            }
+          </style>
         </div>
       </div>
     </div>
     <script type="module" src="/src/main.tsx"></script>
-    
+
     <!-- Intersection Observer for lazy loading -->
     <script>
       if ('IntersectionObserver' in window) {
@@ -239,7 +456,7 @@
             }
           });
         });
-        
+
         document.addEventListener('DOMContentLoaded', () => {
           const lazyImages = document.querySelectorAll('img.lazy');
           lazyImages.forEach(img => imageObserver.observe(img));

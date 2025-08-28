@@ -1,53 +1,53 @@
 # Slack リアクションジェネレーター
 
-Slackのカスタム絵文字・リアクションを簡単に作成できるWebアプリケーションです。テキストや画像からアニメーション付きGIFや静止画PNGアイコンをリアルタイムプレビューで生成できます。
+Slack のカスタム絵文字・リアクションを簡単に作成できる Web アプリケーションです。テキストや画像からアニメーション付き GIF や静止画 PNG アイコンをリアルタイムプレビューで生成できます。
 
-[![Cloudflare Pagesへデプロイ](https://img.shields.io/badge/Deploy-Cloudflare%20Pages-orange)](https://slack-reaction-generator.elchika.app/)
+[![Cloudflare Pagesへデプロイ](https://img.shields.io/badge/Deploy-Cloudflare%20Pages-orange)](https://slack-emoji-generator.elchika.app/)
 [![ライセンス](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ## 🎨 機能
 
 - **テキストから絵文字生成**: 様々なフォントとスタイルで任意のテキストからカスタム絵文字を作成
-- **画像アップロード対応**: 画像をSlack対応の絵文字に変換
+- **画像アップロード対応**: 画像を Slack 対応の絵文字に変換
 - **アニメーション効果**: バウンス、シェイク、回転、パルス、スライドなどのアニメーションを追加
 - **リアルタイムプレビュー**: カスタマイズ中の変更を即座に確認
-- **複数の出力形式**: PNG（静止画）またはGIF（アニメーション）でダウンロード
+- **複数の出力形式**: PNG（静止画）または GIF（アニメーション）でダウンロード
 - **モバイル対応**: デスクトップとモバイルデバイスでシームレスに動作
-- **日本語フォント対応**: Noto Sans JPによる日本語文字の完全サポート
+- **日本語フォント対応**: Noto Sans JP による日本語文字の完全サポート
 - **サーバー不要**: プライバシーと高速性のため、すべてブラウザ内で処理
 
 ## 🚀 クイックスタート
 
 ### ユーザー向け
 
-1. [https://slack-reaction-generator.elchika.app/](https://slack-reaction-generator.elchika.app/) にアクセス
+1. [https://slack-emoji-generator.elchika.app/](https://slack-emoji-generator.elchika.app/) にアクセス
 2. テキストを入力するか画像をアップロード
 3. 色、フォント、アニメーションをカスタマイズ
 4. リアルタイムで絵文字をプレビュー
-5. PNGまたはGIFでダウンロード
-6. Slackワークスペースにアップロード
+5. PNG または GIF でダウンロード
+6. Slack ワークスペースにアップロード
 
-### Slack絵文字の要件
+### Slack 絵文字の要件
 
-- **サイズ**: 最大128x128ピクセル
-- **ファイルサイズ**: 
-  - GIF: 最大128KB
-  - その他の形式: 最大64KB
-- **形式**: PNG、GIF、またはJPEG
+- **サイズ**: 最大 128x128 ピクセル
+- **ファイルサイズ**:
+  - GIF: 最大 128KB
+  - その他の形式: 最大 64KB
+- **形式**: PNG、GIF、または JPEG
 
 ## 💻 開発者向け
 
 ### 必要条件
 
-- Node.js 18以上
-- npmまたはyarn
+- Node.js 18 以上
+- npm または yarn
 
 ### インストール
 
 ```bash
 # リポジトリをクローン
-git clone https://github.com/yourusername/slack-reaction-generator.git
-cd slack-reaction-generator
+git clone https://github.com/yourusername/slack-emoji-generator.git
+cd slack-emoji-generator
 
 # 依存関係をインストール
 npm install
@@ -81,7 +81,7 @@ npm run clean
 
 ### デプロイ
 
-アプリケーションはCloudflare Pagesへのデプロイ用に設定されています：
+アプリケーションは Cloudflare Pages へのデプロイ用に設定されています：
 
 ```bash
 # Cloudflare Pagesへデプロイ
@@ -112,45 +112,53 @@ npm run deploy
 
 ### 技術スタック
 
-- **フロントエンドフレームワーク**: Preact（React互換、バンドルサイズ削減）
+- **フロントエンドフレームワーク**: Preact（React 互換、バンドルサイズ削減）
 - **ビルドツール**: Vite
 - **スタイリング**: Tailwind CSS
-- **Canvas API**: 画像生成用HTML5 Canvas
-- **GIF生成**: gif.jsライブラリ
+- **Canvas API**: 画像生成用 HTML5 Canvas
+- **GIF 生成**: gif.js ライブラリ
 - **デプロイ**: Cloudflare Pages
-- **PWA**: Progressive Web App機能
+- **PWA**: Progressive Web App 機能
 
 ### 主要機能の実装
 
-#### Canvasベースのアイコン生成
-- 静的アイコンは直接Canvasにレンダリングし、PNGとしてエクスポート
-- アニメーションアイコンはgif.jsを使用してフレームごとに生成
+#### Canvas ベースのアイコン生成
+
+- 静的アイコンは直接 Canvas にレンダリングし、PNG としてエクスポート
+- アニメーションアイコンは gif.js を使用してフレームごとに生成
 - パフォーマンス向上のためのフォントプリロードとキャッシング
 
 #### パフォーマンス最適化
+
 - 重いライブラリ（gif.js、file-saver、react-color）の遅延読み込み
 - 最適なバンドルサイズのためのコード分割
-- 初期描画高速化のためのクリティカルCSSインライン化
-- バンドルサイズ削減のためReactの代わりにPreactを使用
+- 初期描画高速化のためのクリティカル CSS インライン化
+- バンドルサイズ削減のため React の代わりに Preact を使用
 
 #### レスポンシブデザイン
-- 1024pxブレークポイントのモバイルファーストアプローチ
+
+- 1024px ブレークポイントのモバイルファーストアプローチ
 - デスクトップ: エディタとプレビューを並べて表示
 - モバイル: スクロール可能なエディタと固定された下部プレビュー
 
 ### 設定
 
 #### 環境変数
+
 基本的な動作に環境変数は不要です。
 
-#### Vite設定
+#### Vite 設定
+
 ビルド最適化設定は `vite.config.js` を参照：
-- 小さいバンドルのためReactをPreactにエイリアス
-- Terserによる積極的な圧縮
-- 4KBインラインしきい値でのアセット最適化
+
+- 小さいバンドルのため React を Preact にエイリアス
+- Terser による積極的な圧縮
+- 4KB インラインしきい値でのアセット最適化
 
 #### Cloudflare Pages
+
 `wrangler.toml` での設定：
+
 - `_headers` でのカスタムヘッダー
 - `_redirects` でのリダイレクト
 
@@ -180,35 +188,35 @@ npm run test:ui
 
 ### ブラウザサポート
 
-- Chrome/Edge 90以上
-- Firefox 88以上
-- Safari 14以上
+- Chrome/Edge 90 以上
+- Firefox 88 以上
+- Safari 14 以上
 - モバイルブラウザ（iOS Safari、Chrome Mobile）
 
 ### パフォーマンスメトリクス
 
-- Lighthouseスコア: 95以上（パフォーマンス）
-- First Contentful Paint: 1.5秒未満
-- Time to Interactive: 3.5秒未満
-- バンドルサイズ: 200KB未満（gzip圧縮）
+- Lighthouse スコア: 95 以上（パフォーマンス）
+- First Contentful Paint: 1.5 秒未満
+- Time to Interactive: 3.5 秒未満
+- バンドルサイズ: 200KB 未満（gzip 圧縮）
 
 ## 📝 ライセンス
 
-このプロジェクトはMITライセンスの下でライセンスされています - 詳細は[LICENSE](LICENSE)ファイルを参照してください。
+このプロジェクトは MIT ライセンスの下でライセンスされています - 詳細は[LICENSE](LICENSE)ファイルを参照してください。
 
 ## 🙏 謝辞
 
-- [gif.js](https://github.com/jnordberg/gif.js) - JavaScriptでのGIFエンコーディング
-- [Preact](https://preactjs.com/) - Reactの高速3kB代替
-- [Tailwind CSS](https://tailwindcss.com/) - ユーティリティファーストCSSフレームワーク
+- [gif.js](https://github.com/jnordberg/gif.js) - JavaScript での GIF エンコーディング
+- [Preact](https://preactjs.com/) - React の高速 3kB 代替
+- [Tailwind CSS](https://tailwindcss.com/) - ユーティリティファースト CSS フレームワーク
 - [Vite](https://vitejs.dev/) - 次世代フロントエンドツール
 
 ## 📧 お問い合わせ
 
-質問やサポートについては、GitHubでissueを開いてください。
+質問やサポートについては、GitHub で issue を開いてください。
 
 ## 🔗 リンク
 
-- [ライブデモ](https://slack-reaction-generator.elchika.app/)
-- [ドキュメント](https://github.com/yourusername/slack-reaction-generator/wiki)
-- [バグレポート](https://github.com/yourusername/slack-reaction-generator/issues)
+- [ライブデモ](https://slack-emoji-generator.elchika.app/)
+- [ドキュメント](https://github.com/yourusername/slack-emoji-generator/wiki)
+- [バグレポート](https://github.com/yourusername/slack-emoji-generator/issues)

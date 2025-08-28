@@ -215,7 +215,7 @@ gif.render();
 ### 開発環境セットアップ
 ```bash
 git clone [repository-url]
-cd slack-reaction-generator
+cd slack-emoji-generator
 npm install
 npm run dev
 ```
@@ -240,7 +240,7 @@ copies of the Software.
 
 ## お問い合わせ
 
-- **Website**: https://slack-reaction-generator.elchika.app/
+- **Website**: https://slack-emoji-generator.elchika.app/
 - **Email**: support@example.com
 - **GitHub Issues**: [repository-url]/issues
 
