@@ -55,7 +55,11 @@
         "pulse": "Pulse",
         "glow": "Glow",
         "slide": "Slide",
-        "fade": "Fade"
+        "fade": "Fade",
+        "confetti": "Confetti",
+        "confettiCannon": "Cannon",
+        "stars": "Stars",
+        "snow": "Snow"
       },
       "descriptions": {
         "none": "No animation",
@@ -66,7 +70,11 @@
         "pulse": "Repeating scale effect",
         "glow": "Glowing effect",
         "slide": "Sliding left and right",
-        "fade": "Fade in/out"
+        "fade": "Fade in/out",
+        "confetti": "Colorful confetti falling",
+        "confettiCannon": "Shoots from sides alternately",
+        "stars": "Twinkling golden stars dancing",
+        "snow": "Delicate snowflakes gently falling"
       },
       "slow": "Slow",
       "fast": "Fast",

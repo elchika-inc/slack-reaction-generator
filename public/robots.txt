@@ -1,12 +1,24 @@
 # Robots.txt for Slack Emoji Generator / Slack絵文字ジェネレーター
 # https://slack-emoji-generator.elchika.app/
-# Supports both Japanese and English text generation
+# Free online tool to create custom Slack emojis from text and images
+# 無料でSlackのカスタム絵文字を作成できるWebツール
 
 User-agent: *
 Allow: /
+Allow: /index.html
+Allow: /manifest.json
+Allow: /favicon.ico
+Allow: /*.png
+Allow: /*.jpg
+Allow: /*.jpeg
+Allow: /*.avif
+Allow: /*.webp
+Allow: /*.svg
 Disallow: /node_modules/
 Disallow: /src/
 Disallow: /__docs__/
+Disallow: /.git/
+Disallow: /dist/
 
 # Sitemap location
 Sitemap: https://slack-emoji-generator.elchika.app/sitemap.xml

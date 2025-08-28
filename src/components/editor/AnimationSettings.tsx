@@ -56,6 +56,10 @@ function AnimationSettings({ settings, onChange, isMobile }: AnimationSettingsPr
     { value: 'glow', label: t('editor.animation.types.glow'), description: t('editor.animation.descriptions.glow') },
     { value: 'slide', label: t('editor.animation.types.slide'), description: t('editor.animation.descriptions.slide') },
     { value: 'fade', label: t('editor.animation.types.fade'), description: t('editor.animation.descriptions.fade') },
+    { value: 'confetti', label: t('editor.animation.types.confetti'), description: t('editor.animation.descriptions.confetti') },
+    { value: 'confetti-cannon', label: t('editor.animation.types.confettiCannon'), description: t('editor.animation.descriptions.confettiCannon') },
+    { value: 'stars', label: t('editor.animation.types.stars'), description: t('editor.animation.descriptions.stars') },
+    { value: 'snow', label: t('editor.animation.types.snow'), description: t('editor.animation.descriptions.snow') },
   ]
 
   return (
@@ -69,7 +73,32 @@ function AnimationSettings({ settings, onChange, isMobile }: AnimationSettingsPr
           {animations.map((anim) => (
             <button
               key={anim.value}
-              onClick={() => onChange({ animation: anim.value })}
+              onClick={() => {
+                // 紙吹雪系アニメーションの場合、適切な速度も一緒に設定
+                if (anim.value === 'confetti') {
+                  onChange({ 
+                    animation: anim.value,
+                    animationSpeed: 70 // ゆっくり落ちる（値が大きいほど遅い）
+                  });
+                } else if (anim.value === 'confetti-cannon') {
+                  onChange({ 
+                    animation: anim.value,
+                    animationSpeed: 60 // 発射サイクルが適切に見える速度（値が大きいほど遅い）
+                  });
+                } else if (anim.value === 'stars') {
+                  onChange({ 
+                    animation: anim.value,
+                    animationSpeed: 65 // 星がゆっくりキラキラ舞う速度
+                  });
+                } else if (anim.value === 'snow') {
+                  onChange({ 
+                    animation: anim.value,
+                    animationSpeed: 75 // 雪がゆっくり舞い散る速度
+                  });
+                } else {
+                  onChange({ animation: anim.value });
+                }
+              }}
               className={`
                 ${isMobile ? 'py-2 px-1' : 'p-3'} rounded-lg border ${isMobile ? 'text-center' : 'text-left'} transition-scale transition-gpu active:scale-95
                 ${

@@ -55,7 +55,11 @@
         "pulse": "パルス",
         "glow": "グロー",
         "slide": "スライド",
-        "fade": "フェード"
+        "fade": "フェード",
+        "confetti": "紙吹雪",
+        "confettiCannon": "クラッカー",
+        "stars": "星空",
+        "snow": "雪"
       },
       "descriptions": {
         "none": "アニメーションなし",
@@ -66,7 +70,11 @@
         "pulse": "拡大縮小を繰り返す",
         "glow": "光るエフェクト",
         "slide": "左右にスライド",
-        "fade": "フェードイン/アウト"
+        "fade": "フェードイン/アウト",
+        "confetti": "カラフルな紙吹雪が舞う",
+        "confettiCannon": "左右から交互に発射",
+        "stars": "キラキラ星が舞い踊る",
+        "snow": "雪の結晶がひらひら舞う"
       },
       "slow": "遅い",
       "fast": "速い",
