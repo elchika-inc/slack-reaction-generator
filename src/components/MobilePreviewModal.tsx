@@ -3,6 +3,7 @@ import { saveAs } from 'file-saver'
 // gifencライブラリを使用（透明背景サポート向上）
 import { generateIconData, drawAnimationFrame } from '../utils/canvasUtils'
 import { useLanguage } from '../contexts/LanguageContext'
+import { SocialShareButtons } from './preview/SocialShareButtons'
 // 従来のgif.jsを使いたい場合は以下をコメントアウト解除
 
 function MobilePreviewModal({ isOpen, onClose, settings }) {
@@ -84,25 +85,6 @@ function MobilePreviewModal({ isOpen, onClose, settings }) {
     }
   }
 
-  const handleShare = async () => {
-    if (navigator.share && dataUrl) {
-      try {
-        const response = await fetch(dataUrl)
-        const blob = await response.blob()
-        const file = new File([blob], `slack-icon.${settings.animation !== 'none' ? 'gif' : 'png'}`, { 
-          type: settings.animation !== 'none' ? 'image/gif' : 'image/png' 
-        })
-        
-        await navigator.share({
-          files: [file],
-          title: t('preview.shareTitle'),
-          text: t('preview.shareText'),
-        })
-      } catch (err) {
-        // Share error
-      }
-    }
-  }
 
   if (!isOpen) return null
 
@@ -232,19 +214,10 @@ function MobilePreviewModal({ isOpen, onClose, settings }) {
               </svg>
               <span>ダウンロード</span>
             </button>
-            
-            {navigator.share && (
-              <button
-                onClick={handleShare}
-                className="flex items-center justify-center space-x-2 bg-gray-200 text-gray-700 py-4 rounded-xl font-medium active:scale-95 transition-transform"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m9.032 4.026a9.001 9.001 0 01-7.432 0m9.032-4.026A9.001 9.001 0 0112 3c-4.474 0-8.268 3.12-9.032 7.326m0 0A9.001 9.001 0 0012 21c4.474 0 8.268-3.12 9.032-7.326" />
-                </svg>
-                <span>シェア</span>
-              </button>
-            )}
           </div>
+
+          {/* SNSシェアボタン */}
+          <SocialShareButtons />
 
           {/* Slackへの追加方法 */}
           <div className="bg-blue-50 rounded-xl p-4">

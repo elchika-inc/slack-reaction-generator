@@ -11,13 +11,13 @@ export const useIconSettings = () => {
   // 言語が変更されたときにテキストのみ更新
   useEffect(() => {
     setStructuredSettings(prev => {
-      // テキストが初期値（'いいかも' または 'Good'）の場合のみ更新
-      if (prev.basic.text === 'いいかも' || prev.basic.text === 'Good') {
+      // テキストが初期値の場合のみ更新
+      if (prev.basic.text === 'いいかも' || prev.basic.text === 'いい\nかも' || prev.basic.text === 'Good') {
         return {
           ...prev,
           basic: {
             ...prev.basic,
-            text: locale === 'en' ? 'Good' : 'いいかも'
+            text: locale === 'en' ? 'Good' : 'いい\nかも'
           }
         };
       }

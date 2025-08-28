@@ -136,6 +136,13 @@
     "shareText": "カスタムSlackアイコンを作成しました！",
     "downloadError": "ダウンロードエラー",
     "share": "シェア",
+    "shareOn": "SNSでシェア",
+    "shareOnX": "Xでシェア",
+    "shareOnFacebook": "Facebookでシェア",
+    "shareOnLinkedIn": "LinkedInでシェア",
+    "shareOnSlack": "Slackでシェア",
+    "shareButtonLabel": "シェアボタン",
+    "downloadButtonLabel": "ダウンロードボタン",
     "fileInfo": {
       "format": "フォーマット",
       "size": "サイズ",

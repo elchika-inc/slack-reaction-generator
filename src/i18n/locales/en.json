@@ -136,6 +136,13 @@
     "shareText": "Created a custom Slack icon!",
     "downloadError": "Download error",
     "share": "Share",
+    "shareOn": "Share on",
+    "shareOnX": "Share on X",
+    "shareOnFacebook": "Share on Facebook",
+    "shareOnLinkedIn": "Share on LinkedIn",
+    "shareOnSlack": "Share on Slack",
+    "shareButtonLabel": "Share button",
+    "downloadButtonLabel": "Download button",
     "fileInfo": {
       "format": "Format",
       "size": "Size",

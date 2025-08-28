@@ -27,15 +27,6 @@ function PreviewPanel({ previewData, onRegenerate }: PreviewPanelProps) {
     });
   };
 
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: t('preview.shareTitle'),
-        text: t('preview.shareText'),
-        url: window.location.href,
-      });
-    }
-  };
 
   return (
     <div
@@ -108,8 +99,6 @@ function PreviewPanel({ previewData, onRegenerate }: PreviewPanelProps) {
       {!isMobile && (
         <ActionButtons
           onDownload={handleDownload}
-          onShare={handleShare}
-          showShare={!!navigator.share}
         />
       )}
 
